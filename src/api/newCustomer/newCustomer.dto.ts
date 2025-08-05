@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const customerDetailsValidation = Joi.object({
+export const newCustomerDetailsValidation = Joi.object({
   customerName: Joi.string().required(),
   mobile:Joi.string().required(),
   location: Joi.string().required(),

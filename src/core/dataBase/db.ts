@@ -2,9 +2,28 @@ import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { customerDetails } from "../../api/customer/customer.model";
+import { domainMaster } from "../../api/domainMaster/domainMaster.model";
+import { userDetails } from "../../api/userDetails/userDetails.model";
+import { domainRegistration } from "../../api/domainRegistration/domainRegistration.model";
+import { hostingMaster } from "../../api/hostingMaster/hostingMaster.model";
+import { serverMaster } from "../../api/serverMaster/serverMaster.model";
+import { serviceProviderMaster } from "../../api/serviceProviderMaster/serviceProviderMaster.model";
+import { companyRegistration } from "../../api/companyRegistration/companyRegistration.model";
+import { employeeRegistration } from "../../api/employeeRegistration/employeeRegistration.model";
+import { newCustomerDetails } from "../../api/newCustomer/newCustomer.model";
 
 const Entities = [
-  customerDetails
+  customerDetails,
+  domainMaster,
+  userDetails,
+  domainRegistration,
+  hostingMaster,
+  serverMaster,
+  serviceProviderMaster,
+  companyRegistration,
+  employeeRegistration,
+  newCustomerDetails,
+  
 ];
 
 export const appSource = new DataSource({

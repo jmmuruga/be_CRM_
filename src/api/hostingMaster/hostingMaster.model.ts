@@ -1,13 +1,13 @@
 import {
   Column,
-  Entity,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 @Entity()
-export class customerDetails {
+export class hostingMaster {
   @PrimaryGeneratedColumn()
   id: string;
 
@@ -15,17 +15,23 @@ export class customerDetails {
   customerName: string;
 
   @Column()
-  mobile: string;
+  server: string;
 
   @Column()
-  location: string;
+  domainName: string;
 
   @Column()
-  district: string;
+  hostingName: string;
+
+  @Column()
+  registrationDate: string;
+
+  @Column()
+  expiryDate: string;
 
   @CreateDateColumn({ name: "created_at" })
-  createdAt: Date;
+  createdAt: string;
 
   @UpdateDateColumn({ name: "updated_at" })
-  updatedAt: Date;
+  updatedAt: string;
 }

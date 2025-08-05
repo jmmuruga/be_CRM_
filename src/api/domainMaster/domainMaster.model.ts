@@ -1,31 +1,37 @@
 import {
   Column,
-  Entity,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
 @Entity()
-export class customerDetails {
+export class domainMaster {
   @PrimaryGeneratedColumn()
   id: string;
 
   @Column()
+  serviceProvider: string;
+
+  @Column()
+  serverPlan: string;
+
+  @Column()
+  domainName: string;
+
+  @Column()
+  registrationDate: string;
+
+  @Column()
+  expiryDate: string;
+
+  @Column()
   customerName: string;
 
-  @Column()
-  mobile: string;
-
-  @Column()
-  location: string;
-
-  @Column()
-  district: string;
-
   @CreateDateColumn({ name: "created_at" })
-  createdAt: Date;
+  createdAt: string;
 
   @UpdateDateColumn({ name: "updated_at" })
-  updatedAt: Date;
+  updatedAt: string;
 }
