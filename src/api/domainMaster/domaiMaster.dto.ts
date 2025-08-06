@@ -8,7 +8,10 @@ export const domainMasterValidation = Joi.object({
     registrationDate:Joi.string().required(),
     expiryDate:Joi.string().required(),
     customerName:Joi.string().required(),
-
+    domainCost:Joi.string().required(),
+    paymentStatus:Joi.boolean().required(),
+    
+  
 })
 
 
@@ -20,5 +23,7 @@ export interface domainMasterDto {
   registrationDate: string;
   expiryDate: string;
   customerName: string;
+  domainCost: string;
+  paymentStatus: boolean;
 }
 
