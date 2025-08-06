@@ -10,6 +10,9 @@ import {
 export class domainMaster {
   @PrimaryGeneratedColumn()
   id: string;
+  
+  @Column()
+  serviceProviderId: string;
 
   @Column()
   serviceProvider: string;

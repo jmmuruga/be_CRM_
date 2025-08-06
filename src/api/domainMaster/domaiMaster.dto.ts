@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const domainMasterValidation = Joi.object({
+    serviceProviderId:Joi.string().required(),
     serviceProvider:Joi.string().required(),
     serverPlan:Joi.string().required(),
     domainName:Joi.string().required(),
@@ -9,3 +10,15 @@ export const domainMasterValidation = Joi.object({
     customerName:Joi.string().required(),
 
 })
+
+
+export interface domainMasterDto {
+  serviceProviderId: string;
+  serviceProvider: string;
+  serverPlan: string;
+  domainName: string;
+  registrationDate: string;
+  expiryDate: string;
+  customerName: string;
+}
+
