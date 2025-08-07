@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { appSource } from "../../core/dataBase/db";
 import { domainMaster } from "./domainMaster.model";
 import { ValidationException } from "../../core/exception";
-import { domainRegistrationDto } from "../domainRegistration/domainRegistration.dto";
 import { domainMasterDto, domainMasterValidation } from "./domaiMaster.dto";
 
 export const getServiceProviderId = async (req: Request, res: Response) => {

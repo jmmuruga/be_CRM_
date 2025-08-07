@@ -9,7 +9,7 @@ export const domainMasterValidation = Joi.object({
     expiryDate:Joi.string().required(),
     customerName:Joi.string().required(),
     domainCost:Joi.string().required(),
-    paymentStatus:Joi.boolean().required(),
+    paymentStatus: Joi.string().valid('paid', 'unpaid', 'cash', 'online').required(),
     
   
 })

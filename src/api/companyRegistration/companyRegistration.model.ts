@@ -12,6 +12,9 @@ export class companyRegistration {
   id: string;
 
   @Column()
+  companyNameId: string;
+
+  @Column()
   companyName: string;
 
   @Column()

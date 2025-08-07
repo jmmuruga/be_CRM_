@@ -5,6 +5,9 @@ import cors from "cors";
 import "./core/dataBase/db";
 import domainRegistrationRouter from "./api/domainRegistration/domainRegistration.controller";
 import domainMasterRouter from "./api/domainMaster/domainMaster.controller";
+import userDetailsRouter from "./api/userDetails/userDetails.controller";
+import { companyRegistrationValidation } from "./api/companyRegistration/companyRegistration.dto";
+import companyRegistrationRouter from "./api/companyRegistration/companyRegistration.controller";
 
 const app = express();
 
@@ -26,5 +29,9 @@ app.get('/', (req, res) => {
 });
 app.use('/domainRegistration' , cors(corsOptions) , domainRegistrationRouter);
 app.use('/domainMaster' , cors(corsOptions) , domainMasterRouter);
+app.use('/userDetails' , cors(corsOptions) , userDetailsRouter);
+app.use('/companyRegistration' , cors(corsOptions) , companyRegistrationRouter);
+
+
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
