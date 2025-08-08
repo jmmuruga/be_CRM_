@@ -15,7 +15,7 @@ export class userDetails {
   userName: string;
 
   @Column()
-  userNameId: string;
+  userId: string;
 
   @Column()
   Email: string;
@@ -25,6 +25,15 @@ export class userDetails {
 
   @Column()
   Mobile: string;
+
+  @Column()
+  Password: string;
+
+  @Column()
+  confirmPassword: string;
+  
+  @Column({default : true})
+  status: boolean;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;

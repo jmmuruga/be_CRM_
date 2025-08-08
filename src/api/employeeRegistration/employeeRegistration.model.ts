@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class employeeRegistration {
@@ -19,6 +25,13 @@ export class employeeRegistration {
 
   @Column()
   designation: string;
+
+  @Column({ type: "ntext", nullable: true })
+  employeeImage: string;
+
+  @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

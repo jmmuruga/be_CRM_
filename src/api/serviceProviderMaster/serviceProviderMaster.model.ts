@@ -26,6 +26,9 @@ export class serviceProviderMaster {
   @Column()
   Address: string;
 
+    @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

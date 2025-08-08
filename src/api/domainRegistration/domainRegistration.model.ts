@@ -26,6 +26,9 @@ export class domainRegistration {
   @Column()
   ssl: boolean;
 
+    @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

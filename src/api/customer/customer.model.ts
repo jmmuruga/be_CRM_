@@ -23,6 +23,9 @@ export class customerDetails {
   @Column()
   district: string;
 
+    @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 

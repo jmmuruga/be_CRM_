@@ -32,6 +32,9 @@ export class domainMaster {
   @Column()
   customerName: string;
 
+    @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

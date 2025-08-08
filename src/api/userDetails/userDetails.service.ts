@@ -4,20 +4,20 @@ import { ValidationException } from "../../core/exception";
 import { userDetails } from "./userDetails.model";
 import { userDetailsDto, userDetailsValidation } from "./userDetails.dto";
 
-export const getUserNameId = async (req: Request, res: Response) => {
+export const getUserId = async (req: Request, res: Response) => {
   try {
     const userDetailsRepositry =
       appSource.getRepository(userDetails);
-    let userNameId = await userDetailsRepositry.query(
-      `SELECT userNameId
+    let userId = await userDetailsRepositry.query(
+      `SELECT userId
             FROM [${process.env.DB_NAME}].[dbo].[user_details]
-            Group by userNameId
-            ORDER BY CAST(userNameId AS INT) DESC;`
+            Group by userId
+            ORDER BY CAST(userId AS INT) DESC;`
     );
 
     let id = "0";
-    if (userNameId?.length > 0) {
-      id = userNameId[0].userNameId;
+    if (userId?.length > 0) {
+      id = userId[0].userId;
     }
     const finalRes = Number(id) + 1;
     res.status(200).send({
@@ -48,11 +48,11 @@ export const addUpdateUserDetails = async (
     const userDetailsRepositry =
       appSource.getRepository(userDetails);
     const existingDetails = await userDetailsRepositry.findOneBy({
-      userNameId: payload.userNameId,
+      userId: payload.userId,
     });
     if (existingDetails) {
       await userDetailsRepositry
-        .update({ userNameId: payload.userNameId }, payload)
+        .update({ userId: payload.userId }, payload)
         .then(async (r) => {
           res.status(200).send({
             IsSuccess: "User Details Updated SuccessFully",
@@ -75,6 +75,7 @@ export const addUpdateUserDetails = async (
             );
 
         }
+        
       await userDetailsRepositry.save(payload);
       res.status(200).send({
             IsSuccess: "User Details Added successFully",
@@ -89,3 +90,24 @@ export const addUpdateUserDetails = async (
     res.status(500).send(error);
   }
 };
+
+
+export const getUserDetails = async(req : Request , res : Response) =>{
+  try{
+    const userDetailsRepositry = appSource.getRepository(userDetails);
+    const users = await userDetailsRepositry
+    .createQueryBuilder('')
+    .getMany();
+    res.status(200).send({
+        Result: users
+      });
+  }
+  catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}

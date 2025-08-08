@@ -29,6 +29,9 @@ export class hostingMaster {
   @Column()
   expiryDate: string;
 
+    @Column({ default: true })
+  status: boolean;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

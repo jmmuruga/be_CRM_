@@ -2,22 +2,22 @@ import { appSource } from "../../core/dataBase/db";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
-import { companyRegistrationDto, companyRegistrationValidation } from "./companyRegistration.dto";
+import {companyRegistrationDto,companyRegistrationValidation} from "./companyRegistration.dto";
 
-export const getCompanyNameId = async (req: Request, res: Response) => {
+export const getCompanyId = async (req: Request, res: Response) => {
   try {
     const companyRegistrationRepositry =
       appSource.getRepository(companyRegistration);
-    let companyNameId = await companyRegistrationRepositry.query(
-      `SELECT companyNameId
+    let companyId = await companyRegistrationRepositry.query(
+      `SELECT companyId
             FROM [${process.env.DB_NAME}].[dbo].[company_registration]
-            Group by companyNameId
-            ORDER BY CAST(companyNameId AS INT) DESC;`
+            Group by companyId
+            ORDER BY CAST(companyId AS INT) DESC;`
     );
 
     let id = "0";
-    if (companyNameId?.length > 0) {
-      id = companyNameId[0].companyNameId;
+    if (companyId?.length > 0) {
+      id = companyId[0].companyId;
     }
     const finalRes = Number(id) + 1;
     res.status(200).send({
@@ -40,19 +40,17 @@ export const addUpdateCompanyRegistration = async (
   try {
     const payload: companyRegistrationDto = req.body;
     const validation = companyRegistrationValidation.validate(payload);
-    if(validation.error){
-         throw new ValidationException(
-                validation.error.message
-            );
+    if (validation.error) {
+      throw new ValidationException(validation.error.message);
     }
     const companyRegistrationRepositry =
       appSource.getRepository(companyRegistration);
     const existingDetails = await companyRegistrationRepositry.findOneBy({
-      companyNameId: payload.companyNameId,
+      companyId: payload.companyId,
     });
     if (existingDetails) {
       await companyRegistrationRepositry
-        .update({ companyNameId: payload.companyNameId }, payload)
+        .update({ companyId: payload.companyId }, payload)
         .then(async (r) => {
           res.status(200).send({
             IsSuccess: "Company Details Updated successFully",
@@ -68,17 +66,16 @@ export const addUpdateCompanyRegistration = async (
         });
       return;
     } else {
-        const nameValidation = await companyRegistrationRepositry.findOneBy({companyNameId:payload.companyNameId})
-        if (nameValidation){
-            throw new ValidationException(
-                'Company Name Already Exist '
-            );
-
-        }
+      const nameValidation = await companyRegistrationRepositry.findOneBy({
+        companyName: payload.companyName,
+      });
+      if (nameValidation) {
+        throw new ValidationException("Company Name Already Exist ");
+      }
       await companyRegistrationRepositry.save(payload);
       res.status(200).send({
-            IsSuccess: "Company Details Added successFully",
-          });
+        IsSuccess: "Company Details Added successFully",
+      });
     }
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -89,3 +86,23 @@ export const addUpdateCompanyRegistration = async (
     res.status(500).send(error);
   }
 };
+
+export const getCompanyDetails = async(req : Request , res : Response) =>{
+  try{
+    const companyRegistrationRepositry = appSource.getRepository(companyRegistration);
+    const companies = await companyRegistrationRepositry
+    .createQueryBuilder('')
+    .getMany();
+    res.status(200).send({
+        Result: companies
+      });
+  }
+  catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+}

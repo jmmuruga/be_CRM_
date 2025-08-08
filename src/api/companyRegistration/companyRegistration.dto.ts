@@ -2,9 +2,8 @@ import Joi from "joi";
 
 export const companyRegistrationValidation = Joi.object({
   companyId: Joi.string().required(),
-  companyStart: Joi.string().required(),
+  companyStartDate: Joi.string().required(),
   companyName: Joi.string().required(),
-  companyNameId: Joi.string().required(),
   doorNumber: Joi.string().required(),
   buildingName: Joi.string().required(),
   Street: Joi.string().required(),
@@ -22,15 +21,15 @@ export const companyRegistrationValidation = Joi.object({
   Mobile: Joi.string().required(),
   officeNumber: Joi.string().required(),
   branchLocation: Joi.string().required(),
-  branchMobile: Joi.string().optional(),
+  branchMobile: Joi.string().optional().allow(null, ""),
+  companyImage: Joi.string().optional().allow(null, ""),
 });
 
 
 export interface companyRegistrationDto{
   companyId: string,
-  companyStart: string,
+  companyStartDate: string,
   companyName: string,
-  companyNameId:string,
   doorNumber: string,
   buildingName: string,
   Street: string,
@@ -49,5 +48,6 @@ export interface companyRegistrationDto{
   officeNumber: string,
   branchLocation: string,
   branchMobile: string,
+  companyImage:string,
 }
 

@@ -12,28 +12,73 @@ export class companyRegistration {
   id: string;
 
   @Column()
-  companyNameId: string;
+  companyId: string;
+
+  @Column()
+  companyStartDate: string;
 
   @Column()
   companyName: string;
 
   @Column()
-  Mobile: string;
+  doorNumber: string;
 
   @Column()
-  companyStart: string;
+  buildingName: string;
+
+  @Column()
+  Street: string;
+
+  @Column()
+  Email: string;
 
   @Column()
   Location: string;
 
   @Column()
+  pinCode: string;
+
+  @Column()
+  Post: string;
+
+  @Column()
+  Taluk: string;
+
+  @Column()
+  District: string;
+
+  @Column()
   licenseNumber: string;
+
+  @Column()
+  licenseDate: string;
+
+  @Column()
+  Thasildhar: string;
+  
+  @Column()
+  Website: string;
+
+  @Column()
+  ownerName: string;
+
+  @Column()
+  Mobile: string;
+
+  @Column()
+  officeNumber: string;
 
   @Column()
   branchLocation: string;
 
   @Column()
-  ownerName: string;
+  branchMobile: string;
+
+  @Column({ type: "ntext", nullable: true })
+  companyImage: string;
+
+  @Column({ default: true })
+  status: boolean;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
