@@ -19,3 +19,9 @@ export interface userDetailsDto {
   Password: string;
   confirmPassword: string;
 }
+
+
+export interface userDetailsStatus{
+  userId: string;
+  status: boolean;
+}
