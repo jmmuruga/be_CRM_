@@ -69,7 +69,7 @@ export class companyRegistration {
   officeNumber: string;
 
   @Column()
-  branchLocation: string;
+  Branch:string;
 
   @Column()
   branchMobile: string;

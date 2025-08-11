@@ -2,7 +2,11 @@ import { appSource } from "../../core/dataBase/db";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
-import {companyRegistrationDto,companyRegistrationValidation} from "./companyRegistration.dto";
+import {
+  companyRegistrationDto,
+  companyRegistrationValidation,
+} from "./companyRegistration.dto";
+import { Not } from "typeorm";
 
 export const getCompanyId = async (req: Request, res: Response) => {
   try {
@@ -43,20 +47,53 @@ export const addUpdateCompanyRegistration = async (
     if (validation.error) {
       throw new ValidationException(validation.error.message);
     }
+
     const companyRegistrationRepositry =
       appSource.getRepository(companyRegistration);
+
     const existingDetails = await companyRegistrationRepositry.findOneBy({
       companyId: payload.companyId,
     });
+
     if (existingDetails) {
+      const companyNameAndBranchValidation =
+        await companyRegistrationRepositry.findOneBy({
+          companyName: payload.companyName,
+          Branch: payload.Branch,
+          companyId: Not(payload.companyId),
+        });
+      if (companyNameAndBranchValidation) {
+        throw new ValidationException(
+          "Branch already exists for this Company."
+        );
+      }
+
+  
+
+      const emailValidation = await companyRegistrationRepositry.findOneBy({
+        Email: payload.Email,
+        companyId: Not(payload.companyId),
+      });
+      if (emailValidation) {
+        throw new ValidationException("Email Address Already Exist");
+      }
+
+      const mobileValidation = await companyRegistrationRepositry.findOneBy({
+        Mobile: payload.Mobile,
+        companyId: Not(payload.companyId),
+      });
+      if (mobileValidation) {
+        throw new ValidationException("Mobile Number Already Exist");
+      }
+
       await companyRegistrationRepositry
         .update({ companyId: payload.companyId }, payload)
-        .then(async (r) => {
+        .then(() => {
           res.status(200).send({
-            IsSuccess: "Company Details Updated successFully",
+            IsSuccess: "Company Details Updated successfully",
           });
         })
-        .catch(async (error) => {
+        .catch((error) => {
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,
@@ -66,15 +103,35 @@ export const addUpdateCompanyRegistration = async (
         });
       return;
     } else {
-      const nameValidation = await companyRegistrationRepositry.findOneBy({
-        companyName: payload.companyName,
-      });
-      if (nameValidation) {
-        throw new ValidationException("Company Name Already Exist ");
+      const companyNameAndBranchValidation =
+        await companyRegistrationRepositry.findOneBy({
+          companyName: payload.companyName,
+          Branch: payload.Branch,
+        });
+      if (companyNameAndBranchValidation) {
+        throw new ValidationException(
+          "Branch already exists for this company."
+        );
       }
+
+
+      const emailValidation = await companyRegistrationRepositry.findOneBy({
+        Email: payload.Email,
+      });
+      if (emailValidation) {
+        throw new ValidationException("Email Address Already Exist");
+      }
+
+      const mobileValidation = await companyRegistrationRepositry.findOneBy({
+        Mobile: payload.Mobile,
+      });
+      if (mobileValidation) {
+        throw new ValidationException("Mobile Number Already Exist");
+      }
+
       await companyRegistrationRepositry.save(payload);
       res.status(200).send({
-        IsSuccess: "Company Details Added successFully",
+        IsSuccess: "Company Details Added successfully",
       });
     }
   } catch (error) {
@@ -87,17 +144,18 @@ export const addUpdateCompanyRegistration = async (
   }
 };
 
-export const getCompanyDetails = async(req : Request , res : Response) =>{
-  try{
-    const companyRegistrationRepositry = appSource.getRepository(companyRegistration);
+
+export const getCompanyDetails = async (req: Request, res: Response) => {
+  try {
+    const companyRegistrationRepositry =
+      appSource.getRepository(companyRegistration);
     const companies = await companyRegistrationRepositry
-    .createQueryBuilder('')
-    .getMany();
+      .createQueryBuilder("")
+      .getMany();
     res.status(200).send({
-        Result: companies
-      });
-  }
-  catch (error) {
+      Result: companies,
+    });
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -105,4 +163,67 @@ export const getCompanyDetails = async(req : Request , res : Response) =>{
     }
     res.status(500).send(error);
   }
-}
+};
+
+export const updateCompanyStatus = async (req: Request, res: Response) => {
+  try {
+    const companystatus: companyRegistration = req.body;
+    const companyRegistrationRepositry =
+      appSource.getRepository(companyRegistration);
+    const companyFound = await companyRegistrationRepositry.findOneBy({
+      companyId: companystatus.companyId,
+    });
+    if (!companyFound) {
+      throw new ValidationException("Company Not Found");
+    }
+    await companyRegistrationRepositry
+      .createQueryBuilder()
+      .update(companyRegistration)
+      .set({ status: companystatus.status })
+      .where({ companyId: companystatus.companyId })
+      .execute();
+
+    res.status(200).send({
+      IsSuccess: `Status for ${companyFound.companyName} Changed Successfully`,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const deleteCompany = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.params.companyId;
+    const companyRepositry = appSource.getTreeRepository(companyRegistration);
+    const companyFound = await companyRepositry.findOneBy({
+      companyId: companyId,
+    });
+    if (!companyFound) {
+      throw new ValidationException("Company Not Found ");
+    }
+
+    await companyRepositry
+      .createQueryBuilder()
+      .delete()
+      .from(companyRegistration)
+      .where({ companyId: companyId })
+      .execute();
+
+    res.status(200).send({
+      IsSuccess: `${companyFound.companyName} Deleted Successfully `,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error.message,
+      });
+    }
+
+    res.status(500).send(error);
+  }
+};

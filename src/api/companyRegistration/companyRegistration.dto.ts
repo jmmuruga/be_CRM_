@@ -20,7 +20,7 @@ export const companyRegistrationValidation = Joi.object({
   ownerName: Joi.string().required(),
   Mobile: Joi.string().required(),
   officeNumber: Joi.string().required(),
-  branchLocation: Joi.string().required(),
+  Branch: Joi.string().required(),
   branchMobile: Joi.string().optional().allow(null, ""),
   companyImage: Joi.string().optional().allow(null, ""),
 });
@@ -46,8 +46,13 @@ export interface companyRegistrationDto{
   ownerName: string,
   Mobile: string,
   officeNumber: string,
-  branchLocation: string,
+  Branch: string,
   branchMobile: string,
   companyImage:string,
 }
 
+
+export interface companyDetailsStatus{
+  companyId: string;
+  status: boolean;
+}
