@@ -37,112 +37,112 @@ export const getCompanyId = async (req: Request, res: Response) => {
   }
 };
 
-export const addUpdateCompanyRegistration = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const payload: companyRegistrationDto = req.body;
-    const validation = companyRegistrationValidation.validate(payload);
-    if (validation.error) {
-      throw new ValidationException(validation.error.message);
-    }
+  export const addUpdateCompanyRegistration = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const payload: companyRegistrationDto = req.body;
+      console.log(payload.Branch , 'branchh')
+      const validation = companyRegistrationValidation.validate(payload);
+      if (validation.error) {
+        throw new ValidationException(validation.error.message);
+      }
 
-    const companyRegistrationRepositry =
-      appSource.getRepository(companyRegistration);
+      const companyRegistrationRepositry =
+        appSource.getRepository(companyRegistration);
 
-    const existingDetails = await companyRegistrationRepositry.findOneBy({
-      companyId: payload.companyId,
-    });
+      const existingDetails = await companyRegistrationRepositry.findOneBy({
+        companyId: payload.companyId,
+      });
 
-    if (existingDetails) {
-      const companyNameAndBranchValidation =
-        await companyRegistrationRepositry.findOneBy({
-          companyName: payload.companyName,
-          Branch: payload.Branch,
+      if (existingDetails) {
+        console.log(existingDetails , 'edit')
+        const companyNameAndBranchValidation =
+          await companyRegistrationRepositry.findOneBy({
+            companyName: payload.companyName,
+            Branch: payload.Branch,
+            companyId: Not(payload.companyId),
+          });
+        if (companyNameAndBranchValidation) {
+          throw new ValidationException(
+            "Branch already exists for this Company."
+          );
+        }
+
+        const emailValidation = await companyRegistrationRepositry.findOneBy({
+          Email: payload.Email,
           companyId: Not(payload.companyId),
         });
-      if (companyNameAndBranchValidation) {
-        throw new ValidationException(
-          "Branch already exists for this Company."
-        );
-      }
+        if (emailValidation) {
+          throw new ValidationException("Email Address Already Exist");
+        }
 
-  
+        const mobileValidation = await companyRegistrationRepositry.findOneBy({
+          Mobile: payload.Mobile,
+          companyId: Not(payload.companyId),
+        });
+        if (mobileValidation) {
+          throw new ValidationException("Mobile Number Already Exist");
+        }
 
-      const emailValidation = await companyRegistrationRepositry.findOneBy({
-        Email: payload.Email,
-        companyId: Not(payload.companyId),
-      });
-      if (emailValidation) {
-        throw new ValidationException("Email Address Already Exist");
-      }
-
-      const mobileValidation = await companyRegistrationRepositry.findOneBy({
-        Mobile: payload.Mobile,
-        companyId: Not(payload.companyId),
-      });
-      if (mobileValidation) {
-        throw new ValidationException("Mobile Number Already Exist");
-      }
-
-      await companyRegistrationRepositry
-        .update({ companyId: payload.companyId }, payload)
-        .then(() => {
-          res.status(200).send({
-            IsSuccess: "Company Details Updated successfully",
-          });
-        })
-        .catch((error) => {
-          if (error instanceof ValidationException) {
-            return res.status(400).send({
-              message: error?.message,
+        await companyRegistrationRepositry
+          .update({ companyId: payload.companyId }, payload)
+          .then(() => {
+            res.status(200).send({
+              IsSuccess: "Company Details Updated Successfully",
             });
-          }
-          res.status(500).send(error);
+          })
+          .catch((error) => {
+            if (error instanceof ValidationException) {
+              return res.status(400).send({
+                message: error?.message,
+              });
+            }
+            res.status(500).send(error);
+          });
+        return;
+      } else {
+        const companyNameAndBranchValidation =
+          await companyRegistrationRepositry.findOneBy({
+            companyName: payload.companyName,
+            Branch: payload.Branch,
+          });
+        if (companyNameAndBranchValidation) {
+          throw new ValidationException(
+            "Branch already exists for this company."
+          );
+        }
+
+
+        const emailValidation = await companyRegistrationRepositry.findOneBy({
+          Email: payload.Email,
         });
-      return;
-    } else {
-      const companyNameAndBranchValidation =
-        await companyRegistrationRepositry.findOneBy({
-          companyName: payload.companyName,
-          Branch: payload.Branch,
+        if (emailValidation) {
+          throw new ValidationException("Email Address Already Exist");
+        }
+
+        const mobileValidation = await companyRegistrationRepositry.findOneBy({
+          Mobile: payload.Mobile,
         });
-      if (companyNameAndBranchValidation) {
-        throw new ValidationException(
-          "Branch already exists for this company."
-        );
+        if (mobileValidation) {
+          throw new ValidationException("Mobile Number Already Exist");
+        }
+
+        await companyRegistrationRepositry.save(payload);
+        res.status(200).send({
+          IsSuccess: "Company Details Added successfully",
+        });
       }
-
-
-      const emailValidation = await companyRegistrationRepositry.findOneBy({
-        Email: payload.Email,
-      });
-      if (emailValidation) {
-        throw new ValidationException("Email Address Already Exist");
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error?.message,
+        });
       }
-
-      const mobileValidation = await companyRegistrationRepositry.findOneBy({
-        Mobile: payload.Mobile,
-      });
-      if (mobileValidation) {
-        throw new ValidationException("Mobile Number Already Exist");
-      }
-
-      await companyRegistrationRepositry.save(payload);
-      res.status(200).send({
-        IsSuccess: "Company Details Added successfully",
-      });
+      res.status(500).send(error);
     }
-  } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
+  };
 
 
 export const getCompanyDetails = async (req: Request, res: Response) => {
