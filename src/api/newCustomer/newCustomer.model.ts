@@ -18,10 +18,10 @@ export class newCustomerRegistration {
   customerName: string;
 
   @Column()
-  email: string;
+  Email: string;
 
   @Column()
-  mobile: string;
+  Mobile: string;
 
   @Column()
   alterMobile: string;
@@ -33,25 +33,25 @@ export class newCustomerRegistration {
   doorNumber: string;
 
   @Column()
-  street: string;
+  Street: string;
 
   @Column()
   landMark: string;
 
   @Column()
-  location: string;
+  Location: string;
 
   @Column()
-  post: string;
+  Post: string;
 
   @Column()
-  taluk: string;
+  Taluk: string;
 
   @Column()
-  district: string;
+  District: string;
 
   @Column()
-  pincode: string;
+  pinCode: string;
 
   @Column()
   companyName: string;

@@ -6,7 +6,7 @@ export const newCustomerRegistrationValidation = Joi.object({
   Email:  Joi.string().required(),
   Mobile:Joi.string().required(),
   alterMobile: Joi.string().required(),
-  whatsappNumber:  Joi.string().required(),
+  whatsappNumber: Joi.string().optional().allow(null, ""),
   Location: Joi.string().required(),
   District: Joi.string().required(),
   Post : Joi.string().required(),
@@ -16,6 +16,7 @@ export const newCustomerRegistrationValidation = Joi.object({
   Street: Joi.string().required(),
   landMark : Joi.string().required(),
   companyName : Joi.string().required(),
+
 });
 
 export interface newCustomerRegistrationDto{
@@ -36,4 +37,9 @@ export interface newCustomerRegistrationDto{
   landMark :string;
   companyName :string;
 
+}
+
+export interface customerDetailsStatus{
+  customerId: string;
+  status: boolean;
 }
