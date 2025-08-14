@@ -8,6 +8,7 @@ import domainMasterRouter from "./api/domainMaster/domainMaster.controller";
 import userDetailsRouter from "./api/userDetails/userDetails.controller";
 import companyRegistrationRouter from "./api/companyRegistration/companyRegistration.controller";
 import newCustomerRegistrationRouter from "./api/newCustomer/newCustomer.controller";
+import employeeRegistrationRouter from "./api/employeeRegistration/employeeRegistration.controller";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/domainMaster' , cors(corsOptions) , domainMasterRouter);
 app.use('/userDetails' , cors(corsOptions) , userDetailsRouter);
 app.use('/companyRegistration' , cors(corsOptions) , companyRegistrationRouter);
 app.use('/newCustomerRegistration' , cors(corsOptions) , newCustomerRegistrationRouter);
+app.use('/employeeRegistration' , cors(corsOptions) , employeeRegistrationRouter);
 
 
 

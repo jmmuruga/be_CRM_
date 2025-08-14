@@ -5,7 +5,7 @@ export const newCustomerRegistrationValidation = Joi.object({
   customerName: Joi.string().required(),
   Email:  Joi.string().required(),
   Mobile:Joi.string().required(),
-  alterMobile: Joi.string().required(),
+  alterMobile: Joi.string().optional().allow(null, ""),
   whatsappNumber: Joi.string().optional().allow(null, ""),
   Location: Joi.string().required(),
   District: Joi.string().required(),

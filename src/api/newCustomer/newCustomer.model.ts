@@ -23,10 +23,10 @@ export class newCustomerRegistration {
   @Column()
   Mobile: string;
 
-  @Column()
+  @Column({ 'nullable': true })
   alterMobile: string;
 
-  @Column()
+  @Column({ 'nullable': true })
   whatsappNumber: string;
 
   @Column()

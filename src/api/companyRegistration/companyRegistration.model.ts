@@ -71,10 +71,10 @@ export class companyRegistration {
   @Column()
   Branch:string;
 
-  @Column()
+  @Column({ 'nullable': true })
   branchMobile: string;
 
-  @Column({ type: "ntext", nullable: true })
+  @Column({ type: "ntext", 'nullable': true })
   companyImage: string;
 
   @Column({ default: true })
