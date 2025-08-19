@@ -138,3 +138,89 @@ export const getEmployeeId = async (req: Request, res: Response) => {
       res.status(500).send(error);
     }
   };
+
+
+  export const getEmployeeDetails = async (req: Request, res: Response) => {
+    try {
+      const employeeRegistrationRepositry =
+        appSource.getRepository(employeeRegistration);
+      const employee = await employeeRegistrationRepositry
+        .createQueryBuilder("")
+        .getMany();
+      res.status(200).send({
+        Result: employee,
+      });
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error?.message,
+        });
+      }
+      res.status(500).send(error);
+    }
+  };
+
+  export const updateEmployeeStatus = async (req: Request, res: Response) => {
+    try {
+      const employeeStatus: employeeRegistration = req.body;
+      const employeeRegistrationRepositry =
+        appSource.getRepository(employeeRegistration);
+      const emlpoyeeFound = await employeeRegistrationRepositry.findOneBy({
+        employeeId: employeeStatus.employeeId,
+      });
+      if (!emlpoyeeFound) {
+        throw new ValidationException("Company Not Found");
+      }
+      await employeeRegistrationRepositry
+        .createQueryBuilder()
+        .update(employeeRegistration)
+        .set({ status: employeeStatus.status })
+        .where({ employeeId: employeeStatus.employeeId })
+        .execute();
+  
+      res.status(200).send({
+        IsSuccess: `Status for ${emlpoyeeFound.employeeName} Changed Successfully`,
+      });
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error?.message,
+        });
+      }
+      res.status(500).send(error);
+    }
+  };
+
+  export const deleteEmployee = async (req: Request, res: Response) => {
+    try {
+      const employeeId = req.params.employeeId;
+      const employeeRegistrationRepositry = appSource.getTreeRepository(employeeRegistration);
+      const employeeFound = await employeeRegistrationRepositry.findOneBy({
+        employeeId: employeeId,
+      });
+      if (!employeeFound) {
+        throw new ValidationException("Employee Not Found ");
+      }
+  
+      await employeeRegistrationRepositry
+        .createQueryBuilder()
+        .delete()
+        .from(employeeRegistration)
+        .where({ employeeId: employeeId })
+        .execute();
+  
+      res.status(200).send({
+        IsSuccess: `${employeeFound.employeeName} Deleted Successfully `,
+      });
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error.message,
+        });
+      }
+  
+      res.status(500).send(error);
+    }
+  };
+  
+  

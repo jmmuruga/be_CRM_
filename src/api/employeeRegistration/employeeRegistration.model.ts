@@ -11,13 +11,13 @@ export class employeeRegistration {
   @PrimaryGeneratedColumn()
   id: string;
 
-    @Column()
+  @Column()
   employeeId: string;
 
   @Column()
   employeeName: string;
 
-    @Column()
+  @Column()
   bloodGroup: string;
 
   @Column()
@@ -29,28 +29,28 @@ export class employeeRegistration {
   @Column()
   employeeEmail: string;
 
-    @Column()
-  gurardianType: string;
+  @Column()
+  guardianType: string;
 
-    @Column()
+  @Column()
   guardianName: string;
 
-    @Column()
+  @Column()
   guardianMobile: string;
 
-    @Column()
+  @Column()
   Dob: string;
 
   @Column()
   joiningDate: string;
 
-  @Column()
+  @Column({ 'nullable': true })
   resignedDate: string;
 
   @Column()
   Designation: string;
 
-   @Column()
+  @Column()
   employeeAddress: string;
 
   @Column()
