@@ -43,7 +43,7 @@ export const getCompanyId = async (req: Request, res: Response) => {
   ) => {
     try {
       const payload: companyRegistrationDto = req.body;
-      console.log(payload.Branch , 'branchh')
+      // console.log(payload.Branch , 'branchh')
       const validation = companyRegistrationValidation.validate(payload);
       if (validation.error) {
         throw new ValidationException(validation.error.message);
@@ -57,7 +57,7 @@ export const getCompanyId = async (req: Request, res: Response) => {
       });
 
       if (existingDetails) {
-        console.log(existingDetails , 'edit')
+        // console.log(existingDetails , 'edit')
         const companyNameAndBranchValidation =
           await companyRegistrationRepositry.findOneBy({
             companyName: payload.companyName,
