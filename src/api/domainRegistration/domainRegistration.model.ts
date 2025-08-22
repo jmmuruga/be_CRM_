@@ -10,9 +10,12 @@ import {
 export class domainRegistration {
   @PrimaryGeneratedColumn()
   id: string;
-  
+
   @Column()
-  domainNameId:string;
+  domainNameId: string;
+
+  @Column()
+  companyId: string;
 
   @Column()
   domainName: string;
@@ -26,7 +29,7 @@ export class domainRegistration {
   @Column()
   ssl: boolean;
 
-    @Column({ default: true })
+  @Column({ default: true })
   status: boolean;
 
   @CreateDateColumn({ name: "created_at" })
