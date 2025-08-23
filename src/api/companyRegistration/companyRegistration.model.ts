@@ -56,7 +56,7 @@ export class companyRegistration {
   @Column()
   Thasildhar: string;
   
-  @Column()
+  @Column({ 'nullable': true })
   Website: string;
 
   @Column()

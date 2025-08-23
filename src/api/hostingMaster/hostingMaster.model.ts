@@ -12,6 +12,12 @@ export class hostingMaster {
   id: string;
 
   @Column()
+  hostingId: string;
+
+  @Column()
+  companyId: string;
+
+  @Column()
   customerName: string;
 
   @Column()

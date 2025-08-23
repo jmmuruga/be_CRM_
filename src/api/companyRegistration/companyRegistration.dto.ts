@@ -16,7 +16,7 @@ export const companyRegistrationValidation = Joi.object({
   licenseNumber: Joi.string().required(),
   licenseDate: Joi.string().required(),
   Thasildhar: Joi.string().required(),
-  Website: Joi.string().required(),
+  Website:Joi.string().optional().allow(null, ""),
   ownerName: Joi.string().required(),
   Mobile: Joi.string().required(),
   officeNumber: Joi.string().required(),
