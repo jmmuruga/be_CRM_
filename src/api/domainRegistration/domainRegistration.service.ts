@@ -53,7 +53,7 @@ export const addUpdateDomainRegistration = async (
     });
     if (existingDetails) {
       await domainRegistrationRepositry
-        .update({ domainNameId: payload.domainNameId }, payload)
+        .update({ domainNameId: payload.domainNameId,companyId:payload.companyId  }, payload)
         .then(async (r) => {
           res.status(200).send({
             IsSuccess: "Domain Registration Details Updated successFully",
@@ -184,3 +184,5 @@ export const deleteDomainRegistrationDetails = async (req: Request, res: Respons
     res.status(500).send(error);
   }
 };
+
+

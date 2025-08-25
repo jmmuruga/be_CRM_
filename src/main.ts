@@ -10,6 +10,8 @@ import companyRegistrationRouter from "./api/companyRegistration/companyRegistra
 import newCustomerRegistrationRouter from "./api/newCustomer/newCustomer.controller";
 import employeeRegistrationRouter from "./api/employeeRegistration/employeeRegistration.controller";
 import hostingMasterRouter from "./api/hostingMaster/hostingMaster.controller";
+import { serviceProviderMaster } from "./api/serviceProviderMaster/serviceProviderMaster.model";
+import serviceProviderRouter from "./api/serviceProviderMaster/serviceProviderMaster.controller";
 
 const app = express();
 
@@ -36,6 +38,7 @@ app.use('/companyRegistration' , cors(corsOptions) , companyRegistrationRouter);
 app.use('/newCustomerRegistration' , cors(corsOptions) , newCustomerRegistrationRouter);
 app.use('/employeeRegistration' , cors(corsOptions) , employeeRegistrationRouter);
 app.use('/hostingMaster' , cors(corsOptions) , hostingMasterRouter);
+app.use('/serviceProvider' , cors(corsOptions) , serviceProviderRouter);
 
 
 

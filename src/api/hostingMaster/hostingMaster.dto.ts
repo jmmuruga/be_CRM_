@@ -8,7 +8,7 @@ export const hostingMasterValidation = Joi.object({
   hostingName: Joi.string().required(),
   registrationDate: Joi.string().isoDate().required(),
   expiryDate: Joi.string().isoDate().required(),
-  companyId: Joi.string().required(),
+   companyId: Joi.string().required(),
 });
 
 export interface hostingMasterDto {
@@ -20,4 +20,12 @@ export interface hostingMasterDto {
   registrationDate: string;
   expiryDate: string;
   companyId: string;
+}
+
+export interface hostingMasterStatus{
+    hostingId: string;
+    status:boolean;
+    companyId: string;
+
+
 }

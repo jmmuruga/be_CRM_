@@ -12,9 +12,15 @@ export class serviceProviderMaster {
   id: string;
 
   @Column()
+  serviceProviderId: string;
+
+  @Column()
   serviceProviderName: string;
 
   @Column()
+  companyId: string;
+
+  @Column({'nullable': true})
   website: string;
 
   @Column()
@@ -26,7 +32,7 @@ export class serviceProviderMaster {
   @Column()
   Address: string;
 
-    @Column({ default: true })
+  @Column({ default: true })
   status: boolean;
 
   @CreateDateColumn({ name: "created_at" })

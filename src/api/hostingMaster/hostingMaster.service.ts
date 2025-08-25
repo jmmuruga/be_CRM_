@@ -1,95 +1,9 @@
-// import { Request, Response } from "express";
-// import { appSource } from "../../core/dataBase/db";
-// import { hostingMaster } from "./hostingMaster.model";
-// import { ValidationException } from "../../core/exception";
-// import { hostingMasterDto, hostingMasterValidation } from "./hostingMaster.dto";
-
-// export const getHostingId = async (req: Request, res: Response) => {
-//   try {
-//     const companyid = req.params.companyId;
-//     const hostingMasterRepositry = appSource.getRepository(hostingMaster);
-//     let hostingId = await hostingMasterRepositry.query(
-//       `SELECT hostingId
-//             FROM [${process.env.DB_NAME}].[dbo].[hosting_master] where companyId = ${companyid}
-//             Group by hostingId
-//             ORDER BY CAST(hostingId AS INT) DESC;`
-//     );
-
-//     let id = "0";
-//     if (hostingId?.length > 0) {
-//       id = hostingId[0].hostingId;
-//     }
-//     const finalRes = Number(id) + 1;
-//     res.status(200).send({
-//       Result: finalRes,
-//     });
-//   } catch (error) {
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
-
-// export const addUpdateHostingMaster = async (req: Request, res: Response) => {
-//   try {
-//     const payload: hostingMasterDto = req.body;
-//     const validation = hostingMasterValidation.validate(payload);
-//     if (validation.error) {
-//       throw new ValidationException(validation.error.message);
-//     }
-
-//     const hostingMasterRepositry = appSource.getRepository(hostingMaster);
-//     const existingDetails = await hostingMasterRepositry.findOneBy({
-//       hostingId: payload.hostingId,
-//       companyId: payload.companyId,
-//     });
-//     if (existingDetails) {
-//       await hostingMasterRepositry
-//         .update({ hostingId: payload.hostingId }, payload)
-//         .then(async (r) => {
-//           res.status(200).send({
-//             IsSuccess: " Hosting Master Details Updated successFully",
-//           });
-//         })
-//         .catch(async (error) => {
-//           if (error instanceof ValidationException) {
-//             return res.status(400).send({
-//               message: error?.message,
-//             });
-//           }
-//           res.status(500).send(error);
-//         });
-//       return;
-//     } else {
-//       const nameValidation = await hostingMasterRepositry.findOneBy({
-//         hostingName: payload.hostingName,
-//       });
-//       if (nameValidation) {
-//         throw new ValidationException("Hosting Name Already Exist ");
-//       }
-//       await hostingMasterRepositry.save(payload);
-//       res.status(200).send({
-//         IsSuccess: "Details Added successFully",
-//       });
-//     }
-//   } catch (error) {
-//     if (error instanceof ValidationException){
-//         return res.status(400).send({
-//             message:error?.message
-//         });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
 
 import { Request, Response } from "express";
 import { appSource } from "../../core/dataBase/db";
 import { hostingMaster } from "./hostingMaster.model";
 import { ValidationException } from "../../core/exception";
-import { hostingMasterDto, hostingMasterValidation } from "./hostingMaster.dto";
+import { hostingMasterDto, hostingMasterStatus, hostingMasterValidation } from "./hostingMaster.dto";
 
 export const getHostingId = async (req: Request, res: Response) => {
   try {
@@ -101,8 +15,8 @@ export const getHostingId = async (req: Request, res: Response) => {
        FROM [${process.env.DB_NAME}].[dbo].[hosting_master]
       where companyId = ${companyId}
        GROUP BY hostingId
-       ORDER BY CAST(hostingId AS INT) DESC;`,
-      [companyId]
+       ORDER BY CAST(hostingId AS INT) DESC;`
+  
     );
 
     let id = "0";
@@ -117,45 +31,151 @@ export const getHostingId = async (req: Request, res: Response) => {
   }
 };
 
-export const addUpdateHostingMaster = async (req: Request, res: Response) => {
+export const addUpdateHostingMaster = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const payload: hostingMasterDto = req.body;
     const validation = hostingMasterValidation.validate(payload);
-    if (validation.error) {
-      throw new ValidationException(validation.error.message);
+    if(validation.error){
+         throw new ValidationException(
+                validation.error.message
+            );
     }
-
-    const hostingMasterRepository = appSource.getRepository(hostingMaster);
-
+    const hostingMasterRepository =
+      appSource.getRepository(hostingMaster);
     const existingDetails = await hostingMasterRepository.findOneBy({
-      hostingId: payload.hostingId,
-      companyId: payload.companyId,
+      hostingId: payload.hostingId,companyId:payload.companyId
     });
-
     if (existingDetails) {
-      await hostingMasterRepository.update(
-        { hostingId: payload.hostingId, companyId: payload.companyId },
-        payload
-      );
-
-      return res
-        .status(200)
-        .send({ IsSuccess: "Hosting Master Details Updated Successfully" });
+      await hostingMasterRepository
+        .update({ hostingId: payload.hostingId,companyId:payload.companyId }, payload)
+        .then(async (r) => {
+          res.status(200).send({
+            IsSuccess: "Hosting Master Details Updated successFully",
+          });
+        })
+        .catch(async (error) => {
+          if (error instanceof ValidationException) {
+            return res.status(400).send({
+              message: error?.message,
+            });
+          }
+          res.status(500).send(error);
+        });
+      return;
     } else {
-      const nameValidation = await hostingMasterRepository.findOneBy({
-        hostingName: payload.hostingName,
-      });
-      if (nameValidation) {
-        throw new ValidationException("Hosting Name Already Exists");
-      }
+        const nameValidation = await hostingMasterRepository.findOneBy({hostingName:payload.hostingName})
+        if (nameValidation){
+            throw new ValidationException(
+                'Host Name Already Exist '
+            );
 
+        }
       await hostingMasterRepository.save(payload);
-      return res.status(200).send({ IsSuccess: "Details Added Successfully" });
+      res.status(200).send({
+            IsSuccess: "Hosting Master Details Added successFully",
+          });
     }
   } catch (error) {
     if (error instanceof ValidationException) {
-      return res.status(400).send({ message: error.message });
+      return res.status(400).send({
+        message: error?.message,
+      });
     }
+    res.status(500).send(error);
+  }
+};
+
+export const getHostingMasterDetails = async (req:Request , res:Response) => {
+  try{
+    const companyId = req.params.companyId
+    const hostingMasterRepository = appSource.getRepository(hostingMaster);
+    const hostMaster = await hostingMasterRepository 
+    .createQueryBuilder("")
+    .where({companyId:companyId})
+    .getMany();
+    res.status(200).send({
+      Result:hostMaster,
+    });
+  }
+
+  catch (error) { 
+   if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const updateStatus = async (req: Request, res: Response) => {
+  try {
+    const hostStatus: hostingMasterStatus = req.body;
+    const hostingMasterRepository = appSource.getRepository(
+      hostingMaster
+    );
+    const hostFound = await hostingMasterRepository.findOneBy({
+      hostingId: hostStatus.hostingId,companyId:hostStatus.companyId
+    });
+    if (!hostFound) {
+      throw new ValidationException("Host Name Not Found");
+    }
+
+    await hostingMasterRepository
+      .createQueryBuilder()
+      .update(hostingMaster)
+      .set({ status: hostStatus.status })
+      .where({ hostingId: hostStatus.hostingId})
+      .andWhere({companyId:hostStatus.companyId})
+      .execute();
+
+    res.status(200).send({
+      IsSuccess: `Status for ${hostFound.hostingId} Changed Successfully`,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+export const deleteHostingMasterDetails = async (req: Request, res: Response) => {
+  try {
+    const hostingId = req.params.hostingId;
+    const companyId = req.params.companyId
+    const hostingMasterRepository = appSource.getTreeRepository(hostingMaster);
+    const hostFound = await hostingMasterRepository.findOneBy({
+      hostingId: hostingId,companyId:companyId
+    });
+    if (!hostFound) {
+      throw new ValidationException("Host Name  Not Found ");
+    }
+
+    await hostingMasterRepository
+      .createQueryBuilder()
+      .delete()
+      .from(hostingMaster)
+      .where({ hostingId: hostingId })
+      .andWhere ({companyId:companyId})
+      .execute();
+
+    res.status(200).send({
+      IsSuccess: `${hostFound.domainName} Deleted Successfully `,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error.message,
+      });
+    }
+
     res.status(500).send(error);
   }
 };
