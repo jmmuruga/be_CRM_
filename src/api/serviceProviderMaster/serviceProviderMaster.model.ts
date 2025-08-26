@@ -21,7 +21,7 @@ export class serviceProviderMaster {
   companyId: string;
 
   @Column({'nullable': true})
-  website: string;
+  Website: string;
 
   @Column()
   contactNumber: string;

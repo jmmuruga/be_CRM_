@@ -12,6 +12,9 @@ export class serverMaster {
   id: string;
 
   @Column()
+  serverPlanId: string;
+
+  @Column()
   serviceProvider: string;
 
   @Column()
@@ -23,8 +26,17 @@ export class serverMaster {
   @Column()
   emailAddress: string;
 
+  @Column({ nullable: true })
+  ipAddress: string;
+
+  @Column({ nullable: true })
+  supportPin: string;
+
   @Column()
   userName: string;
+
+  @Column()
+  password: string;
 
   @Column()
   registrationDate: string;
@@ -32,7 +44,7 @@ export class serverMaster {
   @Column()
   expiryDate: string;
 
-    @Column({ default: true })
+  @Column({ default: true })
   status: boolean;
 
   @CreateDateColumn({ name: "created_at" })

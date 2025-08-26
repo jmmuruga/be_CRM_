@@ -72,6 +72,7 @@ export const addUpdateUserDetails = async (req: Request, res: Response) => {
       if (mobileValidation) {
         throw new ValidationException("Mobile Number Already Exist ");
       }
+      
 
       await userDetailsRepositry
         .update({ userId: payload.userId }, payload)
