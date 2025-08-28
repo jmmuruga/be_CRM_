@@ -15,6 +15,9 @@ export class serverMaster {
   serverPlanId: string;
 
   @Column()
+  companyId: string;
+
+  @Column()
   serviceProvider: string;
 
   @Column()
@@ -26,10 +29,10 @@ export class serverMaster {
   @Column()
   emailAddress: string;
 
-  @Column({ nullable: true })
+  @Column({ 'nullable': true })
   ipAddress: string;
 
-  @Column({ nullable: true })
+  @Column({ 'nullable': true })
   supportPin: string;
 
   @Column()

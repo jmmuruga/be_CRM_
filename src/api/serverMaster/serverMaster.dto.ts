@@ -15,20 +15,23 @@ export const serverMasterValidation = Joi.object({
   companyId: Joi.string().required(),
 });
 
-export interface severMasterDto{
-  serverPlanId:string;
-  serviceProvider:string;
-  serverPlan:string;
-  ipAddress:string;
-  supportPin:string;
-  domainName:string;
-  emailAddress:string;
-  userName:string;
-  password:string;
-  registrationDate:string;
-  expiryDate:string;
-  companyId:string;
-
+export interface serverMasterDto {
+  serverPlanId: string;
+  serviceProvider: string;
+  serverPlan: string;
+  ipAddress: string;
+  supportPin: string;
+  domainName: string;
+  emailAddress: string;
+  userName: string;
+  password: string;
+  registrationDate: string;
+  expiryDate: string;
+  companyId: string;
 }
 
-
+export interface serverMasterStatus {
+  companyId: string;
+  serverPlanId: string;
+  status: boolean;
+}

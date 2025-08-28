@@ -10,7 +10,6 @@ import companyRegistrationRouter from "./api/companyRegistration/companyRegistra
 import newCustomerRegistrationRouter from "./api/newCustomer/newCustomer.controller";
 import employeeRegistrationRouter from "./api/employeeRegistration/employeeRegistration.controller";
 import hostingMasterRouter from "./api/hostingMaster/hostingMaster.controller";
-import { serviceProviderMaster } from "./api/serviceProviderMaster/serviceProviderMaster.model";
 import serviceProviderRouter from "./api/serviceProviderMaster/serviceProviderMaster.controller";
 import serverMasterRouter from "./api/serverMaster/serverMaster.controller";
 
