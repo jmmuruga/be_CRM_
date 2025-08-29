@@ -52,6 +52,13 @@ export const addUpdateDomainRegistration = async (
       domainNameId: payload.domainNameId,companyId:payload.companyId
     });
     if (existingDetails) {
+      const nameValidation = await domainRegistrationRepositry.findOneBy({domainName:payload.domainName,companyId:payload.companyId})
+        if (nameValidation){
+            throw new ValidationException(
+                'Domain Name Already Exist '
+            );
+
+        }
       await domainRegistrationRepositry
         .update({ domainNameId: payload.domainNameId,companyId:payload.companyId  }, payload)
         .then(async (r) => {
@@ -69,7 +76,7 @@ export const addUpdateDomainRegistration = async (
         });
       return;
     } else {
-        const nameValidation = await domainRegistrationRepositry.findOneBy({domainName:payload.domainName})
+        const nameValidation = await domainRegistrationRepositry.findOneBy({domainName:payload.domainName,companyId:payload.companyId})
         if (nameValidation){
             throw new ValidationException(
                 'Domain Name Already Exist '

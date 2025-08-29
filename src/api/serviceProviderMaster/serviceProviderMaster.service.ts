@@ -56,6 +56,13 @@ export const addUpdateServiceProvider = async (req: Request, res: Response) => {
     });
 
     if (existingDetails) {
+      const nameValidation = await serviceProviderRepositry.findOneBy({
+        serviceProviderName: payload.serviceProviderName,
+        companyId: payload.companyId,
+      });
+      if (nameValidation) {
+        throw new ValidationException("Service Provider Already Exist ");
+      }
       await serviceProviderRepositry
         .update(
           {
@@ -81,9 +88,10 @@ export const addUpdateServiceProvider = async (req: Request, res: Response) => {
     } else {
       const nameValidation = await serviceProviderRepositry.findOneBy({
         serviceProviderName: payload.serviceProviderName,
+        companyId: payload.companyId,
       });
       if (nameValidation) {
-        throw new ValidationException("Service Privider Name Already Exist ");
+        throw new ValidationException("Service Provider Already Exist ");
       }
       await serviceProviderRepositry.save(payload);
       res.status(200).send({
@@ -174,7 +182,7 @@ export const deleteServiceProviderDetails = async (
     );
     const serviceProviderFound = await serviceProviderRepositry.findOneBy({
       serviceProviderId: serviceProviderId,
-      companyId: companyId
+      companyId: companyId,
     });
     if (!serviceProviderFound) {
       throw new ValidationException("Service Provider Not Found ");

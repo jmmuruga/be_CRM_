@@ -10,6 +10,7 @@ import {
 } from "./serverMaster.dto";
 import { serviceProviderMaster } from "../serviceProviderMaster/serviceProviderMaster.model";
 import { Not } from "typeorm";
+import { domainRegistration } from "../domainRegistration/domainRegistration.model";
 
 export const getServerMasterId = async (req: Request, res: Response) => {
   try {
@@ -55,6 +56,14 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
     });
 
     if (existingDetails) {
+      const nameValidation = await serverMasterRepositry.findOneBy({
+        serverPlan: payload.serverPlan,
+        serverPlanId: Not(payload.serverPlanId),
+      });
+      if (nameValidation) {
+        throw new ValidationException("Server Name Already Exist ");
+      }
+
       const userNameValidation = await serverMasterRepositry.findOneBy({
         userName: payload.userName,
         serverPlanId: Not(payload.serverPlanId),
@@ -62,6 +71,13 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
       if (userNameValidation) {
         throw new ValidationException("User Name Already Exist ");
       }
+      // const domainNameValidation = await serverMasterRepositry.findOneBy({
+      //   domainName: payload.domainName,
+      //   serverPlanId: Not(payload.serverPlanId),
+      // });
+      // if (domainNameValidation) {
+      //   throw new ValidationException("Domain Name Already Exist ");
+      // }
 
       const emailValidation = await serverMasterRepositry.findOneBy({
         emailAddress: payload.emailAddress,
@@ -93,6 +109,13 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
         });
       return;
     } else {
+      // const domainNameValidation = await serverMasterRepositry.findOneBy({
+      //   domainName: payload.domainName,
+      //   serverPlanId: Not(payload.serverPlanId),
+      // });
+      // if (domainNameValidation) {
+      //   throw new ValidationException("Domain Name Already Exist ");
+      // }
       const userNameValidation = await serverMasterRepositry.findOneBy({
         userName: payload.userName,
         serverPlanId: Not(payload.serverPlanId),
@@ -132,15 +155,43 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
 export const getServerMasterDetails = async (req: Request, res: Response) => {
   try {
     const companyId = req.params.companyId;
-    const serverMasterRepositry = appSource.getRepository(serverMaster);
-    const servermaster = await serverMasterRepositry
-      .createQueryBuilder("")
+
+    const serviceProviderMasterRepositry = appSource.getRepository(serviceProviderMaster);
+    const serviceProviderDetails = await serviceProviderMasterRepositry
+      .createQueryBuilder()
       .where({ companyId: companyId })
       .getMany();
+
+    const serverMasterRepositry = appSource.getRepository(serverMaster);
+    const servermaster = await serverMasterRepositry
+      .createQueryBuilder()
+      .where({ companyId: companyId })
+      .getMany();
+
+    const domainRegistrationRepositry = appSource.getRepository(domainRegistration);
+    const domainRegistrationDetails = await domainRegistrationRepositry
+    .createQueryBuilder()
+    .where({companyId:companyId})
+    .getMany()
+
+    servermaster.forEach((x) => {
+      x["domainName"] = domainRegistrationDetails.find((y)=> +y.domainNameId == +x.domainName).domainName;
+    });
+
+    //  console.log(serviceProviderDetails , 'serv')
+    //  console.log(servermaster , 'server master')
+    servermaster.forEach((x) => {
+      x["serviceProviderName"] =
+        serviceProviderDetails.find(
+          (y) => +y.serviceProviderId == +x.serviceProvider
+        ).serviceProviderName;
+    });
+
     res.status(200).send({
       Result: servermaster,
     });
   } catch (error) {
+    // console.log(error)
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -183,10 +234,7 @@ export const updateStatus = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteServerMaster = async (
-  req: Request,
-  res: Response
-) => {
+export const deleteServerMaster = async (req: Request, res: Response) => {
   try {
     const serverPlanId = req.params.serverPlanId;
     const companyId = req.params.companyId;
@@ -194,7 +242,7 @@ export const deleteServerMaster = async (
     const serverMasterRepositry = appSource.getTreeRepository(serverMaster);
     const serverMasterFound = await serverMasterRepositry.findOneBy({
       serverPlanId: serverPlanId,
-      companyId:companyId
+      companyId: companyId,
     });
     if (!serverMasterFound) {
       throw new ValidationException("Server Plan Not Found");
