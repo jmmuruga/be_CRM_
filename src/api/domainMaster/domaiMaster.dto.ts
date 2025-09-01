@@ -1,22 +1,25 @@
 import Joi from "joi";
 
 export const domainMasterValidation = Joi.object({
-    serviceProviderId:Joi.string().required(),
-    serviceProvider:Joi.string().required(),
-    serverPlan:Joi.string().required(),
-    domainName:Joi.string().required(),
-    registrationDate:Joi.string().required(),
-    expiryDate:Joi.string().required(),
-    customerName:Joi.string().required(),
-    domainCost:Joi.string().required(),
-    paymentStatus: Joi.string().valid('paid', 'unpaid', 'cash', 'online').required(),
-    
-  
-})
-
+  domainMasterId: Joi.string().required(),
+  companyId: Joi.string().required(),
+  serviceProvider: Joi.string().required(),
+  serverPlan: Joi.string().required(),
+  domainName: Joi.string().required(),
+  registrationDate: Joi.string().required(),
+  expiryDate: Joi.string().required(),
+  customerName: Joi.string().required(),
+  domainCost: Joi.string().required(),
+  paymentStatus: Joi.string().valid("Paid", "Unpaid").required(),
+  paymentMethod: Joi.when("paymentStatus", { is: "Paid",
+    then: Joi.string().valid("Cash", "Online Payment").required(),
+    otherwise: Joi.string().allow("").optional(),
+  }),
+});
 
 export interface domainMasterDto {
-  serviceProviderId: string;
+  domainMasterId:string;
+  companyId: string;
   serviceProvider: string;
   serverPlan: string;
   domainName: string;
@@ -24,6 +27,13 @@ export interface domainMasterDto {
   expiryDate: string;
   customerName: string;
   domainCost: string;
-  paymentStatus: boolean;
+  paymentStatus: string;
+  paymentMethod:string;
 }
 
+export interface domainMasterStatus{
+  domainMasterId:string;
+  companyId: string;
+  status:boolean;
+
+}

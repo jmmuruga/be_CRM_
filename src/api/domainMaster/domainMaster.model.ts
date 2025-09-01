@@ -10,9 +10,12 @@ import {
 export class domainMaster {
   @PrimaryGeneratedColumn()
   id: string;
-  
+
   @Column()
-  serviceProviderId: string;
+  companyId: string;
+
+  @Column()
+  domainMasterId: string;
 
   @Column()
   serviceProvider: string;
@@ -30,9 +33,18 @@ export class domainMaster {
   expiryDate: string;
 
   @Column()
+  domainCost: string;
+
+  @Column()
   customerName: string;
 
-    @Column({ default: true })
+  @Column()
+  paymentStatus: string;
+
+  @Column()
+  paymentMethod: string;
+
+  @Column({ default: true })
   status: boolean;
 
   @CreateDateColumn({ name: "created_at" })

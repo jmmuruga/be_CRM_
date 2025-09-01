@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { appSource } from "../../core/dataBase/db";
 import { serverMaster } from "./serverMaster.model";
 import { ValidationException } from "../../core/exception";
-import { serviceProviderMasterDto } from "../serviceProviderMaster/serviceProviderMaster.dto";
 import {
   serverMasterDto,
   serverMasterStatus,

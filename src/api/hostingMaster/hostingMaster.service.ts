@@ -10,6 +10,7 @@ import {
 import { serverMaster } from "../serverMaster/serverMaster.model";
 import { Not } from "typeorm";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
+import { newCustomerRegistration } from "../newCustomer/newCustomer.model";
 
 export const getHostingId = async (req: Request, res: Response) => {
   try {
@@ -124,13 +125,22 @@ export const getHostingMasterDetails = async (req: Request, res: Response) => {
         .where({companyId:companyId})
         .getMany()
 
-    const hostingMasterRepository = appSource.getRepository(hostingMaster);
+
+        const newCustomerRegistrationRepositry = appSource.getRepository(newCustomerRegistration);
+            const newCustomerDetails = await newCustomerRegistrationRepositry
+              .createQueryBuilder()
+              .getMany();
+        
+
+    
     
     const serverMasterRepositry = appSource.getRepository(serverMaster);
     const serververMasterDetails = await serverMasterRepositry
       .createQueryBuilder()
       .where({ companyId: companyId })
       .getMany();
+
+    const hostingMasterRepository = appSource.getRepository(hostingMaster);
     const hostMaster = await hostingMasterRepository
       .createQueryBuilder()
       .where({ companyId: companyId })
@@ -146,6 +156,12 @@ export const getHostingMasterDetails = async (req: Request, res: Response) => {
       ).serverPlan;
     });
 
+    hostMaster.forEach((x) => {
+      x["customername"] = newCustomerDetails.find(
+        (y) => +y.customerId == +x.customerName
+      ).customerName;
+    });
+
     // console.log(serververMasterDetails , 'serverMaster')
     //  console.log(domainRegistrationDetails , ' domain')
 
@@ -153,7 +169,7 @@ export const getHostingMasterDetails = async (req: Request, res: Response) => {
       Result: hostMaster,
     });
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
