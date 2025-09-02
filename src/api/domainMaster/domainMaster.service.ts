@@ -69,12 +69,12 @@ export const addUpdateDomainMaster = async (req: Request, res: Response) => {
           },
           payload
         )
-        .then(async (r) => {
+        .then( () => {
           res.status(200).send({
             IsSuccess: "Domain Master Details Updated SuccessFully",
           });
         })
-        .catch(async (error) => {
+        .catch( (error) => {
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,

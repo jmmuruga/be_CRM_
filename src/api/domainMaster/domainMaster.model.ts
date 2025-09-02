@@ -41,7 +41,7 @@ export class domainMaster {
   @Column()
   paymentStatus: string;
 
-  @Column()
+  @Column({'nullable':true})
   paymentMethod: string;
 
   @Column({ default: true })
