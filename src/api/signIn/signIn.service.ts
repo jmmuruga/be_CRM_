@@ -12,6 +12,9 @@ export const signIn = async (req: Request, res: Response) => {
     if (!user) {
       user = await userRepository.findOneBy({ Mobile: payload.userName });
     }
+    if (!user) {
+      user = await userRepository.findOneBy({ userName: payload.userName });
+    }
 
     if (!user) {
       throw new ValidationException("User does not exist");
@@ -22,13 +25,15 @@ export const signIn = async (req: Request, res: Response) => {
     }
 
     return res.status(200).send({
-      Result: {
-        id: user.userId,
-        email: user.Email,
-        phoneNumber: user.Mobile,
-        userName: user.userName,
-      },
-    });
+  Result: {
+    userId: user.userId,
+    Email: user.Email,
+    Mobile: user.Mobile,
+    userName: user.userName,
+    userType: user.userType,
+  },
+});
+
   } catch (error: any) {
     if (error instanceof ValidationException) {
       return res.status(400).send({ error: error.message });
