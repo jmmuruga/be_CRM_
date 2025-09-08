@@ -15,7 +15,6 @@ export const signIn = async (req: Request, res: Response) => {
     if (!user) {
       user = await userRepository.findOneBy({ userName: payload.userName });
     }
-
     if (!user) {
       throw new ValidationException("User does not exist");
     }
@@ -24,6 +23,7 @@ export const signIn = async (req: Request, res: Response) => {
       throw new ValidationException("Username or password is wrong");
     }
 
+
     return res.status(200).send({
   Result: {
     userId: user.userId,
@@ -31,6 +31,8 @@ export const signIn = async (req: Request, res: Response) => {
     Mobile: user.Mobile,
     userName: user.userName,
     userType: user.userType,
+    Password: user.Password,
+    confirmPassword:user.confirmPassword,
   },
 });
 
