@@ -2,10 +2,7 @@ import { appSource } from "../../core/dataBase/db";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
-import {
-  companyRegistrationDto,
-  companyRegistrationValidation,
-} from "./companyRegistration.dto";
+import {companyRegistrationDto,companyRegistrationValidation,} from "./companyRegistration.dto";
 import { Not } from "typeorm";
 
 export const getCompanyId = async (req: Request, res: Response) => {
