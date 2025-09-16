@@ -59,7 +59,7 @@ export class employeeRegistration {
   @Column()
   workStatus: string;
 
-  @Column({ type: "ntext", nullable: true })
+  @Column({ type: "ntext", 'nullable': true })
   employeeImage: string;
 
   @Column({ default: true })

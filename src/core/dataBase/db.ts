@@ -10,6 +10,7 @@ import { serviceProviderMaster } from "../../api/serviceProviderMaster/servicePr
 import { companyRegistration } from "../../api/companyRegistration/companyRegistration.model";
 import { employeeRegistration } from "../../api/employeeRegistration/employeeRegistration.model";
 import { newCustomerRegistration } from "../../api/newCustomer/newCustomer.model";
+import { Logs } from "../../api/logs/logs.model";
 
 const Entities = [
   domainMaster,
@@ -20,7 +21,8 @@ const Entities = [
   serviceProviderMaster,
   companyRegistration,
   employeeRegistration,
-  newCustomerRegistration
+  newCustomerRegistration,
+  Logs,
   
 ];
 
