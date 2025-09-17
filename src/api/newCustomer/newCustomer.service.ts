@@ -39,10 +39,7 @@ export const getCustomerId = async (req: Request, res: Response) => {
   }
 };
 
-export const addUpdateCustomerRegistration = async (
-  req: Request,
-  res: Response
-) => {
+export const addUpdateCustomerRegistration = async (req: Request,res: Response) => {
   try {
     const payload: newCustomerRegistrationDto = req.body;
     const validation = newCustomerRegistrationValidation.validate(payload);
@@ -59,17 +56,6 @@ export const addUpdateCustomerRegistration = async (
     });
 
     if (existingDetails) {
-      // const companyNameAndBranchValidation =
-      //   await newCustomerRegistrationrepositry.findOneBy({
-      //     companyName: payload.companyName,
-      //     Branch: payload.Branch,
-      //     companyId: Not(payload.companyId),
-      //   });
-      // if (companyNameAndBranchValidation) {
-      //   throw new ValidationException(
-      //     "Branch already exists for this Company."
-      //   );
-      // }
 
       const emailValidation = await newCustomerRegistrationrepositry.findOneBy({
         Email: payload.Email,
@@ -88,6 +74,7 @@ export const addUpdateCustomerRegistration = async (
       if (mobileValidation) {
         throw new ValidationException("Mobile Number Already Exist");
       }
+      
 
       await newCustomerRegistrationrepositry
         .update({ customerId: payload.customerId }, payload)
@@ -106,17 +93,7 @@ export const addUpdateCustomerRegistration = async (
         });
       return;
     } else {
-      // const companyNameAndBranchValidation =
-      //   await companyRegistrationRepositry.findOneBy({
-      //     companyName: payload.companyName,
-      //     Branch: payload.Branch,
-      //   });
-      // if (companyNameAndBranchValidation) {
-      //   throw new ValidationException(
-      //     "Branch already exists for this company."
-      //   );
-      // }
-
+      
       const emailValidation = await newCustomerRegistrationrepositry.findOneBy({
         Email: payload.Email,
       });
@@ -132,6 +109,8 @@ export const addUpdateCustomerRegistration = async (
       if (mobileValidation) {
         throw new ValidationException("Mobile Number Already Exist");
       }
+
+      
 
       await newCustomerRegistrationrepositry.save(payload);
       res.status(200).send({

@@ -13,7 +13,7 @@ export class Logs {
   userName: string;
 
   @Column()
-  statusCode: number;
+  statusCode: string;
 
   @Column({ type: "ntext" })
   message: string;

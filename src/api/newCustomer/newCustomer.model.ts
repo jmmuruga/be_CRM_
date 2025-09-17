@@ -23,10 +23,10 @@ export class newCustomerRegistration {
   @Column()
   Mobile: string;
 
-  @Column({ 'nullable': true })
+  @Column({ nullable: true })
   alterMobile: string;
 
-  @Column({ 'nullable': true })
+  @Column({ nullable: true })
   whatsappNumber: string;
 
   @Column()
@@ -58,6 +58,15 @@ export class newCustomerRegistration {
 
   @Column({ default: true })
   status: boolean;
+
+  @Column({ nullable: true })
+  createdBy_userId: string;
+
+  @Column({ default: false })
+  isEdited: boolean;
+
+  @Column({ nullable: true })
+  editedBy_userId: string;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
