@@ -11,7 +11,7 @@ companyRegistrationRouter.get('/getCompanyDetails' , (req ,res) => getCompanyDet
 
 companyRegistrationRouter.post('/updateStatusForCompany' , (req , res) => updateCompanyStatus(req ,res));
 
-companyRegistrationRouter.delete('/deleteCompany/:companyId' , (req , res) => deleteCompany(req ,res));
+companyRegistrationRouter.delete('/deleteCompany/:userId/:companyId' , (req , res) => deleteCompany(req ,res));
 
 
 export default companyRegistrationRouter

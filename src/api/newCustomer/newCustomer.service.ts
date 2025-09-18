@@ -8,6 +8,8 @@ import {
   newCustomerRegistrationValidation,
 } from "./newCustomer.dto";
 import { Not } from "typeorm";
+import { logsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const getCustomerId = async (req: Request, res: Response) => {
   try {
@@ -40,8 +42,11 @@ export const getCustomerId = async (req: Request, res: Response) => {
 };
 
 export const addUpdateCustomerRegistration = async (req: Request,res: Response) => {
+  const payload: newCustomerRegistrationDto = req.body;
+  const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
+  const companyId = payload.companyId;
   try {
-    const payload: newCustomerRegistrationDto = req.body;
+    
     const validation = newCustomerRegistrationValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
@@ -54,6 +59,8 @@ export const addUpdateCustomerRegistration = async (req: Request,res: Response) 
     const existingDetails = await newCustomerRegistrationrepositry.findOneBy({
       customerId: payload.customerId,
     });
+
+    delete payload.companyId;
 
     if (existingDetails) {
 
@@ -78,12 +85,28 @@ export const addUpdateCustomerRegistration = async (req: Request,res: Response) 
 
       await newCustomerRegistrationrepositry
         .update({ customerId: payload.customerId }, payload)
-        .then(() => {
+        .then(async () => {
+              const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Customer Details ${payload.customerName} Updated By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
           res.status(200).send({
             IsSuccess: "Customer Details Updated Successfully",
           });
         })
-        .catch((error) => {
+        .catch(async (error) => {
+           const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Updating Customer Details ${payload.customerName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,
@@ -113,11 +136,27 @@ export const addUpdateCustomerRegistration = async (req: Request,res: Response) 
       
 
       await newCustomerRegistrationrepositry.save(payload);
+       const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Customer Details ${payload.customerName} Added By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
       res.status(200).send({
         IsSuccess: "Customer Details Added Successfully",
       });
     }
   } catch (error) {
+     const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Adding Customer Details ${payload.customerName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -149,14 +188,14 @@ export const getCustomerDetails = async (req: Request, res: Response) => {
 };
 
 export const updateStatus = async (req: Request, res: Response) => {
-  try {
-    const customerstatus: customerDetailsStatus = req.body;
-    const newCustomerRegistrationRepositry = appSource.getRepository(
+   const customerstatus: customerDetailsStatus = req.body;
+     const newCustomerRegistrationRepositry = appSource.getRepository(
       newCustomerRegistration
     );
     const customerFound = await newCustomerRegistrationRepositry.findOneBy({
       customerId: customerstatus.customerId,
     });
+  try {
     if (!customerFound) {
       throw new ValidationException("Customer Not Found");
     }
@@ -167,11 +206,28 @@ export const updateStatus = async (req: Request, res: Response) => {
       .set({ status: customerstatus.status })
       .where({ customerId: customerstatus.customerId})
       .execute();
+ const logsPayload: logsDto = {
+                userId: customerstatus.userId,
+                userName: null,
+                statusCode: '200',
+                message: `Customer Status For ${customerFound.customerName} changed to ${customerstatus.status} by user - `,
+                companyId: customerstatus.companyId
+              }
+              await InsertLog(logsPayload);
+    
 
     res.status(200).send({
       IsSuccess: `Status for ${customerFound.customerName} Changed Successfully`,
     });
   } catch (error) {
+     const logsPayload: logsDto = {
+                userId: customerstatus.userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Changing Customer Status For ${customerFound.customerName} to ${customerstatus.status} - ${error.message} by user - `,
+                companyId: customerstatus.companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -183,12 +239,12 @@ export const updateStatus = async (req: Request, res: Response) => {
 
 
 export const deleteCustomerDetails = async (req: Request, res: Response) => {
-  try {
-    const customerId = req.params.customerId;
+   const {customerId , userId , companyId} = req.params;
     const newCustomerRegistrationRepositry = appSource.getTreeRepository(newCustomerRegistration);
     const customerFound = await newCustomerRegistrationRepositry.findOneBy({
       customerId: customerId,
     });
+  try {
     if (!customerFound) {
       throw new ValidationException("Customer Not Found ");
     }
@@ -199,11 +255,27 @@ export const deleteCustomerDetails = async (req: Request, res: Response) => {
       .from(newCustomerRegistration)
       .where({ customerId: customerId })
       .execute();
-
+ const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Customer Details : ${customerFound.customerName} Deleted By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
+    
     res.status(200).send({
       IsSuccess: `${customerFound.customerName} Deleted Successfully `,
     });
   } catch (error) {
+     const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Deleting Customer Details : ${customerFound.customerName} - ${error.message} By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

@@ -2,8 +2,10 @@ import { appSource } from "../../core/dataBase/db";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
-import {companyRegistrationDto,companyRegistrationValidation,} from "./companyRegistration.dto";
+import {companyDetailsStatus, companyRegistrationDto,companyRegistrationValidation,} from "./companyRegistration.dto";
 import { Not } from "typeorm";
+import { logsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const getCompanyId = async (req: Request, res: Response) => {
   try {
@@ -38,9 +40,12 @@ export const getCompanyId = async (req: Request, res: Response) => {
     req: Request,
     res: Response
   ) => {
+    const payload: companyRegistrationDto = req.body;
+    const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
+    const companyId = payload.companyId;
+
     try {
-      const payload: companyRegistrationDto = req.body;
-      // console.log(payload.Branch , 'branchh')
+      
       const validation = companyRegistrationValidation.validate(payload);
       if (validation.error) {
         throw new ValidationException(validation.error.message);
@@ -85,12 +90,28 @@ export const getCompanyId = async (req: Request, res: Response) => {
 
         await companyRegistrationRepositry
           .update({ companyId: payload.companyId }, payload)
-          .then(() => {
+          .then(async () => {
+            const logsPayload: logsDto = {
+                                        userId: userId,
+                                        userName: null,
+                                        statusCode: '200',
+                                        message: `Company Details ${payload.companyName} Updated by User - `,
+                                        companyId: companyId
+                                      }
+                                      await InsertLog(logsPayload);
             res.status(200).send({
               IsSuccess: "Company Details Updated Successfully",
             });
           })
-          .catch((error) => {
+          .catch(async (error) => {
+             const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Updating Company Details ${payload.companyName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
             if (error instanceof ValidationException) {
               return res.status(400).send({
                 message: error?.message,
@@ -127,11 +148,27 @@ export const getCompanyId = async (req: Request, res: Response) => {
         }
 
         await companyRegistrationRepositry.save(payload);
+        const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Company Details ${payload.companyName} Added By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
         res.status(200).send({
           IsSuccess: "Company Details Added successfully",
         });
       }
     } catch (error) {
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Adding Company Details ${payload.companyName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
       if (error instanceof ValidationException) {
         return res.status(400).send({
           message: error?.message,
@@ -163,13 +200,14 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
 };
 
 export const updateCompanyStatus = async (req: Request, res: Response) => {
-  try {
-    const companystatus: companyRegistration = req.body;
+  const companystatus: companyDetailsStatus = req.body;
     const companyRegistrationRepositry =
       appSource.getRepository(companyRegistration);
     const companyFound = await companyRegistrationRepositry.findOneBy({
       companyId: companystatus.companyId,
     });
+  try {
+    
     if (!companyFound) {
       throw new ValidationException("Company Not Found");
     }
@@ -179,11 +217,27 @@ export const updateCompanyStatus = async (req: Request, res: Response) => {
       .set({ status: companystatus.status })
       .where({ companyId: companystatus.companyId })
       .execute();
+      const logsPayload: logsDto = {
+                userId: companystatus.userId,
+                userName: null,
+                statusCode: '200',
+                message: `Company Status For ${companyFound.companyName} Changed To ${companystatus.status} By User - `,
+                companyId: companystatus.companyId
+              }
+              await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `Status for ${companyFound.companyName} Changed Successfully`,
     });
   } catch (error) {
+    const logsPayload: logsDto = {
+                userId: companystatus.userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Changing Employee Status For ${companyFound.companyName} to ${companystatus.status} - ${error.message} By User - `,
+                companyId: companystatus.companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -194,12 +248,12 @@ export const updateCompanyStatus = async (req: Request, res: Response) => {
 };
 
 export const deleteCompany = async (req: Request, res: Response) => {
-  try {
-    const companyId = req.params.companyId;
+  const {companyId,userId} = req.params;
     const companyRepositry = appSource.getTreeRepository(companyRegistration);
     const companyFound = await companyRepositry.findOneBy({
       companyId: companyId,
     });
+  try {
     if (!companyFound) {
       throw new ValidationException("Company Not Found ");
     }
@@ -210,11 +264,27 @@ export const deleteCompany = async (req: Request, res: Response) => {
       .from(companyRegistration)
       .where({ companyId: companyId })
       .execute();
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Company Details : ${companyFound.companyName} Deleted By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `${companyFound.companyName} Deleted Successfully `,
     });
   } catch (error) {
+    const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Deleting Company Details : ${companyFound.companyName} - ${error.message} By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

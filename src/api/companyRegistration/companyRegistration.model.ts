@@ -80,6 +80,15 @@ export class companyRegistration {
   @Column({ default: true })
   status: boolean;
 
+  @Column({ nullable: true })
+  createdBy_userId: string;
+
+  @Column({ default: false })
+  isEdited: boolean;
+
+  @Column({ nullable: true })
+  editedBy_userId: string;
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
 

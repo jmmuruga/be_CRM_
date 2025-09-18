@@ -1,9 +1,11 @@
 import { Not } from "typeorm";
 import { appSource } from "../../core/dataBase/db";
 import { ValidationException } from "../../core/exception";
-import { employeeRegistrationValidation } from "./employeeRegistration.dto";
+import { EmployeeDetailsStatus, employeeRegistrationDto, employeeRegistrationValidation } from "./employeeRegistration.dto";
 import { employeeRegistration } from "./employeeRegistration.model";
 import { Request, Response } from "express";
+import { logsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const getEmployeeId = async (req: Request, res: Response) => {
   try {
@@ -38,8 +40,11 @@ export const getEmployeeId = async (req: Request, res: Response) => {
     req: Request,
     res: Response
   ) => {
+    const payload: employeeRegistrationDto = req.body;
+    const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
+    const companyId = payload.companyId;
     try {
-      const payload: employeeRegistration = req.body;
+      
       const validation = employeeRegistrationValidation.validate(payload);
       if (validation.error) {
         throw new ValidationException(validation.error.message);
@@ -51,6 +56,8 @@ export const getEmployeeId = async (req: Request, res: Response) => {
       const existingDetails = await employeeRegistrationRepositry.findOneBy({
         employeeId: payload.employeeId,
       });
+
+      delete payload.companyId;
 
       if (existingDetails) {
         // const companyNameAndBranchValidation =
@@ -83,12 +90,28 @@ export const getEmployeeId = async (req: Request, res: Response) => {
 
         await employeeRegistrationRepositry
           .update({ employeeId: payload.employeeId }, payload)
-          .then(() => {
+          .then(async () => {
+            const logsPayload: logsDto = {
+                            userId: userId,
+                            userName: null,
+                            statusCode: '200',
+                            message: `Employee Details ${payload.employeeName} Updated by User - `,
+                            companyId: companyId
+                          }
+                          await InsertLog(logsPayload);
             res.status(200).send({
               IsSuccess: "Employee Details Updated Successfully",
             });
           })
-          .catch((error) => {
+          .catch(async (error) => {
+            const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Updating Employee Details ${payload.employeeName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
             if (error instanceof ValidationException) {
               return res.status(400).send({
                 message: error?.message,
@@ -98,18 +121,6 @@ export const getEmployeeId = async (req: Request, res: Response) => {
           });
         return;
       } else {
-        // const companyNameAndBranchValidation =
-        //   await companyRegistrationRepositry.findOneBy({
-        //     companyName: payload.companyName,
-        //     Branch: payload.Branch,
-        //   });
-        // if (companyNameAndBranchValidation) {
-        //   throw new ValidationException(
-        //     "Branch already exists for this company."
-        //   );
-        // }
-
-
         const emailValidation = await employeeRegistrationRepositry.findOneBy({
           employeeEmail: payload.employeeEmail,
         });
@@ -125,11 +136,27 @@ export const getEmployeeId = async (req: Request, res: Response) => {
         }
 
         await employeeRegistrationRepositry.save(payload);
+        const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Employee Details ${payload.employeeName} Added By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
         res.status(200).send({
           IsSuccess: "Employee Details Added successfully",
         });
       }
     } catch (error) {
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Adding Employee Details ${payload.employeeName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
       if (error instanceof ValidationException) {
         return res.status(400).send({
           message: error?.message,
@@ -161,13 +188,11 @@ export const getEmployeeId = async (req: Request, res: Response) => {
   };
 
   export const updateEmployeeStatus = async (req: Request, res: Response) => {
+    const employeeStatus: EmployeeDetailsStatus = req.body;
+    const employeeRegistrationRepositry = appSource.getRepository(employeeRegistration);
+    const emlpoyeeFound = await employeeRegistrationRepositry.findOneBy({employeeId: employeeStatus.employeeId,});
     try {
-      const employeeStatus: employeeRegistration = req.body;
-      const employeeRegistrationRepositry =
-        appSource.getRepository(employeeRegistration);
-      const emlpoyeeFound = await employeeRegistrationRepositry.findOneBy({
-        employeeId: employeeStatus.employeeId,
-      });
+      
       if (!emlpoyeeFound) {
         throw new ValidationException("Company Not Found");
       }
@@ -177,11 +202,27 @@ export const getEmployeeId = async (req: Request, res: Response) => {
         .set({ status: employeeStatus.status })
         .where({ employeeId: employeeStatus.employeeId })
         .execute();
+        const logsPayload: logsDto = {
+                userId: employeeStatus.userId,
+                userName: null,
+                statusCode: '200',
+                message: `Employee Status For ${emlpoyeeFound.employeeName} Changed To ${employeeStatus.status} By User - `,
+                companyId: employeeStatus.companyId
+              }
+              await InsertLog(logsPayload);
   
       res.status(200).send({
-        IsSuccess: `Status for ${emlpoyeeFound.employeeName} Changed Successfully`,
+        IsSuccess: `Status For ${emlpoyeeFound.employeeName} Changed Successfully`,
       });
     } catch (error) {
+      const logsPayload: logsDto = {
+                userId: employeeStatus.userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Changing Employee Status For ${emlpoyeeFound.employeeName} to ${employeeStatus.status} - ${error.message} By User - `,
+                companyId: employeeStatus.companyId
+              }
+              await InsertLog(logsPayload);
       if (error instanceof ValidationException) {
         return res.status(400).send({
           message: error?.message,
@@ -192,12 +233,13 @@ export const getEmployeeId = async (req: Request, res: Response) => {
   };
 
   export const deleteEmployee = async (req: Request, res: Response) => {
-    try {
-      const employeeId = req.params.employeeId;
+    const {employeeId ,userId, companyId}  = req.params;
       const employeeRegistrationRepositry = appSource.getTreeRepository(employeeRegistration);
       const employeeFound = await employeeRegistrationRepositry.findOneBy({
         employeeId: employeeId,
       });
+    try {
+      
       if (!employeeFound) {
         throw new ValidationException("Employee Not Found ");
       }
@@ -208,11 +250,27 @@ export const getEmployeeId = async (req: Request, res: Response) => {
         .from(employeeRegistration)
         .where({ employeeId: employeeId })
         .execute();
+        const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Employee Details : ${employeeFound.employeeName} Deleted By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
   
       res.status(200).send({
         IsSuccess: `${employeeFound.employeeName} Deleted Successfully `,
       });
     } catch (error) {
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Deleting Employee Details : ${employeeFound.employeeName} - ${error.message} By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
       if (error instanceof ValidationException) {
         return res.status(400).send({
           message: error.message,

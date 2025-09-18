@@ -16,10 +16,10 @@ export const newCustomerRegistrationValidation = Joi.object({
   Street: Joi.string().required(),
   landMark : Joi.string().required(),
   companyName : Joi.string().required(),
-
   createdBy_userId : Joi.string().required(),
   isEdited : Joi.boolean().optional(),
   editedBy_userId : Joi.string().optional().allow(null, ""),
+  companyId : Joi.string().optional().allow(null, "")
 
 
 
@@ -46,6 +46,7 @@ export interface newCustomerRegistrationDto{
   createdBy_userId : string;
   isEdited: boolean;
   editedBy_userId :  string;
+  companyId? : string;
 
 
 
@@ -54,4 +55,6 @@ export interface newCustomerRegistrationDto{
 export interface customerDetailsStatus{
   customerId: string;
   status: boolean;
+  userId: string;
+  companyId: string;
 }

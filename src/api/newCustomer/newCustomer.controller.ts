@@ -11,7 +11,7 @@ newCustomerRegistrationRouter.get('/getCustomerDetails', (req,res) =>getCustomer
 
 newCustomerRegistrationRouter.post('/updateCustomerStatus', (req,res) =>updateStatus(req,res));
 
-newCustomerRegistrationRouter.delete('/deleteCustomerDetails/:customerId',(req, res) => deleteCustomerDetails(req, res));
+newCustomerRegistrationRouter.delete('/deleteCustomerDetails/:customerId/:userId/:companyId',(req, res) => deleteCustomerDetails(req, res));
 
 
 

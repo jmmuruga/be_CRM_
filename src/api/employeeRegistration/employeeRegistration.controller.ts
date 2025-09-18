@@ -11,8 +11,7 @@ employeeRegistrationRouter.get('/getEmployeeDetails' , (req , res) => getEmploye
 
 employeeRegistrationRouter.post('/updateStatusForEmployee' , (req , res) => updateEmployeeStatus(req ,res));
 
-employeeRegistrationRouter.delete('/deleteEmployee/:employeeId' , (req , res) => deleteEmployee(req ,res));
-
+employeeRegistrationRouter.delete('/deleteEmployee/:employeeId/:userId/:companyId' , (req , res) => deleteEmployee(req ,res));
 
 
 export default employeeRegistrationRouter

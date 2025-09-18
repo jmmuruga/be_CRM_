@@ -44,7 +44,7 @@ export class employeeRegistration {
   @Column()
   joiningDate: string;
 
-  @Column({ 'nullable': true })
+  @Column({ nullable: true })
   resignedDate: string;
 
   @Column()
@@ -59,11 +59,20 @@ export class employeeRegistration {
   @Column()
   workStatus: string;
 
-  @Column({ type: "ntext", 'nullable': true })
+  @Column({ type: "ntext", nullable: true })
   employeeImage: string;
 
   @Column({ default: true })
   status: boolean;
+
+  @Column({ nullable: true })
+  createdBy_userId: string;
+
+  @Column({ default: false })
+  isEdited: boolean;
+
+  @Column({ nullable: true })
+  editedBy_userId: string;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
