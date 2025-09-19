@@ -20,7 +20,7 @@ export class serviceProviderMaster {
   @Column()
   companyId: string;
 
-  @Column({'nullable': true})
+  @Column({ nullable: true })
   Website: string;
 
   @Column()
@@ -34,6 +34,15 @@ export class serviceProviderMaster {
 
   @Column({ default: true })
   status: boolean;
+
+  @Column({ nullable: true })
+  createdBy_userId: string;
+
+  @Column({ default: false })
+  isEdited: boolean;
+
+  @Column({ nullable: true })
+  editedBy_userId: string;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;

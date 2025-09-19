@@ -11,7 +11,7 @@ serviceProviderRouter.get('/getServiceProviderDetails/:companyId' , (req , res) 
 
 serviceProviderRouter.post('/updateServiceProviderStatus', (req,res) =>updateStatus(req,res));
 
-serviceProviderRouter.delete('/deleteServiceProvider/:serviceProviderId/:companyId',(req, res) => deleteServiceProviderDetails(req, res));
+serviceProviderRouter.delete('/deleteServiceProvider/:serviceProviderId/:userId/:companyId',(req, res) => deleteServiceProviderDetails(req, res));
 
 
 export default serviceProviderRouter

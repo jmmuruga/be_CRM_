@@ -11,7 +11,7 @@ domainRegistrationRouter.get('/getDomainRegistrationDetails/:companyId' , (req ,
 
 domainRegistrationRouter.post('/upateDomainRegistrationStatus', (req,res) =>updateStatus(req,res));
 
-domainRegistrationRouter.delete('/deleteDomainRegistrationDetails/:domainNameId/:companyId',(req, res) => deleteDomainRegistrationDetails(req, res));
+domainRegistrationRouter.delete('/deleteDomainRegistrationDetails/:domainNameId/:userId/:companyId',(req, res) => deleteDomainRegistrationDetails(req, res));
 
 
 export default domainRegistrationRouter

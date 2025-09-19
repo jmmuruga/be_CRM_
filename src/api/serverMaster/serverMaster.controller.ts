@@ -11,7 +11,7 @@ serverMasterRouter.get('/getServerMasterDetails/:companyId' , (req , res ) => ge
 
 serverMasterRouter.post('/updateServerMasterStatus' ,(req,res)=>updateStatus(req,res));
 
-serverMasterRouter.delete('/deleteServerMaster/:serverPlanId/:companyId',(req, res) => deleteServerMaster(req, res));
+serverMasterRouter.delete('/deleteServerMaster/:serverPlanId/:userId/:companyId',(req, res) => deleteServerMaster(req, res));
 
 
 export default serverMasterRouter
