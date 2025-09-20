@@ -11,7 +11,7 @@ hostingMasterRouter.get('/getHostingMasterDetails/:companyId' , (req , res) => g
 
 hostingMasterRouter.post('/updateHostStatus', (req,res) =>updateStatus(req,res));
 
-hostingMasterRouter.delete('/deleteHostingMasterDetails/:hostingId/:companyId',(req, res) => deleteHostingMasterDetails(req, res));
+hostingMasterRouter.delete('/deleteHostingMasterDetails/:hostingId/:userId/:companyId',(req, res) => deleteHostingMasterDetails(req, res));
 
 
 export default hostingMasterRouter

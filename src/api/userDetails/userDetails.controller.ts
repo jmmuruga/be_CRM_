@@ -11,7 +11,7 @@ userDetailsRouter.get('/getUserDetails' , (req,res) => getUserDetails(req , res)
 
 userDetailsRouter.post('/updateStatusForUser' , (req,res) => updateUserStatus(req,res));
 
-userDetailsRouter.delete('/deleteUser/:userId' , (req,res) => deleteUser(req,res));
+userDetailsRouter.delete('/deleteUser/:userId/:deletedUserId/:companyId' , (req,res) => deleteUser(req,res));
 
 
 export default userDetailsRouter

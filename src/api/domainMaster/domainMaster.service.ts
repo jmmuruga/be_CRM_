@@ -10,6 +10,8 @@ import { newCustomerRegistration } from "../newCustomer/newCustomer.model";
 import { x } from "joi";
 import { serverMaster } from "../serverMaster/serverMaster.model";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
+import { InsertLog } from "../logs/logs.service";
+import { logsDto } from "../logs/logs.dto";
 
 export const getDomainMasterId = async (req: Request, res: Response) => {
   try {
@@ -41,8 +43,10 @@ export const getDomainMasterId = async (req: Request, res: Response) => {
 };
 
 export const addUpdateDomainMaster = async (req: Request, res: Response) => {
+  const payload: domainMasterDto = req.body;
+  const userId = payload.isEdited? payload.editedBy_userId : payload.createdBy_userId;
+  const companyId = payload.companyId;
   try {
-    const payload: domainMasterDto = req.body;
     const validation = domainMasterValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
@@ -53,14 +57,7 @@ export const addUpdateDomainMaster = async (req: Request, res: Response) => {
       companyId: payload.companyId,
     });
     if (existingDetails) {
-      // const nameValidation = await domainMasterRepositry.findOneBy({
-      //   domainName: payload.domainName,
-      //   domainMasterId: Not(payload.domainMasterId),
-      // });
-      // if (nameValidation) {
-      //   throw new ValidationException("Host Name Already Exist ");
-      // }
-
+      
       await domainMasterRepositry
         .update(
           {
@@ -69,12 +66,28 @@ export const addUpdateDomainMaster = async (req: Request, res: Response) => {
           },
           payload
         )
-        .then( () => {
+        .then( async () => {
+          const logsPayload: logsDto = {
+                                userId: userId,
+                                userName: null,
+                                statusCode: "200",
+                                message: `Domain Master Details ${payload.domainName} Updated By User - `,
+                                companyId: companyId,
+                              };
+                              await InsertLog(logsPayload);
           res.status(200).send({
             IsSuccess: "Domain Master Details Updated SuccessFully",
           });
         })
-        .catch( (error) => {
+        .catch( async (error) => {
+          const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Updating Domain Master Details ${payload.domainName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,
@@ -93,11 +106,27 @@ export const addUpdateDomainMaster = async (req: Request, res: Response) => {
       // }
 
       await domainMasterRepositry.save(payload);
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Domain Master Details ${payload.domainName} Added By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
       res.status(200).send({
         IsSuccess: "Domain Master Details Added SuccessFully",
       });
     }
   } catch (error) {
+    const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Adding Server Master Details ${payload.serverPlan} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload)
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -183,13 +212,14 @@ export const getDomainMasterDetails = async (req: Request, res: Response) => {
 
 
 export const updateStatus = async (req : Request , res : Response ) =>{
-    try {
-      const domainMasterStatus : domainMasterStatus = req.body;
+  const domainMasterStatus : domainMasterStatus = req.body;
       const domainMasterRepositry = appSource.getRepository(domainMaster);
       const domainMasterFound = await domainMasterRepositry.findOneBy({
         domainMasterId: domainMasterStatus.domainMasterId,
         companyId: domainMasterStatus.companyId,
       });
+    try {
+      
     
       if (!domainMasterFound) {
         throw new ValidationException("Domain Master Not Found ");
@@ -202,11 +232,27 @@ export const updateStatus = async (req : Request , res : Response ) =>{
         .where({ domainMasterId: domainMasterStatus.domainMasterId })
         .andWhere({ companyId: domainMasterStatus.companyId })
         .execute();
+        const logsPayload: logsDto = {
+                userId: domainMasterStatus.userId,
+                userName: null,
+                statusCode: '200',
+                message: `Domain Master Status For ${domainMasterFound.domainName} Changed To ${domainMasterStatus.status} By User - `,
+                companyId: domainMasterStatus.companyId
+              }
+              await InsertLog(logsPayload);
   
       res.status(200).send({
         IsSuccess: `Status Changed Successfully`,
       }); 
     } catch (error) {
+      const logsPayload: logsDto = {
+                userId: domainMasterStatus.userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Changing Domain Master Status For ${domainMasterFound.domainName} to ${domainMasterStatus.status} - ${error.message} By User - `,
+                companyId: domainMasterStatus.companyId
+              }
+              await InsertLog(logsPayload);
       if (error instanceof ValidationException) {
         return res.status(400).send({
           message: error?.message,
@@ -217,18 +263,16 @@ export const updateStatus = async (req : Request , res : Response ) =>{
     
 }
 
-
-
 export const deleteDomainMaster = async (req: Request, res: Response) => {
-  try {
-    const domainMasterId = req.params.domainMasterId;
-    const companyId = req.params.companyId;
-
+  const domainMasterId = req.params.domainMasterId;
+    const {companyId,userId} = req.params;
     const domainMasterRepository = appSource.getTreeRepository(domainMaster);
     const domainMasterFound = await domainMasterRepository.findOneBy({
       domainMasterId: domainMasterId,
       companyId: companyId,
     });
+  try {
+    
     if (!domainMasterFound) {
       throw new ValidationException("Domain Master Not Found");
     }
@@ -240,10 +284,26 @@ export const deleteDomainMaster = async (req: Request, res: Response) => {
       .where({ domainMasterId: domainMasterId })
       .andWhere({ companyId: companyId })
       .execute();
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Domain Master Details : ${domainMasterFound.domainName} Deleted By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `${domainMasterFound.domainName} Deleted Successfully `,
     });
   } catch (error) {
+    const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Deleting Server Master Details : ${domainMasterFound.domainName} - ${error.message} By User - `,
+                companyId:companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

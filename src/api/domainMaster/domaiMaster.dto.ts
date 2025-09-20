@@ -13,8 +13,10 @@ export const domainMasterValidation = Joi.object({
   paymentStatus: Joi.string().valid("Paid", "Unpaid").required(),
   paymentMethod: Joi.when("paymentStatus", { is: "Paid",
     then: Joi.string().valid("Cash", "Online Payment").required(),
-    otherwise: Joi.string().allow("",null).optional(),
-  }),
+    otherwise: Joi.string().allow("",null).optional()}),
+  createdBy_userId: Joi.string().required(),
+  isEdited: Joi.boolean().optional(),
+  editedBy_userId: Joi.string().optional().allow(null, ""),
 });
 
 export interface domainMasterDto {
@@ -29,11 +31,15 @@ export interface domainMasterDto {
   domainCost: string;
   paymentStatus: string;
   paymentMethod ? :string;
+  createdBy_userId: string;
+  isEdited: boolean;
+  editedBy_userId: string;
 }
 
 export interface domainMasterStatus{
   domainMasterId:string;
   companyId: string;
   status:boolean;
+  userId: string;
 
 }

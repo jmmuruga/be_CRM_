@@ -11,6 +11,8 @@ import { serverMaster } from "../serverMaster/serverMaster.model";
 import { Not } from "typeorm";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
 import { newCustomerRegistration } from "../newCustomer/newCustomer.model";
+import { logsDto } from "../logs/logs.dto";
+import { InsertLog } from "../logs/logs.service";
 
 export const getHostingId = async (req: Request, res: Response) => {
   try {
@@ -38,8 +40,10 @@ export const getHostingId = async (req: Request, res: Response) => {
 };
 
 export const addUpdateHostingMaster = async (req: Request, res: Response) => {
+  const payload: hostingMasterDto = req.body;
+  const userId = payload.isEdited? payload.editedBy_userId : payload.createdBy_userId;
+  const companyId = payload.companyId;
   try {
-    const payload: hostingMasterDto = req.body;
     const validation = hostingMasterValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
@@ -58,24 +62,33 @@ export const addUpdateHostingMaster = async (req: Request, res: Response) => {
         throw new ValidationException("Host Name Already Exist ");
       }
 
-      // const domainNameValidation = await hostingMasterRepository.findOneBy({
-      //   domainName: payload.domainName,
-      //   hostingId: Not(payload.hostingId),
-      // });
-      // if (domainNameValidation) {
-      //   throw new ValidationException("Domain Name Already Exist ");
-      // }
       await hostingMasterRepository
         .update(
           { hostingId: payload.hostingId, companyId: payload.companyId },
           payload
         )
         .then(async (r) => {
+          const logsPayload: logsDto = {
+                                userId: userId,
+                                userName: null,
+                                statusCode: "200",
+                                message: `Hosting Master Details ${payload.hostingName} Updated By User - `,
+                                companyId: companyId,
+                              };
+                              await InsertLog(logsPayload);
           res.status(200).send({
             IsSuccess: "Hosting Master Details Updated successFully",
           });
         })
         .catch(async (error) => {
+          const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Updating Hosting Master Details ${payload.hostingName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,
@@ -93,19 +106,28 @@ export const addUpdateHostingMaster = async (req: Request, res: Response) => {
         throw new ValidationException("Host Name Already Exist ");
       }
 
-      // const domainNameValidation = await hostingMasterRepository.findOneBy({
-      //   domainName: payload.domainName,
-      //   hostingId: Not(payload.hostingId),
-      // });
-      // if (domainNameValidation) {
-      //   throw new ValidationException("Domain Name Already Exist ");
-      // }
       await hostingMasterRepository.save(payload);
+      const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '200',
+                message: `Hosting Master Details ${payload.hostingName} Added By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
       res.status(200).send({
         IsSuccess: "Hosting Master Details Added successFully",
       });
     }
   } catch (error) {
+    const logsPayload: logsDto = {
+                userId: userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Adding Hosting Master Details ${payload.hostingName} - ${error.message} By User - `,
+                companyId: companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -180,13 +202,14 @@ export const getHostingMasterDetails = async (req: Request, res: Response) => {
 };
 
 export const updateStatus = async (req: Request, res: Response) => {
-  try {
-    const hostStatus: hostingMasterStatus = req.body;
+  const hostStatus: hostingMasterStatus = req.body;
     const hostingMasterRepository = appSource.getRepository(hostingMaster);
     const hostFound = await hostingMasterRepository.findOneBy({
       hostingId: hostStatus.hostingId,
       companyId: hostStatus.companyId,
     });
+  try {
+    
     if (!hostFound) {
       throw new ValidationException("Host Name Not Found");
     }
@@ -198,11 +221,27 @@ export const updateStatus = async (req: Request, res: Response) => {
       .where({ hostingId: hostStatus.hostingId })
       .andWhere({ companyId: hostStatus.companyId })
       .execute();
+      const logsPayload: logsDto = {
+                userId: hostStatus.userId,
+                userName: null,
+                statusCode: '200',
+                message: `Hosting Master Status For ${hostFound.hostingName} Changed To ${hostStatus.status} By User - `,
+                companyId: hostStatus.companyId
+              }
+              await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `Status for ${hostFound.hostingId} Changed Successfully`,
     });
   } catch (error) {
+     const logsPayload: logsDto = {
+                userId: hostStatus.userId,
+                userName: null,
+                statusCode: '400',
+                message: `Error While Changing Hosting Master Status For ${hostFound.hostingName} to ${hostStatus.status} - ${error.message} By User - `,
+                companyId: hostStatus.companyId
+              }
+              await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -216,14 +255,14 @@ export const deleteHostingMasterDetails = async (
   req: Request,
   res: Response
 ) => {
-  try {
-    const hostingId = req.params.hostingId;
-    const companyId = req.params.companyId;
+   const hostingId = req.params.hostingId;
+    const  { companyId, userId } = req.params;
     const hostingMasterRepository = appSource.getTreeRepository(hostingMaster);
     const hostFound = await hostingMasterRepository.findOneBy({
       hostingId: hostingId,
       companyId: companyId,
     });
+  try {
     if (!hostFound) {
       throw new ValidationException("Host Name  Not Found ");
     }
@@ -236,10 +275,27 @@ export const deleteHostingMasterDetails = async (
       .andWhere({ companyId: companyId })
       .execute();
 
+      const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Hosting Master Details : ${hostFound.hostingName} Deleted By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+
     res.status(200).send({
-      IsSuccess: `${hostFound.domainName} Deleted Successfully `,
+      IsSuccess: `${hostFound.hostingName} Deleted Successfully `,
     });
   } catch (error) {
+   const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Deleting Hosting Master Details : ${hostFound.hostingName} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,

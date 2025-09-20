@@ -8,6 +8,10 @@ export const userDetailsValidation = Joi.object({
   Mobile: Joi.string().required(),
   Password: Joi.string().required(),
   confirmPassword: Joi.string().required(),
+   createdBy_userId : Joi.string().required(),
+    isEdited : Joi.boolean().optional(),
+    editedBy_userId : Joi.string().optional().allow(null, ""),
+    companyId : Joi.string().optional().allow(null, "")
 });
 
 export interface userDetailsDto {
@@ -18,10 +22,17 @@ export interface userDetailsDto {
   Mobile: string;
   Password: string;
   confirmPassword: string;
+  createdBy_userId: string;
+  isEdited: boolean;
+  editedBy_userId: string;
+  companyId? : string;
+  
 }
 
 
 export interface userDetailsStatus{
   userId: string;
   status: boolean;
+  companyId: string;
+  satusUpdatedUser: string;
 }

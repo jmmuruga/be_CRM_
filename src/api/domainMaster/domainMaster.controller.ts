@@ -11,7 +11,7 @@ domainMasterRouter.get('/getDomainMasterDetails/:companyId' , (req,res) => getDo
 
 domainMasterRouter.post('/updateDomainMasterStatus' ,(req,res)=>updateStatus(req,res));
 
-domainMasterRouter.delete('/deleteDomainMaster/:domainMasterId/:companyId' ,(req,res)=>deleteDomainMaster(req,res));
+domainMasterRouter.delete('/deleteDomainMaster/:domainMasterId/:userId/:companyId' ,(req,res)=>deleteDomainMaster(req,res));
 
 
 export default domainMasterRouter

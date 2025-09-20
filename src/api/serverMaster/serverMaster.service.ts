@@ -44,14 +44,15 @@ export const getServerMasterId = async (req: Request, res: Response) => {
 
 export const addUpdateServerMaster = async (req: Request, res: Response) => {
   const payload: serverMasterDto = req.body;
-  const userId = payload.isEdited? payload.editedBy_userId : payload.createdBy_userId;
+  const userId = payload.isEdited
+    ? payload.editedBy_userId
+    : payload.createdBy_userId;
   const companyId = payload.companyId;
   try {
     const validation = serverMasterValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
     }
-
     const serverMasterRepositry = appSource.getRepository(serverMaster);
     const existingDetails = await serverMasterRepositry.findOneBy({
       serverPlanId: payload.serverPlanId,
@@ -61,8 +62,8 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
     if (existingDetails) {
       const nameValidation = await serverMasterRepositry.findOneBy({
         serverPlan: payload.serverPlan,
-        serverPlanId: Not(payload.serverPlanId),
         companyId: payload.companyId,
+        serverPlanId: Not(payload.serverPlanId),
       });
       if (nameValidation) {
         throw new ValidationException("Server Name Already Exist ");
@@ -93,26 +94,26 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
         )
         .then(async (r) => {
           const logsPayload: logsDto = {
-                      userId: userId,
-                      userName: null,
-                      statusCode: "200",
-                      message: `Server Master Details ${payload.serverPlan} Updated By User - `,
-                      companyId: companyId,
-                    };
-                    await InsertLog(logsPayload);
+            userId: userId,
+            userName: null,
+            statusCode: "200",
+            message: `Server Master Details ${payload.serverPlan} Updated By User - `,
+            companyId: companyId,
+          };
+          await InsertLog(logsPayload);
           res.status(200).send({
             IsSuccess: "Server Master Details Updated successFully",
           });
         })
         .catch(async (error) => {
           const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Updating Server Master Details ${payload.serverPlan} - ${error.message} By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
+            userId: userId,
+            userName: null,
+            statusCode: "400",
+            message: `Error While Updating Server Master Details ${payload.serverPlan} - ${error.message} By User - `,
+            companyId: companyId,
+          };
+          await InsertLog(logsPayload);
           if (error instanceof ValidationException) {
             return res.status(400).send({
               message: error?.message,
@@ -122,7 +123,6 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
         });
       return;
     } else {
-
       const userNameValidation = await serverMasterRepositry.findOneBy({
         userName: payload.userName,
         serverPlanId: payload.serverPlanId,
@@ -146,26 +146,26 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
       }
       await serverMasterRepositry.save(payload);
       const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '200',
-                message: `Server Master Details ${payload.serverPlan} Added By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
+        userId: userId,
+        userName: null,
+        statusCode: "200",
+        message: `Server Master Details ${payload.serverPlan} Added By User - `,
+        companyId: companyId,
+      };
+      await InsertLog(logsPayload);
       res.status(200).send({
         IsSuccess: "Server Master Details Added successFully",
       });
     }
   } catch (error) {
     const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Adding Server Master Details ${payload.serverPlan} - ${error.message} By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Adding Server Master Details ${payload.serverPlan} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -179,7 +179,9 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
   try {
     const companyId = req.params.companyId;
 
-    const serviceProviderMasterRepositry = appSource.getRepository(serviceProviderMaster);
+    const serviceProviderMasterRepositry = appSource.getRepository(
+      serviceProviderMaster
+    );
     const serviceProviderDetails = await serviceProviderMasterRepositry
       .createQueryBuilder()
       .where({ companyId: companyId })
@@ -191,23 +193,25 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
       .where({ companyId: companyId })
       .getMany();
 
-    const domainRegistrationRepositry = appSource.getRepository(domainRegistration);
+    const domainRegistrationRepositry =
+      appSource.getRepository(domainRegistration);
     const domainRegistrationDetails = await domainRegistrationRepositry
-    .createQueryBuilder()
-    .where({companyId:companyId})
-    .getMany()
+      .createQueryBuilder()
+      .where({ companyId: companyId })
+      .getMany();
 
     servermaster.forEach((x) => {
-      x["domainName"] = domainRegistrationDetails.find((y)=> +y.domainNameId == +x.domainName).domainName;
+      x["domain"] = domainRegistrationDetails.find(
+        (y) => +y.domainNameId == +x.domainName
+      ).domainName;
     });
 
     //  console.log(serviceProviderDetails , 'serv')
     //  console.log(servermaster , 'server master')
     servermaster.forEach((x) => {
-      x["serviceProviderName"] =
-        serviceProviderDetails.find(
-          (y) => +y.serviceProviderId == +x.serviceProvider
-        ).serviceProviderName;
+      x["serviceProviderName"] = serviceProviderDetails.find(
+        (y) => +y.serviceProviderId == +x.serviceProvider
+      ).serviceProviderName;
     });
 
     res.status(200).send({
@@ -225,14 +229,13 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
 };
 
 export const updateStatus = async (req: Request, res: Response) => {
-   const serverMasterStatus: serverMasterStatus = req.body;
-    const serverMasterRepositry = appSource.getRepository(serverMaster);
-    const serverMasterFound = await serverMasterRepositry.findOneBy({
-      serverPlanId: serverMasterStatus.serverPlanId,
-      companyId: serverMasterStatus.companyId,
-    });
+  const serverMasterStatus: serverMasterStatus = req.body;
+  const serverMasterRepositry = appSource.getRepository(serverMaster);
+  const serverMasterFound = await serverMasterRepositry.findOneBy({
+    serverPlanId: serverMasterStatus.serverPlanId,
+    companyId: serverMasterStatus.companyId,
+  });
   try {
-   
     if (!serverMasterFound) {
       throw new ValidationException("Server Plan Not Found ");
     }
@@ -244,28 +247,27 @@ export const updateStatus = async (req: Request, res: Response) => {
       .where({ serverPlanId: serverMasterStatus.serverPlanId })
       .andWhere({ companyId: serverMasterStatus.companyId })
       .execute();
-      const logsPayload: logsDto = {
-                userId: serverMasterStatus.userId,
-                userName: null,
-                statusCode: '200',
-                message: `Service Provider Status For ${serverMasterFound.serverPlan} Changed To ${serverMasterStatus.status} By User - `,
-                companyId: serverMasterStatus.companyId
-              }
-              await InsertLog(logsPayload);
-
+    const logsPayload: logsDto = {
+      userId: serverMasterStatus.userId,
+      userName: null,
+      statusCode: "200",
+      message: `Server Master Status For ${serverMasterFound.serverPlan} Changed To ${serverMasterStatus.status} By User - `,
+      companyId: serverMasterStatus.companyId,
+    };
+    await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `Status for ${serverMasterFound.serverPlan} Changed Successfully`,
     });
   } catch (error) {
     const logsPayload: logsDto = {
-                userId: serverMasterStatus.userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Changing Service Provider Status For ${serverMasterFound.serverPlan} to ${serverMasterStatus.status} - ${error.message} By User - `,
-                companyId: serverMasterStatus.companyId
-              }
-              await InsertLog(logsPayload);
+      userId: serverMasterStatus.userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Changing Server Master  Status For ${serverMasterFound.serverPlan} to ${serverMasterStatus.status} - ${error.message} By User - `,
+      companyId: serverMasterStatus.companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -277,15 +279,14 @@ export const updateStatus = async (req: Request, res: Response) => {
 
 export const deleteServerMaster = async (req: Request, res: Response) => {
   const serverPlanId = req.params.serverPlanId;
-     const {companyId,userId} = req.params;
+  const { companyId, userId } = req.params;
 
-    const serverMasterRepositry = appSource.getTreeRepository(serverMaster);
-    const serverMasterFound = await serverMasterRepositry.findOneBy({
-      serverPlanId: serverPlanId,
-      companyId: companyId,
-    });
+  const serverMasterRepositry = appSource.getTreeRepository(serverMaster);
+  const serverMasterFound = await serverMasterRepositry.findOneBy({
+    serverPlanId: serverPlanId,
+    companyId: companyId,
+  });
   try {
-    
     if (!serverMasterFound) {
       throw new ValidationException("Server Plan Not Found");
     }
@@ -297,26 +298,26 @@ export const deleteServerMaster = async (req: Request, res: Response) => {
       .where({ serverPlanId: serverPlanId })
       .andWhere({ companyId: companyId })
       .execute();
-      const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '200',
-                message: `Server Master Details : ${serverMasterFound.serverPlan} Deleted By User - `,
-                companyId:companyId
-              }
-              await InsertLog(logsPayload);
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Server Master Details : ${serverMasterFound.serverPlan} Deleted By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: `${serverMasterFound.serverPlan} Deleted Successfully `,
     });
   } catch (error) {
     const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Deleting Server Master Details : ${serverMasterFound.serverPlan} - ${error.message} By User - `,
-                companyId:companyId
-              }
-              await InsertLog(logsPayload);
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Deleting Server Master Details : ${serverMasterFound.serverPlan} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
