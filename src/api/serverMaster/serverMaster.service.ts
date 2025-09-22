@@ -123,27 +123,31 @@ export const addUpdateServerMaster = async (req: Request, res: Response) => {
         });
       return;
     } else {
-      const userNameValidation = await serverMasterRepositry.findOneBy({
-        userName: payload.userName,
-        serverPlanId: payload.serverPlanId,
-      });
-      if (userNameValidation) {
-        throw new ValidationException("User Name Already Exist ");
-      }
-      const emailValidation = await serverMasterRepositry.findOneBy({
-        emailAddress: payload.emailAddress,
-        serverPlanId: payload.serverPlanId,
-      });
-      if (emailValidation) {
-        throw new ValidationException("Email Address Already Exist ");
-      }
       const nameValidation = await serverMasterRepositry.findOneBy({
         serverPlan: payload.serverPlan,
-        serverPlanId: payload.serverPlanId,
+        serverPlanId: Not(payload.serverPlanId),
       });
       if (nameValidation) {
         throw new ValidationException("Server Name Already Exist ");
       }
+
+      const emailValidation = await serverMasterRepositry.findOneBy({
+        emailAddress: payload.emailAddress,
+        serverPlanId: Not(payload.serverPlanId),
+      });
+      if (emailValidation) {
+        throw new ValidationException("Email Address Already Exist ");
+      }
+
+      const userNameValidation = await serverMasterRepositry.findOneBy({
+        userName: payload.userName,
+        serverPlanId: Not(payload.serverPlanId),
+      });
+      if (userNameValidation) {
+        throw new ValidationException("User Name Already Exist ");
+      }
+      
+      
       await serverMasterRepositry.save(payload);
       const logsPayload: logsDto = {
         userId: userId,
