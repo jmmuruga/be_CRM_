@@ -5,6 +5,7 @@ import { ValidationException } from "../../core/exception";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { logOutDto } from "./signIn.dto";
+import { companyRegistration } from "../companyRegistration/companyRegistration.model";
 
 export const signIn = async (req: Request, res: Response) => {
   const payload = req.body;
@@ -85,7 +86,7 @@ export const logOut = async (req: Request, res: Response) => {
   }
 
   try {
-    const now = new Date().toLocaleTimeString("en-US", {
+    const now = new Date().toLocaleTimeString("en-US",{
       weekday: "short",
       year: "numeric",
       month: "short",
@@ -96,16 +97,18 @@ export const logOut = async (req: Request, res: Response) => {
       hour12: true,
     });
 
+    const companyRepositry = appSource.getRepository(companyRegistration);
+    const currentCompany = await companyRepositry.findOneBy({companyId : payload.companyId})
+
     const logsPayload: logsDto = {
       userId: payload.userId,
       userName: null,
       statusCode: "200",
-      message: `Session Ended At ${now} By User - `,
+      message: payload.islogout ? `Session Ended At ${now} By User - `: `Current Company Changed To ${currentCompany.companyName} At ${now} By User -`,
       companyId: payload.companyId,
     };
 
     await InsertLog(logsPayload);
-
     return res.status(200).send({
       Result: {
         message: "Logout Successful",
@@ -130,3 +133,6 @@ export const logOut = async (req: Request, res: Response) => {
     return res.status(500).send({ error: "Internal Server Error" });
   }
 };
+
+
+

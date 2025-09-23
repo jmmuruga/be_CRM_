@@ -10,6 +10,7 @@ import {
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { getChangedProperty } from "../../shared/helper";
 
 export const getCustomerId = async (req: Request, res: Response) => {
   try {
@@ -86,11 +87,12 @@ export const addUpdateCustomerRegistration = async (req: Request,res: Response) 
       await newCustomerRegistrationrepositry
         .update({ customerId: payload.customerId }, payload)
         .then(async () => {
+          let updatedFields : string = await getChangedProperty([payload] , [existingDetails] )
               const logsPayload: logsDto = {
                 userId: userId,
                 userName: null,
                 statusCode: '200',
-                message: `Customer Details ${payload.customerName} Updated By User - `,
+                message: `Customer Details For "${payload.customerName}" Updated - Changes : ${updatedFields}By User - `,
                 companyId: companyId
               }
               await InsertLog(logsPayload);

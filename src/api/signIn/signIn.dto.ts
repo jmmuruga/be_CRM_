@@ -13,4 +13,5 @@ export interface signInDto {
 export interface logOutDto {
   userId: string;
   companyId:string;
+  islogout:boolean;
 }

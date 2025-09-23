@@ -10,6 +10,7 @@ import {
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { Not } from "typeorm";
+import { getChangedProperty } from "../../shared/helper";
 
 export const getDomainNameId = async (req: Request, res: Response) => {
   try {
@@ -74,11 +75,12 @@ export const addUpdateDomainRegistration = async (
           payload
         )
         .then(async (r) => {
+          let updatedFields : string = await getChangedProperty([payload] , [existingDetails] )
           const logsPayload: logsDto = {
             userId: userId,
             userName: null,
             statusCode: "200",
-            message: `Domain Registration Details ${payload.domainName} Updated by User - `,
+            message: `Domain Registration Details For "${payload.domainName}" Updated - Changes : ${updatedFields} By User - `,
             companyId: companyId,
           };
           await InsertLog(logsPayload);

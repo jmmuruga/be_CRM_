@@ -9,6 +9,7 @@ import { serverMaster } from "../serverMaster/serverMaster.model";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
 import { InsertLog } from "../logs/logs.service";
 import { logsDto } from "../logs/logs.dto";
+import { getChangedProperty } from "../../shared/helper";
 
 export const getDomainMasterId = async (req: Request, res: Response) => {
   try {
@@ -82,11 +83,12 @@ export const addUpdateDomainMaster = async (req: Request, res: Response) => {
           payload
         )
         .then(async () => {
+          let updatedFields : string = await getChangedProperty([payload] , [existingDetails] )
           const logsPayload: logsDto = {
             userId: userId,
             userName: null,
             statusCode: "200",
-            message: `Domain Master Details ${domainDisplayName} - ${serviceProviderDisplayName} Updated By User - `,
+            message: `Domain Master Details For "${domainDisplayName} - ${serviceProviderDisplayName}" Updated - Changes : ${updatedFields} By User - `,
             companyId: companyId,
           };
           await InsertLog(logsPayload);

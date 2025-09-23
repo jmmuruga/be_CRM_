@@ -6,6 +6,7 @@ import { employeeRegistration } from "./employeeRegistration.model";
 import { Request, Response } from "express";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { getChangedProperty } from "../../shared/helper";
 
 export const getEmployeeId = async (req: Request, res: Response) => {
   try {
@@ -60,18 +61,14 @@ export const getEmployeeId = async (req: Request, res: Response) => {
       delete payload.companyId;
 
       if (existingDetails) {
-        // const companyNameAndBranchValidation =
-        //   await companyRegistrationRepositry.findOneBy({
-        //     companyName: payload.companyName,
-        //     Branch: payload.Branch,
-        //     companyId: Not(payload.companyId),
-        //   });
-        // if (companyNameAndBranchValidation) {
-        //   throw new ValidationException(
-        //     "Branch already exists for this Company."
-        //   );
-        // }
-
+        let isEmployeeImageUpdated : Boolean = false;
+        if(payload.employeeImage != existingDetails.employeeImage){
+          isEmployeeImageUpdated = true
+        }
+        let updatedFields = await getChangedProperty([payload] , [existingDetails]);
+        if(isEmployeeImageUpdated){
+           updatedFields = updatedFields + ' ' + 'Employee Image'
+        }
         const emailValidation = await employeeRegistrationRepositry.findOneBy({
           employeeEmail: payload.employeeEmail,
           employeeId: Not(payload.employeeId),
@@ -95,7 +92,7 @@ export const getEmployeeId = async (req: Request, res: Response) => {
                             userId: userId,
                             userName: null,
                             statusCode: '200',
-                            message: `Employee Details ${payload.employeeName} Updated by User - `,
+                            message: `Employee Details For "${payload.employeeName}" Updated - Changes :  ${updatedFields} Updated By User - `,
                             companyId: companyId
                           }
                           await InsertLog(logsPayload);

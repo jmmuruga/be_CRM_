@@ -6,6 +6,7 @@ import {companyDetailsStatus, companyRegistrationDto,companyRegistrationValidati
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import { getChangedProperty } from "../../shared/helper";
 
 export const getCompanyId = async (req: Request, res: Response) => {
   try {
@@ -59,7 +60,14 @@ export const getCompanyId = async (req: Request, res: Response) => {
       });
 
       if (existingDetails) {
-        // console.log(existingDetails , 'edit')
+        let isCompanyImageUpdated : Boolean = false;
+        if(payload.companyImage != existingDetails.companyImage){
+          isCompanyImageUpdated = true
+        }
+        let updatedFields = await getChangedProperty([payload],[existingDetails]);
+        if(isCompanyImageUpdated){
+          updatedFields = updatedFields +' '+ 'Company Image'
+        }
         const companyNameAndBranchValidation =
           await companyRegistrationRepositry.findOneBy({
             companyName: payload.companyName,
@@ -95,7 +103,7 @@ export const getCompanyId = async (req: Request, res: Response) => {
                                         userId: userId,
                                         userName: null,
                                         statusCode: '200',
-                                        message: `Company Details ${payload.companyName} Updated by User - `,
+                                        message: `Company Details For "${payload.companyName}" Updated - Changes : ${updatedFields} Updated By User - `,
                                         companyId: companyId
                                       }
                                       await InsertLog(logsPayload);
