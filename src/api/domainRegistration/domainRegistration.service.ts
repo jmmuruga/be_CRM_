@@ -11,6 +11,9 @@ import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { Not } from "typeorm";
 import { getChangedProperty } from "../../shared/helper";
+import { serverMaster } from "../serverMaster/serverMaster.model";
+import { domainMaster } from "../domainMaster/domainMaster.model";
+import { hostingMaster } from "../hostingMaster/hostingMaster.model";
 
 export const getDomainNameId = async (req: Request, res: Response) => {
   try {
@@ -233,9 +236,31 @@ export const deleteDomainRegistrationDetails = async (
       companyId: companyId,
     });
   try {
-    
     if (!domainRegFound) {
       throw new ValidationException("Domain Name Not Found ");
+    }
+    const serverMasterRepositry = appSource.getRepository(serverMaster);
+    const serverMasterExist = await serverMasterRepositry.findBy({
+      domainName:domainNameId
+    })
+    if (serverMasterExist?.length > 0){  
+      throw new ValidationException ("Unable To Delete , Domain Exist In Server Master !")
+    };
+
+    const domainMasterRepositry = appSource.getRepository(domainMaster);
+    const domainMasterExist = await domainMasterRepositry.findBy({
+      domainName:domainNameId
+    });
+    if(domainMasterExist?.length > 0){
+      throw new ValidationException ("Unable To Delete , Domain Exist In Domain Master !")
+    };
+
+    const hostingMasterRepositry = appSource.getRepository(hostingMaster);
+    const hostingMasterExist = await hostingMasterRepositry.findBy({
+      domainName:domainNameId
+    });
+    if(hostingMasterExist?.length > 0){
+      throw new ValidationException ("Unable To Delete , Domain Exist In Hosting Master !")
     }
 
     await domainRegistrationRepositry

@@ -11,6 +11,8 @@ import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { Not } from "typeorm";
 import { getChangedProperty } from "../../shared/helper";
+import { serverMaster } from "../serverMaster/serverMaster.model";
+import { domainMaster } from "../domainMaster/domainMaster.model";
 
 export const getServiceProviderId = async (req: Request, res: Response) => {
   try {
@@ -227,25 +229,36 @@ export const updateStatus = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteServiceProviderDetails = async (
-  req: Request,
-  res: Response
-) => {
+export const deleteServiceProviderDetails = async (req: Request,res: Response) => {
    const serviceProviderId = req.params.serviceProviderId;
-     const {companyId,userId} = req.params;
-
-    const serviceProviderRepositry = appSource.getTreeRepository(
-      serviceProviderMaster
-    );
+   const {companyId,userId} = req.params;
+   const serviceProviderRepositry = appSource.getTreeRepository(
+    serviceProviderMaster);
     const serviceProviderFound = await serviceProviderRepositry.findOneBy({
       serviceProviderId: serviceProviderId,
       companyId: companyId,
     });
   try {
-   
     if (!serviceProviderFound) {
       throw new ValidationException("Service Provider Not Found ");
+    };
+    const serverMasterRepositry = appSource.getRepository(serverMaster);
+    const serverMasterExist = await serverMasterRepositry.findBy({
+      serviceProvider:serviceProviderId,
+    });
+    if(serverMasterExist?.length > 0){
+      throw new ValidationException("Unable To Delete , Service Provider Exist In Server Master !")
+    };
+
+    const domainMasterRepositry = appSource.getRepository(domainMaster);
+    const domainMasterExist = await domainMasterRepositry.findBy({
+      serviceProvider:serviceProviderId,
+    });
+    if(domainMasterExist?.length > 0){
+      throw new ValidationException("Unable To Delete , Service Provider Exist In Domain Master !")
     }
+
+
 
     await serviceProviderRepositry
       .createQueryBuilder()

@@ -13,6 +13,8 @@ import { domainRegistration } from "../domainRegistration/domainRegistration.mod
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { getChangedProperty } from "../../shared/helper";
+import { domainMaster } from "../domainMaster/domainMaster.model";
+import { hostingMaster } from "../hostingMaster/hostingMaster.model";
 
 export const getServerMasterId = async (req: Request, res: Response) => {
   try {
@@ -296,6 +298,23 @@ export const deleteServerMaster = async (req: Request, res: Response) => {
     if (!serverMasterFound) {
       throw new ValidationException("Server Plan Not Found");
     }
+    const domainMasterRepositry = appSource.getRepository(domainMaster);
+        const domainMasterExist = await domainMasterRepositry.findBy({
+          serverPlan:serverPlanId
+        });
+        if(domainMasterExist?.length > 0){
+          throw new ValidationException("Unable To Delete , Server Exist In Domain Master !");
+        };
+
+        const hostingMasterRepositry = appSource.getRepository(hostingMaster);
+        const hostingMasterExist = await hostingMasterRepositry.findBy({
+          server:serverPlanId
+        });
+        if(hostingMasterExist?.length > 0){
+          throw new ValidationException("Unable To Delete , Server Exist In Hosting Master !");
+        };
+
+
 
     await serverMasterRepositry
       .createQueryBuilder()
