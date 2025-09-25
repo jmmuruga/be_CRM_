@@ -2,7 +2,11 @@ import { appSource } from "../../core/dataBase/db";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
-import {companyDetailsStatus, companyRegistrationDto,companyRegistrationValidation,} from "./companyRegistration.dto";
+import {
+  companyDetailsStatus,
+  companyRegistrationDto,
+  companyRegistrationValidation,
+} from "./companyRegistration.dto";
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
@@ -37,155 +41,157 @@ export const getCompanyId = async (req: Request, res: Response) => {
   }
 };
 
-  export const addUpdateCompanyRegistration = async (
-    req: Request,
-    res: Response
-  ) => {
-    const payload: companyRegistrationDto = req.body;
-    const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
-    const companyId = payload.companyId;
+export const addUpdateCompanyRegistration = async (
+  req: Request,
+  res: Response
+) => {
+  const payload: companyRegistrationDto = req.body;
+  const userId = payload.isEdited
+    ? payload.editedBy_userId
+    : payload.createdBy_userId;
+  const companyId = payload.companyId;
 
-    try {
-      
-      const validation = companyRegistrationValidation.validate(payload);
-      if (validation.error) {
-        throw new ValidationException(validation.error.message);
-      }
-
-      const companyRegistrationRepositry =
-        appSource.getRepository(companyRegistration);
-
-      const existingDetails = await companyRegistrationRepositry.findOneBy({
-        companyId: payload.companyId,
-      });
-
-      if (existingDetails) {
-        let isCompanyImageUpdated : Boolean = false;
-        if(payload.companyImage != existingDetails.companyImage){
-          isCompanyImageUpdated = true
-        }
-        let updatedFields = await getChangedProperty([payload],[existingDetails]);
-        if(isCompanyImageUpdated){
-          updatedFields = updatedFields +' '+ 'Company Image'
-        }
-        const companyNameAndBranchValidation =
-          await companyRegistrationRepositry.findOneBy({
-            companyName: payload.companyName,
-            Branch: payload.Branch,
-            companyId: Not(payload.companyId),
-          });
-        if (companyNameAndBranchValidation) {
-          throw new ValidationException(
-            "Branch already exists for this Company."
-          );
-        }
-
-        const emailValidation = await companyRegistrationRepositry.findOneBy({
-          Email: payload.Email,
-          companyId: Not(payload.companyId),
-        });
-        if (emailValidation) {
-          throw new ValidationException("Email Address Already Exist");
-        }
-
-        const mobileValidation = await companyRegistrationRepositry.findOneBy({
-          Mobile: payload.Mobile,
-          companyId: Not(payload.companyId),
-        });
-        if (mobileValidation) {
-          throw new ValidationException("Mobile Number Already Exist");
-        }
-
-        await companyRegistrationRepositry
-          .update({ companyId: payload.companyId }, payload)
-          .then(async () => {
-            const logsPayload: logsDto = {
-                                        userId: userId,
-                                        userName: null,
-                                        statusCode: '200',
-                                        message: `Company Details For "${payload.companyName}" Updated - Changes : ${updatedFields} Updated By User - `,
-                                        companyId: companyId
-                                      }
-                                      await InsertLog(logsPayload);
-            res.status(200).send({
-              IsSuccess: "Company Details Updated Successfully",
-            });
-          })
-          .catch(async (error) => {
-             const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Updating Company Details ${payload.companyName} - ${error.message} By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
-            if (error instanceof ValidationException) {
-              return res.status(400).send({
-                message: error?.message,
-              });
-            }
-            res.status(500).send(error);
-          });
-        return;
-      } else {
-        const companyNameAndBranchValidation =
-          await companyRegistrationRepositry.findOneBy({
-            companyName: payload.companyName,
-            Branch: payload.Branch,
-          });
-        if (companyNameAndBranchValidation) {
-          throw new ValidationException(
-            "Branch already exists for this company."
-          );
-        }
-
-
-        const emailValidation = await companyRegistrationRepositry.findOneBy({
-          Email: payload.Email,
-        });
-        if (emailValidation) {
-          throw new ValidationException("Email Address Already Exist");
-        }
-
-        const mobileValidation = await companyRegistrationRepositry.findOneBy({
-          Mobile: payload.Mobile,
-        });
-        if (mobileValidation) {
-          throw new ValidationException("Mobile Number Already Exist");
-        }
-
-        await companyRegistrationRepositry.save(payload);
-        const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '200',
-                message: `Company Details ${payload.companyName} Added By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
-        res.status(200).send({
-          IsSuccess: "Company Details Added successfully",
-        });
-      }
-    } catch (error) {
-      const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Adding Company Details ${payload.companyName} - ${error.message} By User - `,
-                companyId: companyId
-              }
-              await InsertLog(logsPayload);
-      if (error instanceof ValidationException) {
-        return res.status(400).send({
-          message: error?.message,
-        });
-      }
-      res.status(500).send(error);
+  try {
+    const validation = companyRegistrationValidation.validate(payload);
+    if (validation.error) {
+      throw new ValidationException(validation.error.message);
     }
-  };
 
+    const companyRegistrationRepositry =
+      appSource.getRepository(companyRegistration);
+
+    const existingDetails = await companyRegistrationRepositry.findOneBy({
+      companyId: payload.companyId,
+    });
+
+    if (existingDetails) {
+      let isCompanyImageUpdated: Boolean = false;
+      if (payload.companyImage != existingDetails.companyImage) {
+        isCompanyImageUpdated = true;
+      }
+      let updatedFields = await getChangedProperty(
+        [payload],
+        [existingDetails]
+      );
+      if (isCompanyImageUpdated) {
+        updatedFields = updatedFields + " " + "Company Image";
+      }
+      const companyNameAndBranchValidation =
+        await companyRegistrationRepositry.findOneBy({
+          companyName: payload.companyName,
+          Branch: payload.Branch,
+          companyId: Not(payload.companyId),
+        });
+      if (companyNameAndBranchValidation) {
+        throw new ValidationException(
+          "Branch already exists for this Company."
+        );
+      }
+
+      const emailValidation = await companyRegistrationRepositry.findOneBy({
+        Email: payload.Email,
+        companyId: Not(payload.companyId),
+      });
+      if (emailValidation) {
+        throw new ValidationException("Email Address Already Exist");
+      }
+
+      const mobileValidation = await companyRegistrationRepositry.findOneBy({
+        Mobile: payload.Mobile,
+        companyId: Not(payload.companyId),
+      });
+      if (mobileValidation) {
+        throw new ValidationException("Mobile Number Already Exist");
+      }
+
+      await companyRegistrationRepositry
+        .update({ companyId: payload.companyId }, payload)
+        .then(async () => {
+          const logsPayload: logsDto = {
+            userId: userId,
+            userName: null,
+            statusCode: "200",
+            message: `Company Details For "${payload.companyName}" Updated - Changes : ${updatedFields} Updated By User - `,
+            companyId: companyId,
+          };
+          await InsertLog(logsPayload);
+          res.status(200).send({
+            IsSuccess: "Company Details Updated Successfully",
+          });
+        })
+        .catch(async (error) => {
+          const logsPayload: logsDto = {
+            userId: userId,
+            userName: null,
+            statusCode: "400",
+            message: `Error While Updating Company Details ${payload.companyName} - ${error.message} By User - `,
+            companyId: companyId,
+          };
+          await InsertLog(logsPayload);
+          if (error instanceof ValidationException) {
+            return res.status(400).send({
+              message: error?.message,
+            });
+          }
+          res.status(500).send(error);
+        });
+      return;
+    } else {
+      const companyNameAndBranchValidation =
+        await companyRegistrationRepositry.findOneBy({
+          companyName: payload.companyName,
+          Branch: payload.Branch,
+        });
+      if (companyNameAndBranchValidation) {
+        throw new ValidationException(
+          "Branch already exists for this company."
+        );
+      }
+
+      const emailValidation = await companyRegistrationRepositry.findOneBy({
+        Email: payload.Email,
+      });
+      if (emailValidation) {
+        throw new ValidationException("Email Address Already Exist");
+      }
+
+      const mobileValidation = await companyRegistrationRepositry.findOneBy({
+        Mobile: payload.Mobile,
+      });
+      if (mobileValidation) {
+        throw new ValidationException("Mobile Number Already Exist");
+      }
+
+      await companyRegistrationRepositry.save(payload);
+      const logsPayload: logsDto = {
+        userId: userId,
+        userName: null,
+        statusCode: "200",
+        message: `Company Details ${payload.companyName} Added By User - `,
+        companyId: companyId,
+      };
+      await InsertLog(logsPayload);
+      res.status(200).send({
+        IsSuccess: "Company Details Added successfully",
+      });
+    }
+  } catch (error) {
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Adding Company Details ${payload.companyName} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
 
 export const getCompanyDetails = async (req: Request, res: Response) => {
   try {
@@ -209,13 +215,12 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
 
 export const updateCompanyStatus = async (req: Request, res: Response) => {
   const companystatus: companyDetailsStatus = req.body;
-    const companyRegistrationRepositry =
-      appSource.getRepository(companyRegistration);
-    const companyFound = await companyRegistrationRepositry.findOneBy({
-      companyId: companystatus.companyId,
-    });
+  const companyRegistrationRepositry =
+    appSource.getRepository(companyRegistration);
+  const companyFound = await companyRegistrationRepositry.findOneBy({
+    companyId: companystatus.companyId,
+  });
   try {
-    
     if (!companyFound) {
       throw new ValidationException("Company Not Found");
     }
@@ -225,27 +230,27 @@ export const updateCompanyStatus = async (req: Request, res: Response) => {
       .set({ status: companystatus.status })
       .where({ companyId: companystatus.companyId })
       .execute();
-      const logsPayload: logsDto = {
-                userId: companystatus.userId,
-                userName: null,
-                statusCode: '200',
-                message: `Company Status For ${companyFound.companyName} Changed To ${companystatus.status} By User - `,
-                companyId: companystatus.companyId
-              }
-              await InsertLog(logsPayload);
+    const logsPayload: logsDto = {
+      userId: companystatus.userId,
+      userName: null,
+      statusCode: "200",
+      message: `Company Status For ${companyFound.companyName} Changed To ${companystatus.status} By User - `,
+      companyId: companystatus.companyId,
+    };
+    await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `Status for ${companyFound.companyName} Changed Successfully`,
     });
   } catch (error) {
     const logsPayload: logsDto = {
-                userId: companystatus.userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Changing Employee Status For ${companyFound.companyName} to ${companystatus.status} - ${error.message} By User - `,
-                companyId: companystatus.companyId
-              }
-              await InsertLog(logsPayload);
+      userId: companystatus.userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Changing Employee Status For ${companyFound.companyName} to ${companystatus.status} - ${error.message} By User - `,
+      companyId: companystatus.companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -256,11 +261,11 @@ export const updateCompanyStatus = async (req: Request, res: Response) => {
 };
 
 export const deleteCompany = async (req: Request, res: Response) => {
-  const {companyId,userId} = req.params;
-    const companyRepositry = appSource.getTreeRepository(companyRegistration);
-    const companyFound = await companyRepositry.findOneBy({
-      companyId: companyId,
-    });
+  const { companyId, userId } = req.params;
+  const companyRepositry = appSource.getTreeRepository(companyRegistration);
+  const companyFound = await companyRepositry.findOneBy({
+    companyId: companyId,
+  });
   try {
     if (!companyFound) {
       throw new ValidationException("Company Not Found ");
@@ -272,27 +277,27 @@ export const deleteCompany = async (req: Request, res: Response) => {
       .from(companyRegistration)
       .where({ companyId: companyId })
       .execute();
-      const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '200',
-                message: `Company Details : ${companyFound.companyName} Deleted By User - `,
-                companyId:companyId
-              }
-              await InsertLog(logsPayload);
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Company Details : ${companyFound.companyName} Deleted By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
 
     res.status(200).send({
       IsSuccess: `${companyFound.companyName} Deleted Successfully `,
     });
   } catch (error) {
     const logsPayload: logsDto = {
-                userId: userId,
-                userName: null,
-                statusCode: '400',
-                message: `Error While Deleting Company Details : ${companyFound.companyName} - ${error.message} By User - `,
-                companyId:companyId
-              }
-              await InsertLog(logsPayload);
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Deleting Company Details : ${companyFound.companyName} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error.message,
@@ -302,8 +307,3 @@ export const deleteCompany = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-
-
-
-

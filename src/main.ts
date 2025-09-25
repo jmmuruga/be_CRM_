@@ -13,6 +13,7 @@ import hostingMasterRouter from "./api/hostingMaster/hostingMaster.controller";
 import serviceProviderRouter from "./api/serviceProviderMaster/serviceProviderMaster.controller";
 import serverMasterRouter from "./api/serverMaster/serverMaster.controller";
 import signInRouter from "./api/signIn/signIn.controller";
+import logsRouter from "./api/logs/logs.controller";
 
 const app = express();
 
@@ -42,6 +43,8 @@ app.use('/hostingMaster' , cors(corsOptions) , hostingMasterRouter);
 app.use('/serviceProvider' , cors(corsOptions) , serviceProviderRouter);
 app.use('/serverMaster' , cors(corsOptions) , serverMasterRouter);
 app.use('/signIn' , cors(corsOptions) , signInRouter);
+app.use('/logsReport' , cors(corsOptions) , logsRouter);
+
 
 
 

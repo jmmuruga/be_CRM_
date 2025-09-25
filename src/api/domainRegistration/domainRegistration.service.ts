@@ -2,11 +2,7 @@ import { appSource } from "../../core/dataBase/db";
 import { domainRegistration } from "./domainRegistration.model";
 import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
-import {
-  domainRegistrationDto,
-  domainRegistrationStatus,
-  domainRegistrationValidation,
-} from "./domainRegistration.dto";
+import {domainRegistrationDto,domainRegistrationStatus,domainRegistrationValidation,} from "./domainRegistration.dto";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { Not } from "typeorm";
@@ -287,7 +283,7 @@ export const deleteDomainRegistrationDetails = async (
                 userId: userId,
                 userName: null,
                 statusCode: '400',
-                message: `Error While Deleting Company Details : ${domainRegFound.domainName} - ${error.message} By User - `,
+                message: `Error While Deleting Domain Details : ${domainRegFound.domainName} - ${error.message} By User - `,
                 companyId:companyId
               }
               await InsertLog(logsPayload);
@@ -296,7 +292,6 @@ export const deleteDomainRegistrationDetails = async (
         message: error.message,
       });
     }
-
     res.status(500).send(error);
   }
 };
