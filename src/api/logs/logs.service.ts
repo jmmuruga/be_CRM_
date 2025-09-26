@@ -22,21 +22,46 @@ export const getLogsReport = async (req: Request, res: Response) => {
     let Details: logsDto[] = [];
     if (+userId > 0) {
       Details = await logsRepository.query(
-        `Select logId,userId,userName,statusCode,message,created_at
-        from [${process.env.DB_NAME}].[dbo].[logs]
-        where companyId = '${companyId}' AND
-        CONVERT(VARCHAR(10),  created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
-        AND CONVERT(VARCHAR(10), created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) AND userId = '${userId}'
-        order by logId desc`
+        // `Select logId,userId,userName,statusCode,message,created_at
+        // from [${process.env.DB_NAME}].[dbo].[logs]
+        // where companyId = '${companyId}' AND
+        // CONVERT(VARCHAR(10),  created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
+        // AND CONVERT(VARCHAR(10), created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) AND userId = '${userId}'
+        // order by logId desc`
+
+        `Select l.logId,l.userId,ud.userName,l.statusCode,l.message,l.created_at
+        from [${process.env.DB_NAME}].[dbo].[logs] l
+		    inner join [${process.env.DB_NAME}].[dbo].user_details ud
+		    on l.userId = ud.userId
+        where companyId = '${companyId}' AND l.userId = '${userId}' and
+        CONVERT(VARCHAR(10),  l.created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
+        AND CONVERT(VARCHAR(10), l.created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) AND ud.userId = '${userId}'
+        order by l.logId desc`
+
+
+
+
       );
     } else {
       Details = await logsRepository.query(
-        `Select logId,userId,userName,statusCode,message,created_at
-        from [${process.env.DB_NAME}].[dbo].[logs]
-        where companyId = '${companyId}' AND
-        CONVERT(VARCHAR(10),  created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
-        AND CONVERT(VARCHAR(10), created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) 
-        order by logId desc`
+        // `Select logId,userId,userName,statusCode,message,created_at
+        // from [${process.env.DB_NAME}].[dbo].[logs]
+        // where companyId = '${companyId}' AND 
+        // CONVERT(VARCHAR(10),  created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
+        // AND CONVERT(VARCHAR(10), created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) 
+        // order by logId desc`
+
+
+
+        `Select l.logId,l.userId,ud.userName,l.statusCode,l.message,l.created_at
+        from [${process.env.DB_NAME}].[dbo].[logs] l
+        inner join [${process.env.DB_NAME}].[dbo].user_details ud
+        on l.userId = ud.userId
+        where companyId = '${companyId}' AND 
+        CONVERT(VARCHAR(10),  l.created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
+        AND CONVERT(VARCHAR(10), l.created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) 
+        order by l.logId desc`
+
       );
     }
 
