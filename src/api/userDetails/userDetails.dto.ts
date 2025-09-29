@@ -30,7 +30,7 @@ export interface userDetailsDto {
 }
 
 
-export interface userDetailsStatus{
+export interface userDetailsStatusDto{
   userId: string;
   status: boolean;
   companyId: string;

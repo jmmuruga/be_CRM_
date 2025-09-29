@@ -15,3 +15,27 @@ userDetailsRouter.delete('/deleteUser/:userId/:deletedUserId/:companyId' , (req,
 
 
 export default userDetailsRouter
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

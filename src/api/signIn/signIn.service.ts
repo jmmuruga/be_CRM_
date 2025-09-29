@@ -6,6 +6,8 @@ import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import { logOutDto } from "./signIn.dto";
 import { companyRegistration } from "../companyRegistration/companyRegistration.model";
+import * as crypto from "crypto";
+
 
 export const signIn = async (req: Request, res: Response) => {
   const payload = req.body;
@@ -22,10 +24,12 @@ export const signIn = async (req: Request, res: Response) => {
       throw new ValidationException("User does not exist");
     }
   try {
-    
-    if (user.Password !== payload.Password) {
-      throw new ValidationException("Username or Password is Wrong");
-    }
+    const encryptedPassword = await encryptString(payload.Password, "ABCXY123");
+     if (user.Password != encryptedPassword) {
+            throw new ValidationException("Incorrect Password !");
+        }
+
+
     const now = new Date().toLocaleTimeString('en-US', {
       weekday: 'short',
       year: 'numeric',
@@ -71,7 +75,7 @@ export const signIn = async (req: Request, res: Response) => {
       
       return res.status(400).send({ error: error.message });
     }
-    console.error("SignIn Error:", error);
+    // console.error("SignIn Error:", error);
     return res.status(500).send({ error: "Internal Server Error" });
   }
   
@@ -132,7 +136,18 @@ export const logOut = async (req: Request, res: Response) => {
     console.error("Logout Error:", error);
     return res.status(500).send({ error: "Internal Server Error" });
   }
-};
+  };
 
-
+export function encryptString(data: string, secreatKey: string) {
+  const algorithm = process.env.algorithm || "aes-256-cbc";
+  const key = Buffer.from(
+    "52d1542a9ee07bb807375a552983abf2386dc5e1e7ddc66dfb78b3c8533ee63b",
+    "hex"
+  );
+  const iv = Buffer.from("ef953c62cfcff791f31efe8cd91ac20d", "hex");
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encryptData = cipher.update(data, "utf-8", "hex");
+  encryptData += cipher.final("hex");
+  return encryptData;
+}
 
