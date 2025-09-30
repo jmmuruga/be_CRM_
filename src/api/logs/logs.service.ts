@@ -5,6 +5,7 @@ import { logsDto } from "./logs.dto";
 import { Logs } from "./logs.model";
 import { Request, Response } from "express";
 
+
 export const InsertLog = async (payload: logsDto): Promise<void> => {
   const logsRepository = appSource.getRepository(Logs);
   const userRepository = appSource.getRepository(userDetails);
@@ -38,9 +39,6 @@ export const getLogsReport = async (req: Request, res: Response) => {
         AND CONVERT(VARCHAR(10), l.created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) AND ud.userId = '${userId}'
         order by l.logId desc`
 
-
-
-
       );
     } else {
       Details = await logsRepository.query(
@@ -51,8 +49,6 @@ export const getLogsReport = async (req: Request, res: Response) => {
         // AND CONVERT(VARCHAR(10), created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) 
         // order by logId desc`
 
-
-
         `Select l.logId,l.userId,ud.userName,l.statusCode,l.message,l.created_at
         from [${process.env.DB_NAME}].[dbo].[logs] l
         inner join [${process.env.DB_NAME}].[dbo].user_details ud
@@ -61,7 +57,6 @@ export const getLogsReport = async (req: Request, res: Response) => {
         CONVERT(VARCHAR(10),  l.created_at, 120) >= CONVERT(VARCHAR(10), '${fromDate}', 120)
         AND CONVERT(VARCHAR(10), l.created_at, 120) <= CONVERT(VARCHAR(10), '${toDate}', 120) 
         order by l.logId desc`
-
       );
     }
 

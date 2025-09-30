@@ -10,8 +10,11 @@ import {
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
+import { generateOpt, getChangedProperty } from "../../shared/helper";
 import * as crypto from "crypto";
+import { getOtpForgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
+import nodemailer from 'nodemailer';
+
 
 export const getUserId = async (req: Request, res: Response) => {
   try {
@@ -319,3 +322,62 @@ export function decrypter(encryptedDate: string): string {
     return encryptedDate;
   }
 }
+
+
+export const forgetPasswordOtp = async (req: Request, res: Response) => {
+    const Email = req.params.Email;
+    try {
+        const userRepository = await appSource.getRepository(userDetails);
+        let user = await userRepository.findOneBy({
+            Email: Email,
+        });
+        if (!user) {
+            user = await userRepository.findOneBy({
+                Mobile: Email,
+            });
+        }
+        if (!user) {
+            throw new ValidationException("User not found");
+        }
+        if (user.userType === "5") {
+            throw new ValidationException("Super Admin cannot change password here");
+        }
+        if (!user.status) {
+            throw new ValidationException("User is Inactive, Please contact Admin");
+        }
+        let response: any;
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            port: 465,
+            secure: false,
+            auth: {
+                user: "savedatain@gmail.com",
+                pass: "unpk bcsy ibhp wzrm",
+            },
+        });
+        const { userName, Mobile, } = user;
+        const Generatedotp = generateOpt();
+        response = await transporter.sendMail({
+            from: "savedatain@gmail.com",
+            to: "savedatamadhavashanmugam@gmail.com",
+            subject: `OTP to register ${userName}`,
+            text: `Please enter the OTP: ${Generatedotp} to Register a Super Admin account
+     User Name: ${userName} , Email: ${Email} , Mobile Number: ${Mobile}`,
+        });
+        const otpRepo = appSource.getRepository(getOtpForgetPasswordOtpStore);
+        const otpTablePayload = {
+            userId: user.userId,
+            otp: Generatedotp,
+        };
+        await otpRepo.save(otpTablePayload);
+        res.status(200).send({
+            Result: user,
+        });
+    } catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error,
+            });
+        }
+    }
+};

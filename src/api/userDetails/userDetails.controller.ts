@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addUpdateUserDetails, deleteUser, getUserDetails, getUserId, updateUserStatus } from "./userDetails.service";
+import { addUpdateUserDetails, deleteUser, forgetPasswordOtp, getUserDetails, getUserId, updateUserStatus } from "./userDetails.service";
 
 const userDetailsRouter = Router();
 
@@ -12,6 +12,8 @@ userDetailsRouter.get('/getUserDetails' , (req,res) => getUserDetails(req , res)
 userDetailsRouter.post('/updateStatusForUser' , (req,res) => updateUserStatus(req,res));
 
 userDetailsRouter.delete('/deleteUser/:userId/:deletedUserId/:companyId' , (req,res) => deleteUser(req,res));
+
+userDetailsRouter.get('/forgetPasswordOtp/:Email', (req, res) => { forgetPasswordOtp(req, res) })
 
 
 export default userDetailsRouter

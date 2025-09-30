@@ -215,8 +215,7 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
 
 export const updateCompanyStatus = async (req: Request, res: Response) => {
   const companystatus: companyDetailsStatus = req.body;
-  const companyRegistrationRepositry =
-    appSource.getRepository(companyRegistration);
+  const companyRegistrationRepositry = appSource.getRepository(companyRegistration);
   const companyFound = await companyRegistrationRepositry.findOneBy({
     companyId: companystatus.companyId,
   });
