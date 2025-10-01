@@ -11,6 +11,7 @@ import { companyRegistration } from "../../api/companyRegistration/companyRegist
 import { employeeRegistration } from "../../api/employeeRegistration/employeeRegistration.model";
 import { newCustomerRegistration } from "../../api/newCustomer/newCustomer.model";
 import { Logs } from "../../api/logs/logs.model";
+import { forgetPasswordOtpStore } from "../../api/getOtpForgetPassword/getOtpForgetPassword.model";
 
 const Entities = [
   domainMaster,
@@ -23,6 +24,8 @@ const Entities = [
   employeeRegistration,
   newCustomerRegistration,
   Logs,
+  forgetPasswordOtpStore,
+  
   
 ];
 

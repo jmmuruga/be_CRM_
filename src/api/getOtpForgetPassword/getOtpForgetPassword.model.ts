@@ -1,7 +1,7 @@
 import {Column,CreateDateColumn,Entity,PrimaryGeneratedColumn, UpdateDateColumn,} from "typeorm";
 
 @Entity()
-export class getOtpForgetPasswordOtpStore {
+export class forgetPasswordOtpStore {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -10,9 +10,6 @@ export class getOtpForgetPasswordOtpStore {
 
   @Column()
   otp: string;
-
-  @Column()
-  statusCode: string;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;
