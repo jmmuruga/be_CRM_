@@ -21,33 +21,6 @@ export default userDetailsRouter
 
 
 
-// export const verifyOtpUserPassword = async (req: Request, res: Response) => {
-//     try {
-//         const { userId, otp } = req.params;
-//         if (!userId || !otp) {
-//             throw new ValidationException("Invalid userId or otp received");
-//         }
-
-//         const OtpRepositry = appSource.getRepository(forgetPasswordOtpStore);
-//         await OtpRepositry
-//             .createQueryBuilder()
-//             .delete()
-//             .from(forgetPasswordOtpStore)
-//             .where({ userId: userId })
-//             .execute();
-//         res.status(200).send({
-//             IsSuccess: `Otp Verified Successfully...!`,
-//         });
-//     } catch (error) {
-//         if (error instanceof ValidationException) {
-//             return res.status(400).send({
-//                 message: error.message,
-//             });
-//         }
-//         res.status(500).send(error);
-//     }
-// };
-
 
 
 

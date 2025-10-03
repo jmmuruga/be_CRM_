@@ -327,7 +327,7 @@ export function decrypter(encryptedDate: string): string {
 
 export const forgetPasswordOtp = async (req: Request, res: Response) => {
   const Email = req.params.Email;
-  console.log(Email, "requested email");
+  // console.log(Email, "requested email");
   try {
     const userRepository = await appSource.getRepository(userDetails);
     let user = await userRepository.findOneBy({
@@ -372,7 +372,7 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       otp: Generatedotp,
     };
     await OtpRepositry.save(otpTablePayload);
-    console.log(res, "test");
+    // console.log(res, "test");
 
     res.status(200).send({
       Result: user,
@@ -388,52 +388,50 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
 };
 
 
+
 export const verifyOtpUserPassword = async (req: Request, res: Response) => {
   try {
-    const { userId, otp } = req.params;
+    const { userId, otp } = req.params; 
     if (!userId || !otp) {
-      throw new ValidationException("Invalid userId or otp received");
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid UserId or OTP Received",
+      });
     }
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
 
-    // Find OTP for user
-    const storedOtp = await OtpRepository.findOne({
-      where: { userId: userId },
-    });
+    //  Find OTP for this user
+    const storedOtp = await OtpRepository.findOne({ where: { userId } });
 
     if (!storedOtp) {
-      return res.status(400).send({
+      return res.status(400).json({
         IsSuccess: false,
-        ErrorMessage: "OTP not found or expired",
+        ErrorMessage: "OTP Not Found or Expired",
       });
     }
 
-    // Compare OTP values
-    if (storedOtp.otp !== otp) {
-      return res.status(400).send({
+    //  Check if OTP matches (convert both to string)
+    if (storedOtp.otp.toString() !== otp.toString()) {
+      return res.status(400).json({
         IsSuccess: false,
         ErrorMessage: "Invalid OTP",
       });
     }
 
-    // OTP is correct → delete it
-    await OtpRepository.delete({ userId: userId });
+    //  If OTP matches, delete it from DB
+    await OtpRepository.delete({ userId });
 
-    return res.status(200).send({
-      IsSuccess: true,
-      Message: "OTP Verified Successfully!",
+    // Send success response
+    return res.status(200).json({
+      IsSuccess: "OTP Verified Successfully!",
+      message: "OTP Verified Successfully!",
     });
   } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        IsSuccess: false,
-        ErrorMessage: error.message,
-      });
-    }
-    return res.status(500).send({
+    console.error("verifyOtpUserPassword error:", error);
+    return res.status(500).json({
       IsSuccess: false,
-      ErrorMessage: "Something went wrong",
+      ErrorMessage: "Something Went Wrong!",
     });
   }
 };
