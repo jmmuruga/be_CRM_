@@ -45,6 +45,7 @@ export const getUserId = async (req: Request, res: Response) => {
 
 export const addUpdateUserDetails = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
+   console.log(payload,'IncomingDetails')
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
@@ -372,6 +373,8 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       otp: Generatedotp,
     };
     await OtpRepositry.save(otpTablePayload);
+    
+    console.log(Generatedotp , 'generated otp')
     // console.log(res, "test");
 
     res.status(200).send({
