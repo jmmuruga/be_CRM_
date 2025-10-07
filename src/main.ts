@@ -14,6 +14,7 @@ import serviceProviderRouter from "./api/serviceProviderMaster/serviceProviderMa
 import serverMasterRouter from "./api/serverMaster/serverMaster.controller";
 import signInRouter from "./api/signIn/signIn.controller";
 import logsRouter from "./api/logs/logs.controller";
+import superAdminRegistrationRouter from "./api/superAdminRegistration/superAdminReg.controller";
 
 const app = express();
 
@@ -44,11 +45,6 @@ app.use('/serviceProvider' , cors(corsOptions) , serviceProviderRouter);
 app.use('/serverMaster' , cors(corsOptions) , serverMasterRouter);
 app.use('/signIn' , cors(corsOptions) , signInRouter);
 app.use('/logsReport' , cors(corsOptions) , logsRouter);
-
-
-
-
-
-
+app.use('/superAdminRegistration' , cors(corsOptions) , superAdminRegistrationRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

@@ -45,7 +45,7 @@ export const getUserId = async (req: Request, res: Response) => {
 
 export const addUpdateUserDetails = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
-   console.log(payload,'IncomingDetails')
+  //  console.log(payload,'IncomingDetails')
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
@@ -401,9 +401,7 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
         ErrorMessage: "Invalid UserId or OTP Received",
       });
     }
-
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
-
     //  Find OTP for this user
     const storedOtp = await OtpRepository.findOne({ where: { userId } });
 
