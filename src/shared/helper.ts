@@ -19,7 +19,7 @@ export async function getChangedProperty<T>(
   return changedPropertyList;
 }
 
-export function generateOpt(): string {
+export function generateOtp(): string {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   return otp;
 }

@@ -10,7 +10,7 @@ import {
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
-import { generateOpt, getChangedProperty } from "../../shared/helper";
+import {  generateOtp, getChangedProperty } from "../../shared/helper";
 import * as crypto from "crypto";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
@@ -359,7 +359,7 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       },
     });
     const { userName, Mobile } = user;
-    const Generatedotp = generateOpt();
+    const Generatedotp = generateOtp();
     response = await transporter.sendMail({
       from: "savedatain@gmail.com",
       to: "savedatamadhavashanmugam@gmail.com",
@@ -436,3 +436,58 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+// export const SendOtpNewAdminUser = async (req: Request, res: Response) => {
+//     try {
+//         const userName = req.params.userName;
+//         const userId = req.params.userId;
+//         const Email = req.params.Email;
+//         const Mobile = req.params.Mobile;
+//         const userRepository = appSource.getRepository(UserDetails);
+//         const userDetail = await userRepository
+//             .createQueryBuilder("user")
+//             .where("user.Mobile = :Mobile", {
+//                 Mobile: Mobile,
+//             })
+//             .orWhere("user.Email = :Email", { Email: Email })
+//             .getMany();
+//         if (userDetail?.length) {
+//             throw new ValidationException("User already exist");
+//         }
+//         const GeneratedOtp = generateOpt();
+//         let response: any;
+//         const transporter = nodemailer.createTransport({
+//             service: "gmail",
+//             port: 465,
+//             secure: false,
+//             auth: {
+//                 user: "savedatain@gmail.com",
+//                 pass: "unpk bcsy ibhp wzrm",
+//             },
+//         });
+//         response = await transporter.sendMail({
+//             from: "savedatain@gmail.com",
+//             to: "savedataakshaya03@gmail.com",
+//             subject: `OTP to register ${userName}`,
+//             text: `Please enter the OTP: ${GeneratedOtp} to Register a Super Admin account
+//      User Name: ${userName} , Email: ${Email} , Mobile Number: ${Mobile}`,
+//         });
+//         const otpRepo = appSource.getRepository(otpStore);
+//         const otpTablePayload = {
+//             userId: userId,
+//             otp: GeneratedOtp
+//         };
+//         await otpRepo.save(otpTablePayload);
+//         res.status(200).send({
+//             IsSuccess: "OTP sent successfully",
+//         });
+//     } catch (error) {
+//         if (error instanceof ValidationException) {
+//             return res.status(400).send({
+//                 message: error.message,
+//             });
+//         }
+//         res.status(500).send(error);
+//     }
+// };
