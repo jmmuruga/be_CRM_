@@ -9,26 +9,6 @@ import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
 
 
-
-// export const addSuperAdminRegistration = async (req: Request, res: Response) => {
-//     const payload: superAdminRegistrationDto = req.body;
-
-//     try {
-//         const validation = superAdminRegistrationValidation.validate(payload);
-//         if (validation.error) {
-//             throw new ValidationException(validation.error?.message);
-//         }
-//         const userDetailsRepositry = await appSource.getRepository(userDetails);
-//         const users = await userDetailsRepositry.createQueryBuilder("")
-
-//     }
-//     catch {
-
-//     }
-
-// }
-
-
 export const addSuperAdminRegistration = async (req: Request, res: Response) => {
     const payload: superAdminRegistrationDto = req.body;
     try {
@@ -58,7 +38,7 @@ export const addSuperAdminRegistration = async (req: Request, res: Response) => 
         payload.companyId = '1'
         await userDetailsRepository.save(payload);
         res.status(200).send({
-            IsSuccess: "User Registered Successfully",
+            IsSuccess: "Super Admin Registered Successfully",
         });
     } catch (error) {
         if (error instanceof ValidationException) {
@@ -72,7 +52,6 @@ export const addSuperAdminRegistration = async (req: Request, res: Response) => 
 
 export const sendOtpSuperAdmin = async (req:Request,res:Response) => {
     try{
-        
         const userName = req.params.userName;
         const userId = req.params.userId;
         const Email = req.params.Email;
@@ -87,7 +66,7 @@ export const sendOtpSuperAdmin = async (req:Request,res:Response) => {
             Email : Email
         }).getMany();
         if (userDetail?.length){
-            throw new ValidationException("User already exist");
+            throw new ValidationException("User Already Exist");
         }
 
         const generatedOtp = generateOtp();
@@ -132,6 +111,51 @@ export const sendOtpSuperAdmin = async (req:Request,res:Response) => {
         res.status(500).send(error);
     }
 }
+
+export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
+  try {
+    const { userId, otp } = req.params; 
+    if (!userId || !otp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid UserId or OTP Received",
+      });
+    }
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    //  Find OTP for this user
+    const storedOtp = await OtpRepository.findOne({ where: { userId } });
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "OTP Not Found or Expired",
+      });
+    }
+
+    //  Check if OTP matches (convert both to string)
+    if (storedOtp.otp.toString() !== otp.toString()) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid OTP",
+      });
+    }
+
+    //  If OTP matches, delete it from DB
+    await OtpRepository.delete({ userId });
+
+    // Send success response
+    return res.status(200).json({
+      IsSuccess: "OTP Verified Successfully!",
+      message: "OTP Verified Successfully!",
+    });
+  } catch (error) {
+    // console.error("verifyOtpUserPassword error:", error);
+    return res.status(500).json({
+      IsSuccess: false,
+      ErrorMessage: "Something Went Wrong!",
+    });
+  }
+};
 
 
 

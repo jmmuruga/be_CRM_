@@ -36,3 +36,18 @@ export interface userDetailsStatusDto{
   companyId: string;
   satusUpdatedUser: string;
 }
+
+export interface resetUserPasswordDto{
+  userId: string;
+  Email: boolean;
+  Password: string;
+  confirmPassword: string;
+}
+
+
+export const resetUserPasswordValidation = Joi.object({
+  userId: Joi.string().required(),
+  Email: Joi.string().required(),
+  Password: Joi.string().required(),
+  confirmPassword: Joi.string().required(),
+});

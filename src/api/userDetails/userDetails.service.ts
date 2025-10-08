@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { ValidationException } from "../../core/exception";
 import { userDetails } from "./userDetails.model";
 import {
+  resetUserPasswordDto,
+  resetUserPasswordValidation,
   userDetailsDto,
   userDetailsStatusDto,
   userDetailsValidation,
@@ -14,6 +16,7 @@ import {  generateOtp, getChangedProperty } from "../../shared/helper";
 import * as crypto from "crypto";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
+import { superAdminRegistrationDto, superAdminRegistrationValidation } from "../superAdminRegistration/superAdminReg.dto";
 
 export const getUserId = async (req: Request, res: Response) => {
   try {
@@ -437,8 +440,52 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
   }
 };
 
+export const resetUserPassword = async (req: Request, res: Response) => {
+  const payload: resetUserPasswordDto = req.body;
+  const userRepository = await appSource.getRepository(userDetails);
+  const CheckUser = await userRepository.findOneBy({ userId: payload.userId });
 
-// export const SendOtpNewAdminUser = async (req: Request, res: Response) => {
+  try {
+    if (!CheckUser) {
+      throw new ValidationException("User Not Found");
+    }
+
+
+    const validationResponse = resetUserPasswordValidation.validate(payload);
+    if (validationResponse.error) {
+      throw new ValidationException(validationResponse.error?.message);
+    }
+
+    const encryptedPassword = await encryptString(payload.Password, "ABCXY123");
+    const encryptedConfirmPassword = await encryptString(payload.confirmPassword, "ABCXY123");
+
+    await userRepository
+      .createQueryBuilder()
+      .update(userDetails)
+      .set({
+        Password: encryptedPassword,
+        confirmPassword: encryptedConfirmPassword,
+      })
+      .where("userId = :userId", { userId: payload.userId })
+      .execute();
+
+    res.status(200).send({
+      IsSuccess: "Password updated successfully",
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+
+
+
 //     try {
 //         const userName = req.params.userName;
 //         const userId = req.params.userId;
