@@ -10,57 +10,84 @@ import { encryptString } from "../userDetails/userDetails.service";
 import { generateOtp } from "../../shared/helper";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
+import { InsertLog } from "../logs/logs.service";
+import { logsDto } from "../logs/logs.dto";
 
 export const addSuperAdminRegistration = async (
   req: Request,
   res: Response
 ) => {
   const payload: superAdminRegistrationDto = req.body;
+
+  // Set createdBy_userId if not provided
+  // if (!payload.createdBy_userId || payload.createdBy_userId === "") {
+  //   payload.createdBy_userId = payload.userId;
+  // }
+
+  const companyId = payload.companyId;
+  const userId = payload.createdBy_userId;
+
   try {
-    if (!payload.createdBy_userId || payload.createdBy_userId === "") {
-      payload.createdBy_userId = payload.userId;
-    }
     const validation = superAdminRegistrationValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
     }
 
-    const userDetailsRepository = await appSource.getRepository(userDetails);
-    const userNameValidation = await userDetailsRepository.findOneBy({
+    const userDetailsRepository = appSource.getRepository(userDetails);
+
+    const userNameExists = await userDetailsRepository.findOneBy({
       userName: payload.userName,
     });
-   
-
-    const userDetailFromDb = await userDetailsRepository
-      .createQueryBuilder()
-      // .where("userDetail.userId = :userId", {
-      //     userId: payload.userId,
-      // })
-      // .orWhere("userDetail.Email = :Email", {
-      //     Email: payload.Email,
-      // })
-      .where({ Email: payload.Email })
-      .getMany();
-    if (userDetailFromDb?.length) {
-      throw new ValidationException("User Alredy Exist");
+    if (userNameExists) {
+      throw new ValidationException("User Name Already Exists");
     }
+
+    const emailExists = await userDetailsRepository.findOneBy({
+      Email: payload.Email,
+    });
+    if (emailExists) {
+      throw new ValidationException("Email Address Already Exists");
+    }
+
+    const mobileExists = await userDetailsRepository.findOneBy({
+      Mobile: payload.Mobile,
+    });
+    if (mobileExists) {
+      throw new ValidationException("Mobile Number Already Exists");
+    }
+
     payload.Password = await encryptString(payload.Password, "ABCXY123");
     payload.confirmPassword = await encryptString(
       payload.confirmPassword,
       "ABCXY123"
     );
-    payload.companyId = "1";
+    payload.companyId = companyId;
+
     await userDetailsRepository.save(payload);
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Super Admin Details ${payload.userName} Added By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     res.status(200).send({
       IsSuccess: "Super Admin Registered Successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Adding Super Admin Details  ${payload.userName} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
+      return res.status(400).send({ message: error.message });
     }
-    res.status(500).send(error.message);
+    res.status(500).send({ message: error.message || "Internal Server Error" });
   }
 };
 
@@ -70,25 +97,27 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
 
     const userDetailsRepository = appSource.getRepository(userDetails);
 
-    const userNameValidation = await userDetailsRepository.findOneBy({ userName });
+    const userNameValidation = await userDetailsRepository.findOneBy({
+      userName : userName,
+    });
     if (userNameValidation) {
       throw new ValidationException("User Name Already Exists");
     }
 
-    const EmailValidation = await userDetailsRepository.findOneBy({ Email });
+    const EmailValidation = await userDetailsRepository.findOneBy({ Email : Email });
     if (EmailValidation) {
       throw new ValidationException("Email Address Already Exists");
     }
 
-    const mobileValidation = await userDetailsRepository.findOneBy({ Mobile });
+    const mobileValidation = await userDetailsRepository.findOneBy({ Mobile : Mobile });
     if (mobileValidation) {
       throw new ValidationException("Mobile Number Already Exists");
     }
 
     const userDetail = await userDetailsRepository
       .createQueryBuilder("user")
-      .where("user.Mobile = :Mobile", { Mobile })
-      .orWhere("user.Email = :Email", { Email })
+      .where("user.Mobile = :Mobile", { Mobile : Mobile })
+      .orWhere("user.Email = :Email", { Email :Email })
       .getMany();
 
     if (userDetail?.length) {
@@ -124,7 +153,6 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
       IsSuccess: true,
       Message: "OTP Sent Successfully",
     });
-
   } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -142,7 +170,6 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
   }
 };
 
-
 export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
   try {
     const { userId, otp } = req.params;
@@ -153,7 +180,6 @@ export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
       });
     }
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
-    //  Find OTP for this user
     const storedOtp = await OtpRepository.findOne({ where: { userId } });
 
     if (!storedOtp) {
@@ -162,25 +188,18 @@ export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
         ErrorMessage: "OTP Not Found or Expired",
       });
     }
-
-    //  Check if OTP matches (convert both to string)
     if (storedOtp.otp.toString() !== otp.toString()) {
       return res.status(400).json({
         IsSuccess: false,
         ErrorMessage: "Invalid OTP",
       });
     }
-
-    //  If OTP matches, delete it from DB
     await OtpRepository.delete({ userId });
-
-    // Send success response
     return res.status(200).json({
       IsSuccess: "OTP Verified Successfully!",
       message: "OTP Verified Successfully!",
     });
   } catch (error) {
-    // console.error("verifyOtpUserPassword error:", error);
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Something Went Wrong!",

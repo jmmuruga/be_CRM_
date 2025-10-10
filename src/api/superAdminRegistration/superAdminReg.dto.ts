@@ -22,6 +22,6 @@ export interface superAdminRegistrationDto {
   Password: string;
   confirmPassword: string;
   createdBy_userId: string;
-  companyId:string
+  companyId:string;
 
 }
