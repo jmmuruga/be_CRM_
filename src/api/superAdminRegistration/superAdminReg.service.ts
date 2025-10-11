@@ -13,88 +13,11 @@ import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPass
 import { InsertLog } from "../logs/logs.service";
 import { logsDto } from "../logs/logs.dto";
 
-export const addSuperAdminRegistration = async (
-  req: Request,
-  res: Response
-) => {
-  const payload: superAdminRegistrationDto = req.body;
 
-  // Set createdBy_userId if not provided
-  // if (!payload.createdBy_userId || payload.createdBy_userId === "") {
-  //   payload.createdBy_userId = payload.userId;
-  // }
-
-  const companyId = payload.companyId;
-  const userId = payload.createdBy_userId;
-
-  try {
-    const validation = superAdminRegistrationValidation.validate(payload);
-    if (validation.error) {
-      throw new ValidationException(validation.error.message);
-    }
-
-    const userDetailsRepository = appSource.getRepository(userDetails);
-
-    const userNameExists = await userDetailsRepository.findOneBy({
-      userName: payload.userName,
-    });
-    if (userNameExists) {
-      throw new ValidationException("User Name Already Exists");
-    }
-
-    const emailExists = await userDetailsRepository.findOneBy({
-      Email: payload.Email,
-    });
-    if (emailExists) {
-      throw new ValidationException("Email Address Already Exists");
-    }
-
-    const mobileExists = await userDetailsRepository.findOneBy({
-      Mobile: payload.Mobile,
-    });
-    if (mobileExists) {
-      throw new ValidationException("Mobile Number Already Exists");
-    }
-
-    payload.Password = await encryptString(payload.Password, "ABCXY123");
-    payload.confirmPassword = await encryptString(
-      payload.confirmPassword,
-      "ABCXY123"
-    );
-    payload.companyId = companyId;
-
-    await userDetailsRepository.save(payload);
-    const logsPayload: logsDto = {
-      userId: userId,
-      userName: null,
-      statusCode: "200",
-      message: `Super Admin Details ${payload.userName} Added By User - `,
-      companyId: companyId,
-    };
-    await InsertLog(logsPayload);
-    res.status(200).send({
-      IsSuccess: "Super Admin Registered Successfully",
-    });
-  } catch (error: any) {
-    const logsPayload: logsDto = {
-      userId: userId,
-      userName: null,
-      statusCode: "400",
-      message: `Error While Adding Super Admin Details  ${payload.userName} - ${error.message} By User - `,
-      companyId: companyId,
-    };
-    await InsertLog(logsPayload);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({ message: error.message });
-    }
-    res.status(500).send({ message: error.message || "Internal Server Error" });
-  }
-};
 
 export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
   try {
     const { userName, userId, Email, Mobile } = req.params;
-
     const userDetailsRepository = appSource.getRepository(userDetails);
 
     const userNameValidation = await userDetailsRepository.findOneBy({
@@ -206,3 +129,146 @@ export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const addSuperAdminRegistration = async (
+  req: Request,
+  res: Response
+) => {
+  const payload: superAdminRegistrationDto = req.body;
+
+  // Set createdBy_userId if not provided
+  // if (!payload.createdBy_userId || payload.createdBy_userId === "") {
+  //   payload.createdBy_userId = payload.userId;
+  // }
+
+  const companyId = payload.companyId;
+  const userId = payload.createdBy_userId;
+
+  try {
+    const validation = superAdminRegistrationValidation.validate(payload);
+    if (validation.error) {
+      throw new ValidationException(validation.error.message);
+    }
+
+    const userDetailsRepository = appSource.getRepository(userDetails);
+
+    const userNameExists = await userDetailsRepository.findOneBy({
+      userName: payload.userName,
+    });
+    if (userNameExists) {
+      throw new ValidationException("User Name Already Exists");
+    }
+
+    const emailExists = await userDetailsRepository.findOneBy({
+      Email: payload.Email,
+    });
+    if (emailExists) {
+      throw new ValidationException("Email Address Already Exists");
+    }
+
+    const mobileExists = await userDetailsRepository.findOneBy({
+      Mobile: payload.Mobile,
+    });
+    if (mobileExists) {
+      throw new ValidationException("Mobile Number Already Exists");
+    }
+
+    payload.Password = await encryptString(payload.Password, "ABCXY123");
+    payload.confirmPassword = await encryptString(
+      payload.confirmPassword,
+      "ABCXY123"
+    );
+    payload.companyId = companyId;
+
+    await userDetailsRepository.save(payload);
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Super Admin Details ${payload.userName} Added By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    res.status(200).send({
+      IsSuccess: "Super Admin Registered Successfully",
+    });
+  } catch (error: any) {
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Adding Super Admin Details  ${payload.userName} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({ message: error.message });
+    }
+    res.status(500).send({ message: error.message || "Internal Server Error" });
+  }
+};
+
+
+export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
+  try {
+  const Email= req.params.Email;
+  const userDetailsRepository = appSource.getRepository(userDetails);
+  const user = await userDetailsRepository.findOne(
+    {  where: [
+      { Email: Email},
+      { Mobile: Email}
+    ], });
+
+  if (!user) {
+    throw new ValidationException("User not found!");
+  }
+  if (user.userType !== "5") {
+    throw new ValidationException(" Only Super Admins Are Allowed To Reset Password !");
+  }
+
+  // const userDetail = await userDetailsRepository
+  //     .createQueryBuilder("user")
+  //     .where("user.Email = :Email", { Email :Email })
+  //     .getMany();
+
+    const generatedOtp = generateOtp();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    // await transporter.sendMail({
+    //   from: "savedatain@gmail.com",
+    //   to: "savedatamadhavashanmugam@gmail.com",
+    //   subject: `OTP to Register Super Admin ${userName}`,
+    //   text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
+    // });
+
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    await OtpRepository.save({ userId:user.userId, otp: generatedOtp });
+
+    console.log("Generated OTP:", generatedOtp);
+
+    // Success response
+    return res.status(200).send({
+      IsSuccess: true,
+      Message: "OTP Sent Successfully",
+    });
+
+
+
+} catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        IsSuccess: false,
+        ErrorMessage: error.message,
+      });
+    }
+}
+}

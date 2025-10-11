@@ -343,41 +343,19 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       });
     }
     if (!user) {
+      user = await userRepository.findOneBy({
+        userName: Email,
+      });
+    }
+    if (!user) {
       throw new ValidationException("User not found");
     }
     if (user.userType === "5") {
-      throw new ValidationException("Super Admin cannot change password here");
+      throw new ValidationException("Super Admin Cannot Reset Password !");
     }
     if (!user.status) {
       throw new ValidationException("User is Inactive, Please contact Admin");
     }
-    let response: any;
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 465,
-      secure: false,
-      auth: {
-        user: "savedatain@gmail.com",
-        pass: "unpk bcsy ibhp wzrm",
-      },
-    });
-    const { userName, Mobile } = user;
-    const Generatedotp = generateOtp();
-    response = await transporter.sendMail({
-      from: "savedatain@gmail.com",
-      to: "savedatamadhavashanmugam@gmail.com",
-      subject: `OTP to register ${userName}`,
-      text: `Please Enter The OTP: ${Generatedotp} To Reset User Account's Password
-     User Name: ${userName} , Email: ${Email} , Mobile Number: ${Mobile}`,
-    });
-    const OtpRepositry = appSource.getRepository(forgetPasswordOtpStore);
-    const otpTablePayload = {
-      userId: user.userId,
-      otp: Generatedotp,
-    };
-    await OtpRepositry.save(otpTablePayload);
-    
-    console.log(Generatedotp , 'generated otp')
     // console.log(res, "test");
 
     res.status(200).send({
@@ -385,14 +363,85 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       // message: "msg sent succesfully",
     });
   } catch (error) {
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error,
-      });
-    }
+  if (error instanceof ValidationException) {
+    return res.status(400).send({
+      message: error.message,
+    });
+  } else {
+    console.error(error);
+    return res.status(500).send({
+      message: "Internal Server Error",
+    });
   }
+}
 };
 
+export const sendOtpForgetPassword = async (req: Request, res: Response) => {
+  try {
+    const Email = req.params.Email;
+
+    if (!Email) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Email is required",
+      });
+    }
+
+    const userRepository = appSource.getRepository(userDetails);
+    const user = await userRepository.findOne({ where: { Email } });
+
+    if (!user) {
+      return res.status(404).json({
+        IsSuccess: false,
+        ErrorMessage: "User Not Found",
+      });
+    }
+
+    const generatedOtp = generateOtp();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    // Send OTP email
+//     await transporter.sendMail({
+//       from: "savedatain@gmail.com",
+//       to: "savedatamadhavashanmugam@gmail.com",
+//       subject: "OTP to Reset User Password",
+//       text: `Hello ${user.userName},
+// Please Enter This OTP to Reset Your Password: ${generatedOtp}
+
+// User Details:
+// - Username: ${user.userName}
+// - Email: ${Email}
+// - Mobile: ${user.Mobile}
+// `,
+//     });
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    await OtpRepository.save({ userId: user.userId, otp: generatedOtp });
+
+    console.log("OTP:", generatedOtp);
+
+    return res.status(200).json({
+      IsSuccess: true,
+      Message: "OTP Sent Successfully",
+      Result: { userId: user.userId },
+     
+    });
+     
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      IsSuccess: false,
+      ErrorMessage: "Internal Server Error",
+    });
+  }
+};
 
 
 export const verifyOtpUserPassword = async (req: Request, res: Response) => {
@@ -405,7 +454,6 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
       });
     }
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
-    //  Find OTP for this user
     const storedOtp = await OtpRepository.findOne({ where: { userId } });
 
     if (!storedOtp) {
@@ -415,7 +463,6 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
       });
     }
 
-    //  Check if OTP matches (convert both to string)
     if (storedOtp.otp.toString() !== otp.toString()) {
       return res.status(400).json({
         IsSuccess: false,
@@ -423,10 +470,7 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
       });
     }
 
-    //  If OTP matches, delete it from DB
     await OtpRepository.delete({ userId });
-
-    // Send success response
     return res.status(200).json({
       IsSuccess: "OTP Verified Successfully!",
       message: "OTP Verified Successfully!",
@@ -470,7 +514,7 @@ export const resetUserPassword = async (req: Request, res: Response) => {
       .execute();
 
     res.status(200).send({
-      IsSuccess: "Password updated successfully",
+      IsSuccess: "Password Updated Successfully",
     });
   } catch (error) {
     if (error instanceof ValidationException) {
@@ -484,57 +528,82 @@ export const resetUserPassword = async (req: Request, res: Response) => {
 
 
 
+// export const sendOtpForgetPassword = async (req: Request, res: Response) => {
+//   try {
+//     const { userName, userId, Email, Mobile } = req.params;
 
+//     const userDetailsRepository = appSource.getRepository(userDetails);
 
-//     try {
-//         const userName = req.params.userName;
-//         const userId = req.params.userId;
-//         const Email = req.params.Email;
-//         const Mobile = req.params.Mobile;
-//         const userRepository = appSource.getRepository(UserDetails);
-//         const userDetail = await userRepository
-//             .createQueryBuilder("user")
-//             .where("user.Mobile = :Mobile", {
-//                 Mobile: Mobile,
-//             })
-//             .orWhere("user.Email = :Email", { Email: Email })
-//             .getMany();
-//         if (userDetail?.length) {
-//             throw new ValidationException("User already exist");
-//         }
-//         const GeneratedOtp = generateOpt();
-//         let response: any;
-//         const transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             port: 465,
-//             secure: false,
-//             auth: {
-//                 user: "savedatain@gmail.com",
-//                 pass: "unpk bcsy ibhp wzrm",
-//             },
-//         });
-//         response = await transporter.sendMail({
-//             from: "savedatain@gmail.com",
-//             to: "savedataakshaya03@gmail.com",
-//             subject: `OTP to register ${userName}`,
-//             text: `Please enter the OTP: ${GeneratedOtp} to Register a Super Admin account
-//      User Name: ${userName} , Email: ${Email} , Mobile Number: ${Mobile}`,
-//         });
-//         const otpRepo = appSource.getRepository(otpStore);
-//         const otpTablePayload = {
-//             userId: userId,
-//             otp: GeneratedOtp
-//         };
-//         await otpRepo.save(otpTablePayload);
-//         res.status(200).send({
-//             IsSuccess: "OTP sent successfully",
-//         });
-//     } catch (error) {
-//         if (error instanceof ValidationException) {
-//             return res.status(400).send({
-//                 message: error.message,
-//             });
-//         }
-//         res.status(500).send(error);
+//     const userNameValidation = await userDetailsRepository.findOneBy({
+//       userName : userName,
+//     });
+//     if (userNameValidation) {
+//       throw new ValidationException("User Name Already Exists");
 //     }
+
+//     const EmailValidation = await userDetailsRepository.findOneBy({ Email : Email });
+//     if (EmailValidation) {
+//       throw new ValidationException("Email Address Already Exists");
+//     }
+
+//     const mobileValidation = await userDetailsRepository.findOneBy({ Mobile : Mobile });
+//     if (mobileValidation) {
+//       throw new ValidationException("Mobile Number Already Exists");
+//     }
+
+//     const userDetail = await userDetailsRepository
+//       .createQueryBuilder("user")
+//       .where("user.Mobile = :Mobile", { Mobile : Mobile })
+//       .orWhere("user.Email = :Email", { Email :Email })
+//       .getMany();
+
+//     if (userDetail?.length) {
+//       throw new ValidationException("User Already Exists");
+//     }
+
+//     // Generate OTP and send email
+//     const generatedOtp = generateOtp();
+//     const transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       port: 465,
+//       secure: false,
+//       auth: {
+//         user: "savedatain@gmail.com",
+//         pass: "unpk bcsy ibhp wzrm",
+//       },
+//     });
+
+//     await transporter.sendMail({
+//       from: "savedatain@gmail.com",
+//       to: "savedatamadhavashanmugam@gmail.com",
+//       subject: `OTP to Register Super Admin ${userName}`,
+//       text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
+//     });
+
+//     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+//     await OtpRepository.save({ userId, otp: generatedOtp });
+
+//     console.log("Generated OTP:", generatedOtp);
+
+//     // Success response
+//     return res.status(200).send({
+//       IsSuccess: true,
+//       Message: "OTP Sent Successfully",
+//     });
+//   } catch (error) {
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         IsSuccess: false,
+//         ErrorMessage: error.message,
+//       });
+//     }
+
+//     // console.error("sendOtpSuperAdmin Error:", error);
+//     return res.status(500).send({
+//       IsSuccess: false,
+//       ErrorMessage: "Internal Server Error",
+//       Details: error.message,
+//     });
+//   }
 // };
+
