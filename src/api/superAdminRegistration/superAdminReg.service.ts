@@ -1,5 +1,6 @@
 import { Request, Response, text } from "express";
 import {
+  resetSuperAdminPasswordValidation,
   superAdminRegistrationDto,
   superAdminRegistrationValidation,
 } from "./superAdminReg.dto";
@@ -12,6 +13,7 @@ import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
 import { InsertLog } from "../logs/logs.service";
 import { logsDto } from "../logs/logs.dto";
+import { resetUserPasswordValidation, userDetailsDto, userDetailsValidation } from "../userDetails/userDetails.dto";
 
 
 
@@ -227,11 +229,6 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
     throw new ValidationException(" Only Super Admins Are Allowed To Reset Password !");
   }
 
-  // const userDetail = await userDetailsRepository
-  //     .createQueryBuilder("user")
-  //     .where("user.Email = :Email", { Email :Email })
-  //     .getMany();
-
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -246,7 +243,7 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
     // await transporter.sendMail({
     //   from: "savedatain@gmail.com",
     //   to: "savedatamadhavashanmugam@gmail.com",
-    //   subject: `OTP to Register Super Admin ${userName}`,
+    //   subject: `OTP to Reset Super Admin Password For ${userName}`,
     //   text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
     // });
 
@@ -259,6 +256,7 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
     return res.status(200).send({
       IsSuccess: true,
       Message: "OTP Sent Successfully",
+      Result: { userId: user.userId },
     });
 
 
@@ -272,3 +270,121 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
     }
 }
 }
+
+export const verifyOtpResetSuperAdmin = async (req: Request, res: Response) => {
+  try {
+    const { userId, otp } = req.params; 
+
+    if (!userId || !otp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid UserId or OTP received",
+      });
+    }
+
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    const storedOtp = await OtpRepository.findOneBy({userId : userId})
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "OTP not found or expired",
+      });
+    }
+
+    if (storedOtp.otp.toString() !== otp.toString()) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid OTP",
+      });
+    }
+
+    await OtpRepository.delete({ userId });
+    return res.status(200).json({
+      IsSuccess: true,
+      Message: "OTP Verified Successfully!",
+    });
+  } catch (error) {
+    console.error("verifyOtpResetSuperAdmin error:", error);
+    return res.status(500).json({
+      IsSuccess: false,
+      ErrorMessage: "Something Went Wrong!",
+    });
+  }
+};
+
+
+export const resetSuperAdminPassword = async (req: Request, res: Response) => {
+  const payload: superAdminRegistrationDto = req.body;
+  const userDetailsRepository = appSource.getRepository(userDetails);
+
+  try {
+    const checkUser = await userDetailsRepository.findOneBy({ userId: payload.userId });
+
+    if (!checkUser) {
+      throw new ValidationException("User Not Found");
+    }
+
+    const validation = resetSuperAdminPasswordValidation.validate(payload);
+    if (validation.error) {
+      throw new ValidationException(validation.error?.message);
+    }
+
+    const encryptedPassword = await encryptString(payload.Password, "ABCXY123");
+    const encryptedConfirmPassword = await encryptString(payload.confirmPassword, "ABCXY123");
+
+    await userDetailsRepository
+      .createQueryBuilder()
+      .update(userDetails)
+      .set({
+        Password: encryptedPassword,
+        confirmPassword: encryptedConfirmPassword,
+      })
+      .where("userId = :userId", { userId: payload.userId })
+      .execute();
+
+    const now = new Date().toLocaleString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    // ✅ Use checkUser.userName for logs instead of payload.userName
+    const logsPayload: logsDto = {
+      userId: payload.userId,
+      userName: checkUser.userName,
+      statusCode: "200",
+      message: `Reset Super Admin Password Successful for ${checkUser.userName} at ${now} By User - `,
+      companyId: null,
+    };
+    await InsertLog(logsPayload);
+
+    return res.status(200).send({
+      IsSuccess: "Password Updated Successfully",
+    });
+  } catch (error: any) {
+    const logsPayload: logsDto = {
+      userId: payload.userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Resetting Super Admin Password For userId ${payload.userId} - ${error.message} By User - `,
+      companyId: null,
+    };
+    await InsertLog(logsPayload);
+
+    if (error instanceof ValidationException) {
+      return res.status(400).send({ message: error.message });
+    }
+
+    return res.status(500).send({ message: error.message || "Internal Server Error" });
+  }
+};
+
+
+
+

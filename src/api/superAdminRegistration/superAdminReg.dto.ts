@@ -25,3 +25,18 @@ export interface superAdminRegistrationDto {
   companyId:string;
 
 }
+
+
+export interface resetSuperAdminPasswordDto{
+  userId: string;
+  Email: boolean;
+  Password: string;
+  confirmPassword: string;
+}
+
+export const resetSuperAdminPasswordValidation = Joi.object({
+  userId: Joi.string().required(),
+  Email: Joi.string().required(),
+  Password: Joi.string().required(),
+  confirmPassword: Joi.string().required(),
+});
