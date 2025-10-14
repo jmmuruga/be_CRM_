@@ -75,7 +75,7 @@ export const signIn = async (req: Request, res: Response) => {
       
       return res.status(400).send({ error: error.message });
     }
-    // console.error("SignIn Error:", error);
+
     return res.status(500).send({ error: "Internal Server Error" });
   }
   
@@ -133,7 +133,7 @@ export const logOut = async (req: Request, res: Response) => {
       return res.status(400).send({ error: error.message });
     }
 
-    console.error("Logout Error:", error);
+
     return res.status(500).send({ error: "Internal Server Error" });
   }
   };

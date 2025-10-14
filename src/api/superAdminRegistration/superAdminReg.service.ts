@@ -13,7 +13,6 @@ import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
 import { InsertLog } from "../logs/logs.service";
 import { logsDto } from "../logs/logs.dto";
-import { resetUserPasswordValidation, userDetailsDto, userDetailsValidation } from "../userDetails/userDetails.dto";
 
 
 
@@ -49,7 +48,6 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
       throw new ValidationException("User Already Exists");
     }
 
-    // Generate OTP and send email
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -61,12 +59,12 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
       },
     });
 
-    await transporter.sendMail({
-      from: "savedatain@gmail.com",
-      to: "savedatamadhavashanmugam@gmail.com",
-      subject: `OTP to Register Super Admin ${userName}`,
-      text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
-    });
+    // await transporter.sendMail({
+    //   from: "savedatain@gmail.com",
+    //   to: "savedatamadhavashanmugam@gmail.com",
+    //   subject: `OTP to Register Super Admin ${userName}`,
+    //   text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
+    // });
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
     await OtpRepository.save({ userId, otp: generatedOtp });
@@ -86,7 +84,7 @@ export const sendOtpSuperAdmin = async (req: Request, res: Response) => {
       });
     }
 
-    // console.error("sendOtpSuperAdmin Error:", error);
+
     return res.status(500).send({
       IsSuccess: false,
       ErrorMessage: "Internal Server Error",
@@ -138,12 +136,6 @@ export const addSuperAdminRegistration = async (
   res: Response
 ) => {
   const payload: superAdminRegistrationDto = req.body;
-
-  // Set createdBy_userId if not provided
-  // if (!payload.createdBy_userId || payload.createdBy_userId === "") {
-  //   payload.createdBy_userId = payload.userId;
-  // }
-
   const companyId = payload.companyId;
   const userId = payload.createdBy_userId;
 
@@ -305,7 +297,6 @@ export const verifyOtpResetSuperAdmin = async (req: Request, res: Response) => {
       Message: "OTP Verified Successfully!",
     });
   } catch (error) {
-    console.error("verifyOtpResetSuperAdmin error:", error);
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Something Went Wrong!",
@@ -384,7 +375,6 @@ export const resetSuperAdminPassword = async (req: Request, res: Response) => {
     return res.status(500).send({ message: error.message || "Internal Server Error" });
   }
 };
-
 
 
 

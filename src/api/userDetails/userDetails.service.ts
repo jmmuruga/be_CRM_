@@ -48,7 +48,6 @@ export const getUserId = async (req: Request, res: Response) => {
 
 export const addUpdateUserDetails = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
-  //  console.log(payload,'IncomingDetails')
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
@@ -331,7 +330,7 @@ export function decrypter(encryptedDate: string): string {
 
 export const forgetPasswordOtp = async (req: Request, res: Response) => {
   const Email = req.params.Email;
-  // console.log(Email, "requested email");
+
   try {
     const userRepository = await appSource.getRepository(userDetails);
     let user = await userRepository.findOneBy({
@@ -356,7 +355,7 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
     if (!user.status) {
       throw new ValidationException("User is Inactive, Please contact Admin");
     }
-    // console.log(res, "test");
+
 
     res.status(200).send({
       Result: user,
@@ -368,7 +367,7 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       message: error.message,
     });
   } else {
-    console.error(error);
+
     return res.status(500).send({
       message: "Internal Server Error",
     });
@@ -435,7 +434,7 @@ export const sendOtpForgetPassword = async (req: Request, res: Response) => {
     });
      
   } catch (error) {
-    console.error(error);
+
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Internal Server Error",
@@ -476,7 +475,6 @@ export const verifyOtpUserPassword = async (req: Request, res: Response) => {
       message: "OTP Verified Successfully!",
     });
   } catch (error) {
-    console.error("verifyOtpUserPassword error:", error);
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Something Went Wrong!",
@@ -537,10 +535,10 @@ export const resetUserPassword = async (req: Request, res: Response) => {
     await InsertLog(logsPayload);
 
     return res.status(200).send({
-      IsSuccess: "Password Updated Successfully",
+      IsSuccess: "User Password Updated Successfully !",
     });
   } catch (error) {
-    console.error("resetUserPassword error:", error);
+
 
     const logsPayload: logsDto = {
       userId: payload.editedBy_userId || payload.userId,

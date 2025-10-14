@@ -186,14 +186,13 @@ export const getHostingMasterDetails = async (req: Request, res: Response) => {
       ).customerName;
     });
 
-    // console.log(serververMasterDetails , 'serverMaster')
-    //  console.log(domainRegistrationDetails , ' domain')
+
 
     res.status(200).send({
       Result: hostMaster,
     });
   } catch (error) {
-    // console.log(error)
+
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

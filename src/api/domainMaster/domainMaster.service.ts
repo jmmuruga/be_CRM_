@@ -208,14 +208,12 @@ export const getDomainMasterDetails = async (req: Request, res: Response) => {
       ).serverPlan;
     });
 
-    // console.log(serververMasterDetails, 'serverMaster')
-    // console.log(domainRegistrationDetails, 'domain')
+
 
     res.status(200).send({
       Result: domainmaster,
     });
   } catch (error) {
-    console.log(error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

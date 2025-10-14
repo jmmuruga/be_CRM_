@@ -214,8 +214,6 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
       ).domainName;
     });
 
-    //  console.log(serviceProviderDetails , 'serv')
-    //  console.log(servermaster , 'server master')
     servermaster.forEach((x) => {
       x["serviceProviderName"] = serviceProviderDetails.find(
         (y) => +y.serviceProviderId == +x.serviceProvider
@@ -226,7 +224,7 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
       Result: servermaster,
     });
   } catch (error) {
-    // console.log(error)
+
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
