@@ -1,6 +1,6 @@
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { Request, Response } from "express";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import { companyRegistration } from "./companyRegistration.model";
 import {
   companyDetailsStatus,
@@ -10,7 +10,7 @@ import {
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
+import { getChangedProperty } from "../../../shared/helper";
 
 export const getCompanyId = async (req: Request, res: Response) => {
   try {

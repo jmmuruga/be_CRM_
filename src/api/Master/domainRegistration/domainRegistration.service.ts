@@ -1,12 +1,12 @@
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { domainRegistration } from "./domainRegistration.model";
 import { Request, Response } from "express";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import {domainRegistrationDto,domainRegistrationStatus,domainRegistrationValidation,} from "./domainRegistration.dto";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { InsertLog } from "../../Admin/logs/logs.service";
 import { Not } from "typeorm";
-import { getChangedProperty } from "../../shared/helper";
+import { getChangedProperty } from "../../../shared/helper";
 import { serverMaster } from "../serverMaster/serverMaster.model";
 import { domainMaster } from "../domainMaster/domainMaster.model";
 import { hostingMaster } from "../hostingMaster/hostingMaster.model";

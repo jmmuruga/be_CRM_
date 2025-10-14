@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { hostingMaster } from "./hostingMaster.model";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import {
   hostingMasterDto,
   hostingMasterStatus,
@@ -10,10 +10,10 @@ import {
 import { serverMaster } from "../serverMaster/serverMaster.model";
 import { Not } from "typeorm";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
-import { newCustomerRegistration } from "../newCustomer/newCustomer.model";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
+import { newCustomerRegistration } from "../../New Customer/newCustomer/newCustomer.model";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { InsertLog } from "../../Admin/logs/logs.service";
+import { getChangedProperty } from "../../../shared/helper";
 
 export const getHostingId = async (req: Request, res: Response) => {
   try {

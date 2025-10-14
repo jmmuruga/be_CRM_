@@ -1,5 +1,5 @@
-import { appSource } from "../../core/dataBase/db";
-import { ValidationException } from "../../core/exception";
+import { appSource } from "../../../core/dataBase/db";
+import { ValidationException } from "../../../core/exception";
 import { userDetails } from "../userDetails/userDetails.model";
 import { logsDto } from "./logs.dto";
 import { Logs } from "./logs.model";

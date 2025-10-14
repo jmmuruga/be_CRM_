@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { domainMaster } from "./domainMaster.model";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import { domainMasterDto, domainMasterStatus, domainMasterValidation } from "./domaiMaster.dto";
 import { serviceProviderMaster } from "../serviceProviderMaster/serviceProviderMaster.model";
-import { newCustomerRegistration } from "../newCustomer/newCustomer.model";
+import { newCustomerRegistration } from "../../New Customer/newCustomer/newCustomer.model";
 import { serverMaster } from "../serverMaster/serverMaster.model";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
-import { InsertLog } from "../logs/logs.service";
-import { logsDto } from "../logs/logs.dto";
-import { getChangedProperty } from "../../shared/helper";
+import { InsertLog } from "../../Admin/logs/logs.service";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { getChangedProperty } from "../../../shared/helper";
 
 export const getDomainMasterId = async (req: Request, res: Response) => {
   try {

@@ -1,12 +1,12 @@
 import { Not } from "typeorm";
-import { appSource } from "../../core/dataBase/db";
-import { ValidationException } from "../../core/exception";
+import { appSource } from "../../../core/dataBase/db";
+import { ValidationException } from "../../../core/exception";
 import { EmployeeDetailsStatus, employeeRegistrationDto, employeeRegistrationValidation } from "./employeeRegistration.dto";
 import { employeeRegistration } from "./employeeRegistration.model";
 import { Request, Response } from "express";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { InsertLog } from "../../Admin/logs/logs.service";
+import { getChangedProperty } from "../../../shared/helper";
 
 export const getEmployeeId = async (req: Request, res: Response) => {
   try {

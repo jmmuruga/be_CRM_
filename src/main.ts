@@ -3,18 +3,20 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import "./core/dataBase/db";
-import domainRegistrationRouter from "./api/domainRegistration/domainRegistration.controller";
-import domainMasterRouter from "./api/domainMaster/domainMaster.controller";
-import userDetailsRouter from "./api/userDetails/userDetails.controller";
-import companyRegistrationRouter from "./api/companyRegistration/companyRegistration.controller";
-import newCustomerRegistrationRouter from "./api/newCustomer/newCustomer.controller";
-import employeeRegistrationRouter from "./api/employeeRegistration/employeeRegistration.controller";
-import hostingMasterRouter from "./api/hostingMaster/hostingMaster.controller";
-import serviceProviderRouter from "./api/serviceProviderMaster/serviceProviderMaster.controller";
-import serverMasterRouter from "./api/serverMaster/serverMaster.controller";
+import domainRegistrationRouter from "./api/Master/domainRegistration/domainRegistration.controller";
+import domainMasterRouter from "./api/Master/domainMaster/domainMaster.controller";
+import userDetailsRouter from "./api/Admin/userDetails/userDetails.controller";
+import companyRegistrationRouter from "./api/Admin/companyRegistration/companyRegistration.controller";
+import newCustomerRegistrationRouter from "./api/New Customer/newCustomer/newCustomer.controller";
+import employeeRegistrationRouter from "./api/Employee/employeeRegistration/employeeRegistration.controller";
+import hostingMasterRouter from "./api/Master/hostingMaster/hostingMaster.controller";
+import serviceProviderRouter from "./api/Master/serviceProviderMaster/serviceProviderMaster.controller";
+import serverMasterRouter from "./api/Master/serverMaster/serverMaster.controller";
 import signInRouter from "./api/signIn/signIn.controller";
-import logsRouter from "./api/logs/logs.controller";
+import logsRouter from "./api/Admin/logs/logs.controller";
 import superAdminRegistrationRouter from "./api/superAdminRegistration/superAdminReg.controller";
+import { pinSetting } from "./api/Admin/pinSetting/pinSeting.model";
+import pinSettingRouter from "./api/Admin/pinSetting/pinSeting.controller";
 
 const app = express();
 
@@ -46,5 +48,6 @@ app.use('/serverMaster' , cors(corsOptions) , serverMasterRouter);
 app.use('/signIn' , cors(corsOptions) , signInRouter);
 app.use('/logsReport' , cors(corsOptions) , logsRouter);
 app.use('/superAdminRegistration' , cors(corsOptions) , superAdminRegistrationRouter);
+app.use('/pinSetting' , cors(corsOptions) , pinSettingRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

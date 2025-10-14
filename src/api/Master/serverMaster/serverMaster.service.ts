@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { serverMaster } from "./serverMaster.model";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import {
   serverMasterDto,
   serverMasterStatus,
@@ -10,9 +10,9 @@ import {
 import { serviceProviderMaster } from "../serviceProviderMaster/serviceProviderMaster.model";
 import { Not } from "typeorm";
 import { domainRegistration } from "../domainRegistration/domainRegistration.model";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { InsertLog } from "../../Admin/logs/logs.service";
+import { getChangedProperty } from "../../../shared/helper";
 import { domainMaster } from "../domainMaster/domainMaster.model";
 import { hostingMaster } from "../hostingMaster/hostingMaster.model";
 

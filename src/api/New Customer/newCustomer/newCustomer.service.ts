@@ -1,5 +1,5 @@
-import { appSource } from "../../core/dataBase/db";
-import { ValidationException } from "../../core/exception";
+import { appSource } from "../../../core/dataBase/db";
+import { ValidationException } from "../../../core/exception";
 import { Request, Response } from "express";
 import { newCustomerRegistration } from "./newCustomer.model";
 import {
@@ -8,11 +8,11 @@ import {
   newCustomerRegistrationValidation,
 } from "./newCustomer.dto";
 import { Not } from "typeorm";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
-import { getChangedProperty } from "../../shared/helper";
-import { hostingMaster } from "../hostingMaster/hostingMaster.model";
-import { domainMaster } from "../domainMaster/domainMaster.model";
+import { logsDto } from "../../Admin/logs/logs.dto";
+import { InsertLog } from "../../Admin/logs/logs.service";
+import { getChangedProperty } from "../../../shared/helper";
+import { hostingMaster } from "../../Master/hostingMaster/hostingMaster.model";
+import { domainMaster } from "../../Master/domainMaster/domainMaster.model";
 
 export const getCustomerId = async (req: Request, res: Response) => {
   try {

@@ -1,9 +1,8 @@
-import { appSource } from "../../core/dataBase/db";
+import { appSource } from "../../../core/dataBase/db";
 import { Request, Response } from "express";
-import { ValidationException } from "../../core/exception";
+import { ValidationException } from "../../../core/exception";
 import { userDetails } from "./userDetails.model";
 import {
-  resetUserPasswordDto,
   resetUserPasswordValidation,
   userDetailsDto,
   userDetailsStatusDto,
@@ -12,11 +11,10 @@ import {
 import { Not } from "typeorm";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
-import {  generateOtp, getChangedProperty } from "../../shared/helper";
+import {  generateOtp, getChangedProperty } from "../../../shared/helper";
 import * as crypto from "crypto";
 import nodemailer from "nodemailer";
-import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
-import { superAdminRegistrationDto, superAdminRegistrationValidation } from "../superAdminRegistration/superAdminReg.dto";
+import { forgetPasswordOtpStore } from "../../getOtpForgetPassword/getOtpForgetPassword.model";
 
 export const getUserId = async (req: Request, res: Response) => {
   try {
@@ -55,10 +53,7 @@ export const addUpdateUserDetails = async (req: Request, res: Response) => {
 
   try {
     payload.Password = await encryptString(payload.Password, "ABCXY123");
-    payload.confirmPassword = await encryptString(
-      payload.confirmPassword,
-      "ABCXY123"
-    );
+    payload.confirmPassword = await encryptString(payload.confirmPassword,"ABCXY123");
 
     const validation = userDetailsValidation.validate(payload);
     if (validation.error) {

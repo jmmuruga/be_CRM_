@@ -1,17 +1,18 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { domainMaster } from "../../api/domainMaster/domainMaster.model";
-import { userDetails } from "../../api/userDetails/userDetails.model";
-import { domainRegistration } from "../../api/domainRegistration/domainRegistration.model";
-import { hostingMaster } from "../../api/hostingMaster/hostingMaster.model";
-import { serverMaster } from "../../api/serverMaster/serverMaster.model";
-import { serviceProviderMaster } from "../../api/serviceProviderMaster/serviceProviderMaster.model";
-import { companyRegistration } from "../../api/companyRegistration/companyRegistration.model";
-import { employeeRegistration } from "../../api/employeeRegistration/employeeRegistration.model";
-import { newCustomerRegistration } from "../../api/newCustomer/newCustomer.model";
-import { Logs } from "../../api/logs/logs.model";
+import { domainMaster } from "../../api/Master/domainMaster/domainMaster.model";
+import { userDetails } from "../../api/Admin/userDetails/userDetails.model";
+import { domainRegistration } from "../../api/Master/domainRegistration/domainRegistration.model";
+import { hostingMaster } from "../../api/Master/hostingMaster/hostingMaster.model";
+import { serverMaster } from "../../api/Master/serverMaster/serverMaster.model";
+import { serviceProviderMaster } from "../../api/Master/serviceProviderMaster/serviceProviderMaster.model";
+import { companyRegistration } from "../../api/Admin/companyRegistration/companyRegistration.model";
+import { employeeRegistration } from "../../api/Employee/employeeRegistration/employeeRegistration.model";
+import { newCustomerRegistration } from "../../api/New Customer/newCustomer/newCustomer.model";
+import { Logs } from "../../api/Admin/logs/logs.model";
 import { forgetPasswordOtpStore } from "../../api/getOtpForgetPassword/getOtpForgetPassword.model";
+import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
 
 const Entities = [
   domainMaster,
@@ -25,6 +26,7 @@ const Entities = [
   newCustomerRegistration,
   Logs,
   forgetPasswordOtpStore,
+  pinSetting
   
   
 ];

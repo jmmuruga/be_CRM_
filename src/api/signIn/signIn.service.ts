@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { appSource } from "../../core/dataBase/db";
-import { userDetails } from "../userDetails/userDetails.model";
+import { userDetails } from "../Admin/userDetails/userDetails.model";
 import { ValidationException } from "../../core/exception";
-import { logsDto } from "../logs/logs.dto";
-import { InsertLog } from "../logs/logs.service";
+import { logsDto } from "../Admin/logs/logs.dto";
+import { InsertLog } from "../Admin/logs/logs.service";
 import { logOutDto } from "./signIn.dto";
-import { companyRegistration } from "../companyRegistration/companyRegistration.model";
+import { companyRegistration } from "../Admin/companyRegistration/companyRegistration.model";
 import * as crypto from "crypto";
 
 

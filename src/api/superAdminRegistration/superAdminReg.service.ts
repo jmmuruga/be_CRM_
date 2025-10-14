@@ -6,13 +6,13 @@ import {
 } from "./superAdminReg.dto";
 import { ValidationException } from "../../core/exception";
 import { appSource } from "../../core/dataBase/db";
-import { userDetails } from "../userDetails/userDetails.model";
-import { encryptString } from "../userDetails/userDetails.service";
+import { userDetails } from "../Admin/userDetails/userDetails.model";
+import { encryptString } from "../Admin/userDetails/userDetails.service";
 import { generateOtp } from "../../shared/helper";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
-import { InsertLog } from "../logs/logs.service";
-import { logsDto } from "../logs/logs.dto";
+import { InsertLog } from "../Admin/logs/logs.service";
+import { logsDto } from "../Admin/logs/logs.dto";
 
 
 
