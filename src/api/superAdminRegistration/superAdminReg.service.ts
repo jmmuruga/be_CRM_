@@ -308,22 +308,17 @@ export const verifyOtpResetSuperAdmin = async (req: Request, res: Response) => {
 export const resetSuperAdminPassword = async (req: Request, res: Response) => {
   const payload: superAdminRegistrationDto = req.body;
   const userDetailsRepository = appSource.getRepository(userDetails);
-
+  const checkUser = await userDetailsRepository.findOneBy({ userId: payload.userId });
   try {
-    const checkUser = await userDetailsRepository.findOneBy({ userId: payload.userId });
-
     if (!checkUser) {
       throw new ValidationException("User Not Found");
     }
-
     const validation = resetSuperAdminPasswordValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error?.message);
     }
-
     const encryptedPassword = await encryptString(payload.Password, "ABCXY123");
     const encryptedConfirmPassword = await encryptString(payload.confirmPassword, "ABCXY123");
-
     await userDetailsRepository
       .createQueryBuilder()
       .update(userDetails)
@@ -333,7 +328,6 @@ export const resetSuperAdminPassword = async (req: Request, res: Response) => {
       })
       .where("userId = :userId", { userId: payload.userId })
       .execute();
-
     const now = new Date().toLocaleString("en-US", {
       weekday: "short",
       year: "numeric",
@@ -345,33 +339,30 @@ export const resetSuperAdminPassword = async (req: Request, res: Response) => {
       hour12: true,
     });
 
-    // ✅ Use checkUser.userName for logs instead of payload.userName
     const logsPayload: logsDto = {
       userId: payload.userId,
       userName: checkUser.userName,
       statusCode: "200",
-      message: `Reset Super Admin Password Successful for ${checkUser.userName} at ${now} By User - `,
+      message: `Super Admin Password Reseted Successfully for ${checkUser.userName} at ${now} By User - `,
       companyId: null,
     };
     await InsertLog(logsPayload);
 
     return res.status(200).send({
-      IsSuccess: "Password Updated Successfully",
+      IsSuccess: "Super Admin Password Updated Successfully",
     });
   } catch (error: any) {
     const logsPayload: logsDto = {
       userId: payload.userId,
-      userName: null,
+      userName: checkUser.userName,
       statusCode: "400",
-      message: `Error While Resetting Super Admin Password For userId ${payload.userId} - ${error.message} By User - `,
+      message: `Error While Resetting Super Admin Password For  ${payload.userName} - ${error.message} By User - `,
       companyId: null,
     };
     await InsertLog(logsPayload);
-
     if (error instanceof ValidationException) {
       return res.status(400).send({ message: error.message });
     }
-
     return res.status(500).send({ message: error.message || "Internal Server Error" });
   }
 };

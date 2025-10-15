@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { pinSettingDto, pinSettingValidation } from "./pinSeting.dto";
-import { encryptString } from "../userDetails/userDetails.service";
+import { decrypter, encryptString } from "../userDetails/userDetails.service";
 import { pinSetting } from "./pinSeting.model";
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
@@ -10,7 +10,9 @@ import { InsertLog } from "../logs/logs.service";
 
 export const addUpdatePinSetting = async (req: Request, res: Response) => {
   const payload: pinSettingDto = req.body;
-  const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
+  const userId = payload.isEdited
+    ? payload.editedBy_userId
+    : payload.createdBy_userId;
   const companyId = payload.companyId;
   const validation = pinSettingValidation.validate(payload);
   try {
@@ -84,7 +86,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
       };
       await InsertLog(logsPayload);
       res.status(200).send({
-        IsSuccess: " Pin Added Successfully",
+        IsSuccess: " Pin Saved Successfully",
       });
     }
   } catch (error) {
@@ -102,5 +104,28 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
       });
     }
     res.status(500).send(error.message);
+  }
+};
+
+export const getPinSettingDetails = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.params.companyId;
+    const pinSetingRepositry = appSource.getRepository(pinSetting);
+    const pinSeting = await pinSetingRepositry.createQueryBuilder("").where({ companyId: companyId }).getMany();
+    pinSeting.forEach((x) => {
+          x.addPin = decrypter(x.addPin) || x.addPin;
+          x.editPin = decrypter(x.editPin) || x.editPin;
+          x.deletePin = decrypter(x.deletePin) || x.deletePin;
+        });
+    res.status(200).send({
+      Result: pinSeting,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 };

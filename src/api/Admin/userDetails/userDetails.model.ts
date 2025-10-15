@@ -17,6 +17,9 @@ export class userDetails {
   @Column()
   userId: string;
 
+  // @Column({nullable:true})
+  // companyId: string;
+
   @Column()
   Email: string;
 
