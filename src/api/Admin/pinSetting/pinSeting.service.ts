@@ -1,19 +1,24 @@
 import { Request, Response } from "express";
 import { pinSettingDto, pinSettingValidation } from "./pinSeting.dto";
-import { decrypter, encryptString } from "../userDetails/userDetails.service";
+import { decrypter, encryptString, forgetPasswordOtp } from "../userDetails/userDetails.service";
 import { pinSetting } from "./pinSeting.model";
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
-import { getChangedProperty } from "../../../shared/helper";
+import { generateOtp, getChangedProperty } from "../../../shared/helper";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import nodemailer from "nodemailer";
+import { forgetPasswordOtpStore } from "../../getOtpForgetPassword/getOtpForgetPassword.model";
+import { userDetails } from "../userDetails/userDetails.model";
+
+
 
 export const addUpdatePinSetting = async (req: Request, res: Response) => {
   const payload: pinSettingDto = req.body;
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
-  const companyId = payload.companyId;
+  // const companyId = payload.companyId;
   const validation = pinSettingValidation.validate(payload);
   try {
     if (validation.error) {
@@ -37,14 +42,14 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
     }
     const existingDetails = await otpPinRepostory.findOneBy({
       pinId: payload.pinId,
-      companyId: payload.companyId,
+      // companyId: payload.companyId,
     });
     if (existingDetails) {
       payload.editedBy_userId = payload.editedBy_userId || userId;
     }
     if (existingDetails) {
       await otpPinRepostory
-        .update({ pinId: payload.pinId, companyId: payload.companyId }, payload)
+        .update({ pinId: payload.pinId }, payload)
         .then(async () => {
           const updatedFields: string = await getChangedProperty(
             [payload],
@@ -54,8 +59,9 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userId: userId,
             userName: null,
             statusCode: "200",
-            message: `Pin Setting Updated For CompanyID "${payload.companyId}" Updated - Changes ${updatedFields} By User - `,
-            companyId: companyId,
+            message: `Pin Setting Updated Changes - ${updatedFields} By User - `,
+            companyId : null,
+            
           };
           await InsertLog(logsPayload);
           res.status(200).send({
@@ -67,8 +73,9 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userId: userId,
             userName: null,
             statusCode: "400",
-            message: `Error While Updating Pin Settings For "${payload.companyId}" - ${error.message} By User -`,
-            companyId: companyId,
+            message: `Error While Updating Pin Setting - ${error.message} By User -`,
+            companyId:null,
+            
           };
           await InsertLog(logsPayload);
           res.status(500).send(error.message);
@@ -81,8 +88,9 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
         userId: userId,
         userName: null,
         statusCode: "200",
-        message: ` Pin Setting For "${payload.companyId}"  Added By User -`,
-        companyId: companyId,
+        message: ` Pin Setting Added By User -`,
+        companyId:null,
+        
       };
       await InsertLog(logsPayload);
       res.status(200).send({
@@ -94,8 +102,9 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
       userId: userId,
       userName: null,
       statusCode: "400",
-      message: `Error While Adding Pin Setting For "${payload.companyId}" By User -`,
-      companyId: companyId,
+      message: `Error While Adding Pin Setting By User -`,
+      companyId:null,
+      
     };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
@@ -109,9 +118,9 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
 
 export const getPinSettingDetails = async (req: Request, res: Response) => {
   try {
-    const companyId = req.params.companyId;
+    
     const pinSetingRepositry = appSource.getRepository(pinSetting);
-    const pinSeting = await pinSetingRepositry.createQueryBuilder("").where({ companyId: companyId }).getMany();
+    const pinSeting = await pinSetingRepositry.createQueryBuilder("").getMany();
     pinSeting.forEach((x) => {
           x.addPin = decrypter(x.addPin) || x.addPin;
           x.editPin = decrypter(x.editPin) || x.editPin;
@@ -127,5 +136,103 @@ export const getPinSettingDetails = async (req: Request, res: Response) => {
       });
     }
     res.status(500).send(error);
+  }
+};
+
+export const sendOtpPinSetting = async (req:Request,res:Response) =>{
+  try {
+  const Email= req.params.Email;
+  const userDetailsRepository = appSource.getRepository(userDetails);
+  const user = await userDetailsRepository.findOne(
+    {  where: [
+      { Email: Email},
+      { Mobile: Email}
+    ], });
+
+  if (!user) {
+    throw new ValidationException("User not found!");
+  }
+
+    const generatedOtp = generateOtp();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    // await transporter.sendMail({
+    //   from: "savedatain@gmail.com",
+    //   to: "info@savedata.in",
+    //   subject: `OTP to Save & Update Your PinSetting ${userName}`,
+    //   text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
+    // });
+
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    await OtpRepository.save({ userId:user.userId, otp: generatedOtp });
+
+    console.log("Generated OTP:", generatedOtp);
+
+    // Success response
+    return res.status(200).send({
+      IsSuccess: true,
+      Message: "OTP Sent Successfully",
+      Result: { userId: user.userId },
+    });
+
+
+
+} catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        IsSuccess: false,
+        ErrorMessage: error.message,
+      });
+    }
+}
+}
+
+export const verifyOtpPinSetting = async (req: Request, res: Response) => {
+  try {
+    const { userId, otp } = req.params; 
+
+    if (!userId || !otp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid UserId or OTP received",
+      });
+    }
+
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    const storedOtp = await OtpRepository.findOneBy({userId : userId})
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "OTP Not Found or Expired ! !",
+      });
+    }
+
+    if (storedOtp.otp.toString() !== otp.toString()) {
+      return res.status(400).json({
+        IsSuccess: false,
+        ErrorMessage: "Invalid OTP",
+      });
+    }
+
+    await OtpRepository.delete({ userId });
+    return res.status(200).json({
+      IsSuccess: true,
+      Message: "OTP Verified Successfully!",
+    });
+  } catch (error) {
+    
+    return res.status(500).json({
+      IsSuccess: false,
+      ErrorMessage: "Something Went Wrong!",
+    });
   }
 };

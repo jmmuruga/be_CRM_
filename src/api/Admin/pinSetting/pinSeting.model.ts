@@ -14,8 +14,8 @@ export class pinSetting {
   @Column()
   pinId: string;
 
-  @Column()
-  companyId: string;
+  // @Column()
+  // companyId: string;
 
   @Column()
   addPin: string;

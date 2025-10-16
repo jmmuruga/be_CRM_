@@ -108,7 +108,7 @@ export const verifyOtpSuperAdmin = async (req: Request, res: Response) => {
     if (!storedOtp) {
       return res.status(400).json({
         IsSuccess: false,
-        ErrorMessage: "OTP Not Found or Expired",
+        ErrorMessage: "OTP Not Found or Expired !",
       });
     }
     if (storedOtp.otp.toString() !== otp.toString()) {
@@ -280,7 +280,7 @@ export const verifyOtpResetSuperAdmin = async (req: Request, res: Response) => {
     if (!storedOtp) {
       return res.status(400).json({
         IsSuccess: false,
-        ErrorMessage: "OTP not found or expired",
+        ErrorMessage: "OTP Not Found or Expired !",
       });
     }
 
@@ -297,6 +297,7 @@ export const verifyOtpResetSuperAdmin = async (req: Request, res: Response) => {
       Message: "OTP Verified Successfully!",
     });
   } catch (error) {
+    
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Something Went Wrong!",

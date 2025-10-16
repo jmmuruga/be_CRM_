@@ -7,7 +7,7 @@ export const pinSettingValidation = Joi.object({
     createdBy_userId: Joi.string().required(),
     isEdited: Joi.boolean().optional(),
     editedBy_userId: Joi.string().optional().allow(null, ""),
-    companyId: Joi.string().optional().allow(null, ""),
+    // companyId: Joi.string().optional().allow(null, ""),
     pinId : Joi.string().required(),
     
 
@@ -21,6 +21,6 @@ export interface pinSettingDto {
     createdBy_userId:  string;
     isEdited:  boolean;
     editedBy_userId:  string;
-    companyId?: string;
+    // companyId?: string;
     pinId : string;
 }
