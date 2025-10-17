@@ -149,7 +149,7 @@ export const addUpdateCompanyRegistration = async (
       }
 
       const emailValidation = await companyRegistrationRepositry.findOneBy({
-        Email: payload.Email,
+        Email:payload.Email,
       });
       if (emailValidation) {
         throw new ValidationException("Email Address Already Exist");

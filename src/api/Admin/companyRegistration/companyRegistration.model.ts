@@ -56,7 +56,7 @@ export class companyRegistration {
   @Column()
   Thasildhar: string;
   
-  @Column({ 'nullable': true })
+  @Column({ nullable: true })
   Website: string;
 
   @Column()
@@ -71,10 +71,10 @@ export class companyRegistration {
   @Column()
   Branch:string;
 
-  @Column({ 'nullable': true })
+  @Column({nullable: true})
   branchMobile: string;
 
-  @Column({ type: "ntext", 'nullable': true })
+  @Column({ type: "ntext", nullable: true })
   companyImage: string;
 
   @Column({ default: true })

@@ -60,7 +60,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userName: null,
             statusCode: "200",
             message: `Pin Setting Updated Changes - ${updatedFields} By User - `,
-            companyId : null,
+            companyId : '1',
             
           };
           await InsertLog(logsPayload);
@@ -74,7 +74,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userName: null,
             statusCode: "400",
             message: `Error While Updating Pin Setting - ${error.message} By User -`,
-            companyId:null,
+            companyId:'1',
             
           };
           await InsertLog(logsPayload);
@@ -89,7 +89,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
         userName: null,
         statusCode: "200",
         message: ` Pin Setting Added By User -`,
-        companyId:null,
+        companyId:'1',
         
       };
       await InsertLog(logsPayload);
@@ -103,7 +103,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
       userName: null,
       statusCode: "400",
       message: `Error While Adding Pin Setting By User -`,
-      companyId:null,
+      companyId:'1',
       
     };
     await InsertLog(logsPayload);
@@ -118,7 +118,6 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
 
 export const getPinSettingDetails = async (req: Request, res: Response) => {
   try {
-    
     const pinSetingRepositry = appSource.getRepository(pinSetting);
     const pinSeting = await pinSetingRepositry.createQueryBuilder("").getMany();
     pinSeting.forEach((x) => {
@@ -140,19 +139,7 @@ export const getPinSettingDetails = async (req: Request, res: Response) => {
 };
 
 export const sendOtpPinSetting = async (req:Request,res:Response) =>{
-  try {
-  const Email= req.params.Email;
-  const userDetailsRepository = appSource.getRepository(userDetails);
-  const user = await userDetailsRepository.findOne(
-    {  where: [
-      { Email: Email},
-      { Mobile: Email}
-    ], });
-
-  if (!user) {
-    throw new ValidationException("User not found!");
-  }
-
+  try { 
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -172,19 +159,19 @@ export const sendOtpPinSetting = async (req:Request,res:Response) =>{
     // });
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
-    await OtpRepository.save({ userId:user.userId, otp: generatedOtp });
-
+    const otpTablePayload = {
+      userId: '1',
+      otp: generatedOtp,
+    };
+    await OtpRepository.save(otpTablePayload);
     console.log("Generated OTP:", generatedOtp);
 
     // Success response
     return res.status(200).send({
       IsSuccess: true,
       Message: "OTP Sent Successfully",
-      Result: { userId: user.userId },
+      
     });
-
-
-
 } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
@@ -236,3 +223,77 @@ export const verifyOtpPinSetting = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const sendOtpPinSettingCompany = async (req:Request,res:Response) =>{
+  try { 
+    const generatedOtp = generateOtp();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: false,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "unpk bcsy ibhp wzrm",
+      },
+    });
+
+    // await transporter.sendMail({
+    //   from: "savedatain@gmail.com",
+    //   to: "info@savedata.in",
+    //   subject: `OTP to Save Your Company Details : ${userName}`,
+    //   text: `Your OTP: ${generatedOtp}\nUsername: ${userName}\nEmail: ${Email}\nMobile: ${Mobile}`,
+    // });
+
+    const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
+    const otpTablePayload = {
+      userId: '1',
+      otp: generatedOtp,
+    };
+    await OtpRepository.save(otpTablePayload);
+    console.log("Generated OTP:", generatedOtp);
+
+    // Success response
+    return res.status(200).send({
+      IsSuccess: true,
+      Message: "OTP Sent Successfully",
+      
+    });
+} catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        IsSuccess: false,
+        ErrorMessage: error.message,
+      });
+    }
+}
+}
+
+
+export const verifyDeletePin = async (req: Request, res: Response) => {
+    try {
+        const { deletePin } = req.params;
+        const otpPinRepostory = appSource.getRepository(pinSetting);
+        const pin = await otpPinRepostory.findOne({ where: { deletePin: encryptString(deletePin, "ABCXY123") } });
+        if (!pin) {
+            throw new ValidationException("Invalid Delete Pin Found");
+        };
+        const decryptedDeletePin = pin.deletePin ? decrypter(pin.deletePin) : null;
+        if (!decryptedDeletePin) {
+            return res.status(200).send({ message: 'Edit Pin not available.' });
+        }
+        if (decryptedDeletePin === deletePin) {
+            return res.status(200).send({
+                IsSuccess: 'Delete Pin Verified Successfully.'
+            })
+        }
+    }
+    catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+
+
+
+
+
