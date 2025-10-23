@@ -302,7 +302,8 @@ export const deleteCompany = async (req: Request, res: Response) => {
         message: error.message,
       });
     }
-
     res.status(500).send(error);
   }
 };
+
+

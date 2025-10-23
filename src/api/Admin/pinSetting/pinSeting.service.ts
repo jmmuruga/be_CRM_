@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { pinSettingDto, pinSettingValidation } from "./pinSeting.dto";
-import { decrypter, encryptString, forgetPasswordOtp } from "../userDetails/userDetails.service";
+import {
+  decrypter,
+  encryptString,
+  forgetPasswordOtp,
+} from "../userDetails/userDetails.service";
 import { pinSetting } from "./pinSeting.model";
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
@@ -10,8 +14,6 @@ import { InsertLog } from "../logs/logs.service";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../../getOtpForgetPassword/getOtpForgetPassword.model";
 import { userDetails } from "../userDetails/userDetails.model";
-
-
 
 export const addUpdatePinSetting = async (req: Request, res: Response) => {
   const payload: pinSettingDto = req.body;
@@ -60,8 +62,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userName: null,
             statusCode: "200",
             message: `Pin Setting Updated Changes - ${updatedFields} By User - `,
-            companyId : '1',
-            
+            companyId: "1",
           };
           await InsertLog(logsPayload);
           res.status(200).send({
@@ -74,8 +75,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
             userName: null,
             statusCode: "400",
             message: `Error While Updating Pin Setting - ${error.message} By User -`,
-            companyId:'1',
-            
+            companyId: "1",
           };
           await InsertLog(logsPayload);
           res.status(500).send(error.message);
@@ -89,8 +89,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
         userName: null,
         statusCode: "200",
         message: ` Pin Setting Added By User -`,
-        companyId:'1',
-        
+        companyId: "1",
       };
       await InsertLog(logsPayload);
       res.status(200).send({
@@ -103,8 +102,7 @@ export const addUpdatePinSetting = async (req: Request, res: Response) => {
       userName: null,
       statusCode: "400",
       message: `Error While Adding Pin Setting By User -`,
-      companyId:'1',
-      
+      companyId: "1",
     };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
@@ -121,10 +119,10 @@ export const getPinSettingDetails = async (req: Request, res: Response) => {
     const pinSetingRepositry = appSource.getRepository(pinSetting);
     const pinSeting = await pinSetingRepositry.createQueryBuilder("").getMany();
     pinSeting.forEach((x) => {
-          x.addPin = decrypter(x.addPin) || x.addPin;
-          x.editPin = decrypter(x.editPin) || x.editPin;
-          x.deletePin = decrypter(x.deletePin) || x.deletePin;
-        });
+      x.addPin = decrypter(x.addPin) || x.addPin;
+      x.editPin = decrypter(x.editPin) || x.editPin;
+      x.deletePin = decrypter(x.deletePin) || x.deletePin;
+    });
     res.status(200).send({
       Result: pinSeting,
     });
@@ -138,8 +136,8 @@ export const getPinSettingDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const sendOtpPinSetting = async (req:Request,res:Response) =>{
-  try { 
+export const sendOtpPinSetting = async (req: Request, res: Response) => {
+  try {
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -160,7 +158,7 @@ export const sendOtpPinSetting = async (req:Request,res:Response) =>{
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
     const otpTablePayload = {
-      userId: '1',
+      userId: "1",
       otp: generatedOtp,
     };
     await OtpRepository.save(otpTablePayload);
@@ -170,21 +168,20 @@ export const sendOtpPinSetting = async (req:Request,res:Response) =>{
     return res.status(200).send({
       IsSuccess: true,
       Message: "OTP Sent Successfully",
-      
     });
-} catch (error) {
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         IsSuccess: false,
         ErrorMessage: error.message,
       });
     }
-}
-}
+  }
+};
 
 export const verifyOtpPinSetting = async (req: Request, res: Response) => {
   try {
-    const { userId, otp } = req.params; 
+    const { userId, otp } = req.params;
 
     if (!userId || !otp) {
       return res.status(400).json({
@@ -194,7 +191,7 @@ export const verifyOtpPinSetting = async (req: Request, res: Response) => {
     }
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
-    const storedOtp = await OtpRepository.findOneBy({userId : userId})
+    const storedOtp = await OtpRepository.findOneBy({ userId: userId });
 
     if (!storedOtp) {
       return res.status(400).json({
@@ -216,7 +213,6 @@ export const verifyOtpPinSetting = async (req: Request, res: Response) => {
       Message: "OTP Verified Successfully!",
     });
   } catch (error) {
-    
     return res.status(500).json({
       IsSuccess: false,
       ErrorMessage: "Something Went Wrong!",
@@ -224,8 +220,8 @@ export const verifyOtpPinSetting = async (req: Request, res: Response) => {
   }
 };
 
-export const sendOtpPinSettingCompany = async (req:Request,res:Response) =>{
-  try { 
+export const sendOtpPinSettingCompany = async (req: Request, res: Response) => {
+  try {
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -246,7 +242,7 @@ export const sendOtpPinSettingCompany = async (req:Request,res:Response) =>{
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
     const otpTablePayload = {
-      userId: '1',
+      userId: "1",
       otp: generatedOtp,
     };
     await OtpRepository.save(otpTablePayload);
@@ -256,44 +252,86 @@ export const sendOtpPinSettingCompany = async (req:Request,res:Response) =>{
     return res.status(200).send({
       IsSuccess: true,
       Message: "OTP Sent Successfully",
-      
     });
-} catch (error) {
+  } catch (error) {
     if (error instanceof ValidationException) {
       return res.status(400).send({
         IsSuccess: false,
         ErrorMessage: error.message,
       });
     }
-}
-}
-
+  }
+};
 
 export const verifyDeletePin = async (req: Request, res: Response) => {
-    try {
-        const { deletePin } = req.params;
-        const otpPinRepostory = appSource.getRepository(pinSetting);
-        const pin = await otpPinRepostory.findOne({ where: { deletePin: encryptString(deletePin, "ABCXY123") } });
-        if (!pin) {
-            throw new ValidationException("Invalid Delete Pin Found");
-        };
-        const decryptedDeletePin = pin.deletePin ? decrypter(pin.deletePin) : null;
-        if (!decryptedDeletePin) {
-            return res.status(200).send({ message: 'Edit Pin not available.' });
-        }
-        if (decryptedDeletePin === deletePin) {
-            return res.status(200).send({
-                IsSuccess: 'Delete Pin Verified Successfully.'
-            })
-        }
+  const { companyId, userId } = req.params;
+  try {
+    const { deletePin } = req.params;
+    const otpPinRepostory = appSource.getRepository(pinSetting);
+    const pin = await otpPinRepostory.findOne({
+      where: { deletePin: encryptString(deletePin, "ABCXY123") },
+    });
+
+    if (!pin) {
+      return res.status(400).json({ ErrorMessage: "Invalid Delete Pin Found" });
     }
-    catch (error) {
-        res.status(500).send(error)
+
+    const decryptedDeletePin = pin.deletePin ? decrypter(pin.deletePin) : null;
+    if (!decryptedDeletePin) {
+      return res
+        .status(400)
+        .json({ ErrorMessage: "Delete Pin Not Available." });
     }
-}
 
+    if (decryptedDeletePin === deletePin) {
+      return res
+        .status(200)
+        .json({ IsSuccess: "Delete Pin Verified Successfully." });
+    } else {
+      return res
+        .status(400)
+        .json({ ErrorMessage: "Delete Pin Does Not Match." });
+    }
+  } catch (error) {
+      const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Verifying Delete Pin : ${companyId} - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    console.error(error);
+    return res
+      .status(500)
+      .json({ ErrorMessage: error.message || "Internal Server Error" });
+  }
+};
 
+export const verifyEditPin = async (req: Request, res: Response) => {
+  try {
+    const { editPin } = req.params;
+    const otpPinRepostory = appSource.getRepository(pinSetting);
+    const pin = await otpPinRepostory.findOne({
+      where: { editPin: encryptString(editPin, "ABCXY123") },
+    });
+    if (!pin) {
+      return res.status(400).json({ ErrorMessage: "Invalid Edit Pin Found" });
+    }
 
+    const decryptedEditPin = pin.editPin ? decrypter(pin.editPin) : null;
+    if (!decryptedEditPin) {
+      return res.status(400).json({ ErrorMessage: "Edit Pin Not Available." });
+    }
 
-
-
+    if (decryptedEditPin === editPin) {
+      return res
+        .status(200)
+        .json({ IsSuccess: "Edit Pin Verified Successfully." });
+    } else {
+      return res.status(400).json({ ErrorMessage: "Edit Pin Does Not Match." });
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
