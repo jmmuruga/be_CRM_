@@ -264,9 +264,9 @@ export const sendOtpPinSettingCompany = async (req: Request, res: Response) => {
 };
 
 export const verifyDeletePin = async (req: Request, res: Response) => {
-  const { companyId, userId } = req.params;
+  const { companyId,userId,deletePin } = req.params;
   try {
-    const { deletePin } = req.params;
+
     const otpPinRepostory = appSource.getRepository(pinSetting);
     const pin = await otpPinRepostory.findOne({
       where: { deletePin: encryptString(deletePin, "ABCXY123") },
@@ -288,6 +288,17 @@ export const verifyDeletePin = async (req: Request, res: Response) => {
         .status(200)
         .json({ IsSuccess: "Delete Pin Verified Successfully." });
     } else {
+      // logs
+      const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Delete Pin Does Not Match. : ${companyId} - By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+
+
       return res
         .status(400)
         .json({ ErrorMessage: "Delete Pin Does Not Match." });
@@ -307,6 +318,9 @@ export const verifyDeletePin = async (req: Request, res: Response) => {
       .json({ ErrorMessage: error.message || "Internal Server Error" });
   }
 };
+
+
+
 
 export const verifyEditPin = async (req: Request, res: Response) => {
   try {
@@ -330,6 +344,35 @@ export const verifyEditPin = async (req: Request, res: Response) => {
         .json({ IsSuccess: "Edit Pin Verified Successfully." });
     } else {
       return res.status(400).json({ ErrorMessage: "Edit Pin Does Not Match." });
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+
+export const verifyAddPin = async (req: Request, res: Response) => {
+  try {
+    const { addPin } = req.params;
+    const otpPinRepostory = appSource.getRepository(pinSetting);
+    const pin = await otpPinRepostory.findOne({
+      where: { addPin: encryptString(addPin, "ABCXY123") },
+    });
+    if (!pin) {
+      return res.status(400).json({ ErrorMessage: "Invalid Add Pin Found" });
+    }
+
+    const decryptedAddPin = pin.editPin ? decrypter(pin.addPin) : null;
+    if (!decryptedAddPin) {
+      return res.status(400).json({ ErrorMessage: "Add Pin Not Available." });
+    }
+
+    if (decryptedAddPin === addPin) {
+      return res
+        .status(200)
+        .json({ IsSuccess: "Add Pin Verified Successfully." });
+    } else {
+      return res.status(400).json({ ErrorMessage: "Add Pin Does Not Match." });
     }
   } catch (error) {
     res.status(500).send(error);

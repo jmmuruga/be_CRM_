@@ -187,9 +187,7 @@ export const getServerMasterDetails = async (req: Request, res: Response) => {
   try {
     const companyId = req.params.companyId;
 
-    const serviceProviderMasterRepositry = appSource.getRepository(
-      serviceProviderMaster
-    );
+    const serviceProviderMasterRepositry = appSource.getRepository(serviceProviderMaster);
     const serviceProviderDetails = await serviceProviderMasterRepositry
       .createQueryBuilder()
       .where({ companyId: companyId })

@@ -184,9 +184,10 @@ export const addUpdateUserDetails = async (req: Request, res: Response) => {
 
 export const getUserDetails = async (req: Request, res: Response) => {
   try {
-
+    
     const userDetailsRepositry = appSource.getRepository(userDetails);
     const users = await userDetailsRepositry.createQueryBuilder("").getMany();
+
     users.forEach((x) => {
       x.Password = decrypter(x.Password) || x.Password;
       x.confirmPassword = decrypter(x.confirmPassword) || x.confirmPassword;

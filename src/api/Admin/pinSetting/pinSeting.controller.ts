@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addUpdatePinSetting, getPinSettingDetails, sendOtpPinSetting, sendOtpPinSettingCompany, verifyDeletePin, verifyEditPin, verifyOtpPinSetting } from "./pinSeting.service";
+import { addUpdatePinSetting, getPinSettingDetails, sendOtpPinSetting, sendOtpPinSettingCompany, verifyAddPin, verifyDeletePin, verifyEditPin, verifyOtpPinSetting } from "./pinSeting.service";
 
 const pinSettingRouter = Router();
 
@@ -13,9 +13,11 @@ pinSettingRouter.get('/verifyOtpPinSetting/:userId/:otp', (req, res) => verifyOt
 
 pinSettingRouter.get('/sendOtpPinSettingCompany', (req, res) => sendOtpPinSettingCompany(req, res))
 
-pinSettingRouter.get('/verifyDeletePin/:deletePin', (req, res) => verifyDeletePin(req, res))
+pinSettingRouter.get('/verifyDeletePin/:companyId/:userId/:deletePin', (req, res) => verifyDeletePin(req, res))
 
 pinSettingRouter.get('/verifyEditPin/:editPin', (req, res) => verifyEditPin(req, res))
+
+pinSettingRouter.get('/verifyAddPin/:addPin', (req, res) => verifyAddPin(req, res))
 
 
 export default pinSettingRouter
