@@ -13,7 +13,6 @@ import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../../getOtpForgetPassword/getOtpForgetPassword.model";
-import { userDetails } from "../userDetails/userDetails.model";
 
 export const addUpdatePinSetting = async (req: Request, res: Response) => {
   const payload: pinSettingDto = req.body;

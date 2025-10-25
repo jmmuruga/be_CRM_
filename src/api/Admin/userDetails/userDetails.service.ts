@@ -347,13 +347,13 @@ export const forgetPasswordOtp = async (req: Request, res: Response) => {
       });
     }
     if (!user) {
-      throw new ValidationException("User not found");
+      throw new ValidationException("User Not Found");
     }
     if (user.userType === "5") {
-      throw new ValidationException("Super Admin Cannot Reset Password !");
+      throw new ValidationException("Super Admin Cannot Reset User's Password !");
     }
     if (!user.status) {
-      throw new ValidationException("User is Inactive, Please contact Admin");
+      throw new ValidationException("User is Inactive, Please Contact Admin");
     }
 
 
