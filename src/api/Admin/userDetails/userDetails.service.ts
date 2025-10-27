@@ -46,12 +46,12 @@ export const getUserId = async (req: Request, res: Response) => {
 
 export const addUpdateUserDetails = async (req: Request, res: Response) => {
   const payload: userDetailsDto = req.body;
-  console.log(payload,"incoming Payload")
+  
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
   const companyId = payload.companyId;
-  // console.log(payload.companyId)
+  
 
   try {
     payload.Password = await encryptString(payload.Password, "ABCXY123");
@@ -164,7 +164,6 @@ export const addUpdateUserDetails = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.log(error,"Err")
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
