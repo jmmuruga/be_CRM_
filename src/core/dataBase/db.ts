@@ -13,6 +13,7 @@ import { newCustomerRegistration } from "../../api/New Customer/newCustomer/newC
 import { Logs } from "../../api/Admin/logs/logs.model";
 import { forgetPasswordOtpStore } from "../../api/getOtpForgetPassword/getOtpForgetPassword.model";
 import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
+import { backupSetting } from "../../api/Admin/backup/backup.model";
 
 const Entities = [
   domainMaster,
@@ -26,7 +27,8 @@ const Entities = [
   newCustomerRegistration,
   Logs,
   forgetPasswordOtpStore,
-  pinSetting
+  pinSetting,
+  backupSetting
   
   
 ];

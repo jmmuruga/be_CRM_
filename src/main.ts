@@ -17,6 +17,7 @@ import logsRouter from "./api/Admin/logs/logs.controller";
 import superAdminRegistrationRouter from "./api/superAdminRegistration/superAdminReg.controller";
 import { pinSetting } from "./api/Admin/pinSetting/pinSeting.model";
 import pinSettingRouter from "./api/Admin/pinSetting/pinSeting.controller";
+import backupSettingRouter from "./api/Admin/backup/backup.controller";
 
 const app = express();
 
@@ -49,5 +50,6 @@ app.use('/signIn' , cors(corsOptions) , signInRouter);
 app.use('/logsReport' , cors(corsOptions) , logsRouter);
 app.use('/superAdminRegistration' , cors(corsOptions) , superAdminRegistrationRouter);
 app.use('/pinSetting' , cors(corsOptions) , pinSettingRouter);
+app.use('/backupSetting' , cors(corsOptions) , backupSettingRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
