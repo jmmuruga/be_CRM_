@@ -1,19 +1,28 @@
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
-import {  backupSettingDto, backupSettingValidation } from "./backup.dto";
+import {
+  backupSettingDto,
+  backupSettingValidation,
+  updateBackupStatus,
+} from "./backup.dto";
 import { Request, Response } from "express";
 import { backupSetting } from "./backup.model";
 import { getChangedProperty } from "../../../shared/helper";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
+import sql from "mssql";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const addUpdateBackupSetting = async (req: Request, res: Response) => {
   const payload: backupSettingDto = req.body;
   const userId = payload.isEdited
     ? payload.editedBy_userId
     : payload.createdBy_userId;
+  const companyId = payload.companyId;
+
   try {
-     payload.backupId = payload.backupId?.toString();
+    payload.backupId = payload.backupId?.toString();
     const validation = backupSettingValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
@@ -22,6 +31,7 @@ export const addUpdateBackupSetting = async (req: Request, res: Response) => {
     const existingDetails = await backupRepositry.findOneBy({
       backupId: payload.backupId,
     });
+    delete payload.companyId;
 
     if (existingDetails) {
       payload.editedBy_userId = payload.editedBy_userId || userId;
@@ -30,29 +40,29 @@ export const addUpdateBackupSetting = async (req: Request, res: Response) => {
       await backupRepositry
         .update({ backupId: payload.backupId }, payload)
         .then(async () => {
-            let updatedFields: string = await getChangedProperty(
-                        [payload],
-                        [existingDetails]
-                      );
-                      const logsPayload: logsDto = {
-                        userId: userId,
-                        userName: null,
-                        statusCode: "200",
-                        message: `Backup Setting Details For "${payload.backupDrive}" Updated - Changes : ${updatedFields}By User - `,
-                        // companyId: companyId,
-                      };
-                      await InsertLog(logsPayload);
+          let updatedFields: string = await getChangedProperty(
+            [payload],
+            [existingDetails]
+          );
+          const logsPayload: logsDto = {
+            userId: userId,
+            userName: null,
+            statusCode: "200",
+            message: `Backup Setting Details Updated - Changes : ${updatedFields}By User - `,
+            companyId: companyId,
+          };
+          await InsertLog(logsPayload);
           res.status(200).send({
             IsSuccess: "Backup Setting Updated Successfully",
           });
         })
         .catch(async (error) => {
-            const logsPayload: logsDto = {
+          const logsPayload: logsDto = {
             userId: userId,
             userName: null,
             statusCode: "400",
-            message: `Error While Updating Backup Setting Details ${payload.backupDrive} - ${error.message} By User - `,
-            // companyId: companyId,
+            message: `Error While Updating Backup Setting Details - ${error.message} By User - `,
+            companyId: companyId,
           };
           await InsertLog(logsPayload);
           res.status(500).send(error.message);
@@ -65,8 +75,8 @@ export const addUpdateBackupSetting = async (req: Request, res: Response) => {
         userId: userId,
         userName: null,
         statusCode: "200",
-        message: `Backup Setting Details For "${payload.backupDrive}" Added By User - `,
-        // companyId: companyId,
+        message: `Backup Setting Details Added By User - `,
+        companyId: companyId,
       };
       await InsertLog(logsPayload);
 
@@ -79,8 +89,8 @@ export const addUpdateBackupSetting = async (req: Request, res: Response) => {
       userId: userId,
       userName: null,
       statusCode: "400",
-      message: `Error While Adding Backup Setting Details ${payload.backupDrive} - ${error.message} By User - `,
-    //   companyId: companyId,
+      message: `Error While Adding Backup Setting Details ${error.message} By User - `,
+      companyId: companyId,
     };
     await InsertLog(logsPayload);
     if (error instanceof ValidationException) {
@@ -91,7 +101,6 @@ export const addUpdateBackupSetting = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
 
 export const getBacupSettingDetails = async (req: Request, res: Response) => {
   try {
@@ -110,5 +119,114 @@ export const getBacupSettingDetails = async (req: Request, res: Response) => {
   }
 };
 
+export const updateShowBackupStatus = async (req: Request, res: Response) => {
+  const backupstatus: updateBackupStatus = req.body;
+  const backupRepositry = appSource.getRepository(backupSetting);
+  const backupFound = await backupRepositry.findOneBy({
+    backupId: backupstatus.backupId,
+  });
+  try {
+    if (!backupFound) {
+      throw new ValidationException("Backup Not Found");
+    }
+    await backupRepositry
+      .createQueryBuilder()
+      .update(backupSetting)
+      .set({ showBackup: backupstatus.status })
+      // .where({ backupId: backupstatus.backupId })
+      .execute();
+    const logsPayload: logsDto = {
+      userId: backupstatus.userId,
+      userName: null,
+      statusCode: "200",
+      message: `Backup Status For ${backupFound.backupDrive} Changed To ${backupstatus.status} By User - `,
+      companyId: backupstatus.companyId,
+    };
+    await InsertLog(logsPayload);
 
+    res.status(200).send({
+      IsSuccess: `Status for ${backupFound.backupDrive} Changed Successfully`,
+    });
+  } catch (error) {
+    const logsPayload: logsDto = {
+      userId: backupstatus.userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Changing Backup Status For ${backupFound.backupDrive} to ${backupstatus.status} - ${error.message} By User - `,
+      companyId: backupstatus.companyId,
+    };
+    await InsertLog(logsPayload);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
 
+export const getDbBackup = async (req: Request, res: Response) => {
+  const { userId, companyId } = req.params;
+  let dbName = process.env.DB_NAME;
+  let drive = "C";
+
+  const sqlConfig = {
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    server: process.env.DB_SERVER_HOST,
+    database: process.env.DB_NAME,
+    options: {
+      encrypt: false, // Disable encryption
+      trustServerCertificate: true, // Depending on your SQL Server settings
+    },
+    requestTimeout: 1200000,
+  };
+
+  try {
+    const backup = await sql.connect(sqlConfig);
+    // Your SQL query
+    const query: string = `
+        DECLARE @path VARCHAR(256) -- path of backup files
+        DECLARE @fileName VARCHAR(256) -- filename for backup
+        DECLARE @fileDate VARCHAR(20) -- used for file name
+        DECLARE @time datetime
+        SET @time = GETDATE() -- No need for explicit conversion here
+        SET @path = '${drive}:\\DATABASE_BACKUP\\'
+        -- specify filename format
+        SET @fileDate = REPLACE(CONVERT(VARCHAR(20), @time, 120), ':', '') -- Format the date without colons
+            BEGIN
+                SET @fileName = @path + '${dbName}' + '_' + @fileDate + '.BAK'
+                BACKUP DATABASE [${process.env.DB_NAME}] TO DISK = @fileName
+            END
+  `;
+    // Execute the query
+    const result = await backup.request().query(query);
+    await sql.close();
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "200",
+      message: `Database Backed Up Successful By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    res.status(200).send({
+      IsSuccess: `Database Backed Up Successfully !`,
+    });
+  } catch (error) {
+    const logsPayload: logsDto = {
+      userId: userId,
+      userName: null,
+      statusCode: "400",
+      message: `Error While Taking Database Backup - ${error.message} By User - `,
+      companyId: companyId,
+    };
+    await InsertLog(logsPayload);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};

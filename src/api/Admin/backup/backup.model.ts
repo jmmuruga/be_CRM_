@@ -14,34 +14,37 @@ export class backupSetting {
   @Column()
   backupId: string;
 
+  // @Column({ nullable: true })
+  // companyId: string;
+
   @Column()
   backupDrive: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   showBackup: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   Daily: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   Weekly: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   Monthly: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   dailyTime: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   weeklyDay: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   weeklyTime: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   monthlyDate: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   monthlyTime: string;
 
   @Column({ nullable: true })

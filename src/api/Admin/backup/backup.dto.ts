@@ -2,6 +2,7 @@ import Joi from "joi";
 
 export const backupSettingValidation = Joi.object({
   backupId: Joi.string().required(),
+  companyId: Joi.string().optional().allow(null, ""),
   backupDrive: Joi.string().required(),
   showBackup: Joi.boolean(),
   Daily: Joi.boolean().optional().allow(null, ""),
@@ -32,4 +33,13 @@ export interface backupSettingDto {
   createdBy_userId: string;
   isEdited?: boolean;
   editedBy_userId?: string;
+  companyId: string;
+}
+
+
+export interface updateBackupStatus{
+  status: boolean;
+  userId: string;
+  backupId: string;
+  companyId: string;
 }

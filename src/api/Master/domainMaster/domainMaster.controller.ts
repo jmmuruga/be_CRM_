@@ -7,7 +7,7 @@ domainMasterRouter.get('/getDomainMasterId/:companyId' , (req,res) => getDomainM
 
 domainMasterRouter.post('/addUpdateDomainMaster' , (req,res) => addUpdateDomainMaster(req,res));
 
-domainMasterRouter.get('/getDomainMasterDetails/:companyId' , (req,res) => getDomainMasterDetails(req,res));
+domainMasterRouter.get('/getDomainMasterDetails/:companyId', (req,res) => getDomainMasterDetails(req,res));
 
 domainMasterRouter.post('/updateDomainMasterStatus' ,(req,res)=>updateStatus(req,res));
 

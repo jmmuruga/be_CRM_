@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addUpdateBackupSetting, getBacupSettingDetails } from "./backup.service";
+import { addUpdateBackupSetting, getBacupSettingDetails, getDbBackup, updateShowBackupStatus } from "./backup.service";
 
 const backupSettingRouter = Router();
 
@@ -7,5 +7,8 @@ backupSettingRouter.post('/addUpdateBackupSetting' , (req , res) => addUpdateBac
 
 backupSettingRouter.get('/getBackupSettingDetails' , (req , res) => getBacupSettingDetails(req , res));
 
+backupSettingRouter.post('/updateShowBackupStatus', (req, res) => updateShowBackupStatus(req, res));
+
+backupSettingRouter.get('/getDbBackup/:companyId/:userId', (req, res) => getDbBackup(req, res));
 
 export default backupSettingRouter;
