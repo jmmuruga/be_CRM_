@@ -12,6 +12,7 @@ import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 import sql from "mssql";
 import dotenv from "dotenv";
+import fs from "fs";
 dotenv.config();
 
 export const addUpdateBackupSetting = async (req: Request, res: Response) => {
@@ -168,7 +169,6 @@ export const updateShowBackupStatus = async (req: Request, res: Response) => {
 export const getDbBackup = async (req: Request, res: Response) => {
   const { userId, companyId } = req.params;
   let dbName = process.env.DB_NAME;
-  let drive = "C";
 
   const sqlConfig = {
     user: process.env.DB_USERNAME,
@@ -184,6 +184,22 @@ export const getDbBackup = async (req: Request, res: Response) => {
 
   try {
     const backup = await sql.connect(sqlConfig);
+
+    const driveResult = await backup.request().query(`
+            SELECT backupDrive FROM [${process.env.DB_NAME}].[dbo].[backup_setting]
+        `);
+    let drive = driveResult.recordset[0].backupDrive;
+
+    const backupFolderPath = `${drive}:\\DATABASE_BACKUP\\`;
+
+    if (!fs.existsSync(`${drive}:\\`)) {
+      throw new ValidationException(`${drive} Drive not found on server.`);
+    }
+    if (!fs.existsSync(backupFolderPath)) {
+      throw new ValidationException(
+        `No folder found in drive: ${drive}. Please create a folder to take back up`
+      );
+    }
     // Your SQL query
     const query: string = `
         DECLARE @path VARCHAR(256) -- path of backup files
