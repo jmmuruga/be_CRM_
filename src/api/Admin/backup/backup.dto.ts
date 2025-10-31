@@ -43,3 +43,11 @@ export interface updateBackupStatus{
   backupId: string;
   companyId: string;
 }
+
+export interface backupHistoryDto {
+  backupId: string;
+  userId: string;
+  date: string;
+  backupDate: string;
+  type: string;
+}

@@ -1,12 +1,13 @@
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
 import {
+  backupHistoryDto,
   backupSettingDto,
   backupSettingValidation,
   updateBackupStatus,
 } from "./backup.dto";
 import { Request, Response } from "express";
-import { backupSetting } from "./backup.model";
+import { backupHistory, backupSetting } from "./backup.model";
 import { getChangedProperty } from "../../../shared/helper";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
@@ -167,7 +168,7 @@ export const updateShowBackupStatus = async (req: Request, res: Response) => {
 };
 
 export const getDbBackup = async (req: Request, res: Response) => {
-  const { userId, companyId } = req.params;
+  const { userId, companyId, backupType } = req.params;
   let dbName = process.env.DB_NAME;
 
   const sqlConfig = {
@@ -182,6 +183,32 @@ export const getDbBackup = async (req: Request, res: Response) => {
     requestTimeout: 1200000,
   };
 
+  let messageType = "";
+  let errorMessageType = "";
+
+  switch (parseInt(backupType)) {
+    case 0:
+      messageType = "Database Backed Up Successful By User - ";
+      errorMessageType = "Error While Taking Database Backup By User - ";
+      break;
+    case 1:
+      messageType = "Daily Database Backed Up Successful By User - ";
+      errorMessageType = "Error While Taking Daily Database Backup By User - ";
+      break;
+    case 2:
+      messageType = "Weekly Database Backed Up Successful By User - ";
+      errorMessageType = "Error While Taking Weekly Database Backup By User - ";
+      break;
+    case 3:
+      messageType = "Monthly Database Backed Up Successful By User - ";
+      errorMessageType =
+        "Error While Taking Monthly Database Backup By User - ";
+      break;
+    default:
+      messageType = "Database Backed Up Successful By User - ";
+      errorMessageType = "Error While Taking Database Backup By User - ";
+  }
+
   try {
     const backup = await sql.connect(sqlConfig);
 
@@ -190,12 +217,12 @@ export const getDbBackup = async (req: Request, res: Response) => {
         `);
     let drive = driveResult.recordset[0].backupDrive;
 
-    const backupFolderPath = `${drive}:\\DATABASE_BACKUP\\`;
+    const folderPath = `${drive}:\\DATABASE_BACKUP\\`;
 
     if (!fs.existsSync(`${drive}:\\`)) {
       throw new ValidationException(`${drive} Drive not found on server.`);
     }
-    if (!fs.existsSync(backupFolderPath)) {
+    if (!fs.existsSync(folderPath)) {
       throw new ValidationException(
         `No folder found in drive: ${drive}. Please create a folder to take back up`
       );
@@ -216,25 +243,37 @@ export const getDbBackup = async (req: Request, res: Response) => {
             END
   `;
     // Execute the query
-    const result = await backup.request().query(query);
-    await sql.close();
+
+    const date = new Date().toISOString().split("T")[0];
+
+    const backupRepo = appSource.getRepository(backupHistory);
+    const backupRecord = backupRepo.create({
+      userId: userId,
+      type: backupType.toString(),
+      date: date,
+      backupDate: date,
+    });
+
+    // Save to DB
+    await backupRepo.save(backupRecord);
+
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
       statusCode: "200",
-      message: `Database Backed Up Successful By User - `,
+      message: messageType,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
     res.status(200).send({
-      IsSuccess: `Database Backed Up Successfully !`,
+      IsSuccess: `Database Backed Up Successfully ! `,
     });
   } catch (error) {
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
       statusCode: "400",
-      message: `Error While Taking Database Backup - ${error.message} By User - `,
+      message: `${errorMessageType} - ${error.message}`,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
@@ -246,3 +285,4 @@ export const getDbBackup = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+

@@ -62,3 +62,27 @@ export class backupSetting {
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: string;
 }
+
+@Entity()
+export class backupHistory {
+  @PrimaryGeneratedColumn()
+  backupId: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  type: string;
+
+  @Column()
+  date: string;
+
+  @Column()
+  backupDate: string;
+
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: string;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: string;
+}

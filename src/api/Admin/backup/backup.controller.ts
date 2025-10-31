@@ -9,6 +9,7 @@ backupSettingRouter.get('/getBackupSettingDetails' , (req , res) => getBacupSett
 
 backupSettingRouter.post('/updateShowBackupStatus', (req, res) => updateShowBackupStatus(req, res));
 
-backupSettingRouter.get('/getDbBackup/:companyId/:userId', (req, res) => getDbBackup(req, res));
+backupSettingRouter.get('/getDbBackup/:companyId/:userId/:backupType/:date/:backupDate',(req, res) => getDbBackup(req, res));
+
 
 export default backupSettingRouter;
