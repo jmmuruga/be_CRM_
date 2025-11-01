@@ -75,10 +75,10 @@ export class backupHistory {
   type: string;
 
   @Column()
-  date: string;
+  backupDate: string;
 
   @Column()
-  backupDate: string;
+  date: string;
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;

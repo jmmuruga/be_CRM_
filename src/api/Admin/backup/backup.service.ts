@@ -183,29 +183,29 @@ export const getDbBackup = async (req: Request, res: Response) => {
     requestTimeout: 1200000,
   };
 
-  let messageType = "";
+  let successMessageType = "";
   let errorMessageType = "";
 
   switch (parseInt(backupType)) {
     case 0:
-      messageType = "Database Backed Up Successful By User - ";
+      successMessageType = "Database Backed Up Successful By User - ";
       errorMessageType = "Error While Taking Database Backup By User - ";
       break;
     case 1:
-      messageType = "Daily Database Backed Up Successful By User - ";
+      successMessageType = "Daily Database Backed Up Successful By User - ";
       errorMessageType = "Error While Taking Daily Database Backup By User - ";
       break;
     case 2:
-      messageType = "Weekly Database Backed Up Successful By User - ";
+      successMessageType = "Weekly Database Backed Up Successful By User - ";
       errorMessageType = "Error While Taking Weekly Database Backup By User - ";
       break;
     case 3:
-      messageType = "Monthly Database Backed Up Successful By User - ";
+      successMessageType = "Monthly Database Backed Up Successful By User - ";
       errorMessageType =
         "Error While Taking Monthly Database Backup By User - ";
       break;
     default:
-      messageType = "Database Backed Up Successful By User - ";
+      successMessageType = "Database Backed Up Successful By User - ";
       errorMessageType = "Error While Taking Database Backup By User - ";
   }
 
@@ -244,29 +244,61 @@ export const getDbBackup = async (req: Request, res: Response) => {
   `;
     // Execute the query
 
-    const date = new Date().toISOString().split("T")[0];
+    // 🔹 Get backup setting repository
+    const backupSettingRepo = appSource.getRepository(backupSetting);
+    const setting = await backupSettingRepo.findOne({ where: {} });
+
+    // 🔹 Formatter function
+    function getFormattedLocalDateTime(date: Date = new Date()): string {
+      const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+      const seconds = pad(date.getSeconds());
+      const millis = pad(date.getMilliseconds(), 3).padEnd(7, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${millis}`;
+    }
+
+    const formattedDate = getFormattedLocalDateTime();
+    let formattedBackupDate = formattedDate;
+
+    if (setting?.dailyTime) {
+      const timeParts = setting.dailyTime.split(":").map(Number);
+
+      if (timeParts.length >= 2 && !timeParts.some(isNaN)) {
+        const [hh, mm, ss = 0] = timeParts;
+
+        const backupDateObj = new Date();
+        backupDateObj.setHours(hh, mm, ss, 0);
+
+        formattedBackupDate = getFormattedLocalDateTime(backupDateObj);
+      } else {
+      }
+    }
 
     const backupRepo = appSource.getRepository(backupHistory);
     const backupRecord = backupRepo.create({
       userId: userId,
       type: backupType.toString(),
-      date: date,
-      backupDate: date,
+      date: formattedDate,
+      backupDate: formattedBackupDate,
     });
-
     // Save to DB
+
     await backupRepo.save(backupRecord);
 
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
       statusCode: "200",
-      message: messageType,
+      message: successMessageType,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
     res.status(200).send({
-      IsSuccess: `Database Backed Up Successfully ! `,
+      IsSuccess: `Database Backup Taken Successfully !`,
     });
   } catch (error) {
     const logsPayload: logsDto = {
@@ -282,7 +314,6 @@ export const getDbBackup = async (req: Request, res: Response) => {
         message: error?.message,
       });
     }
-    res.status(500).send(error);
+    res.status(500).send(errorMessageType);
   }
 };
-
