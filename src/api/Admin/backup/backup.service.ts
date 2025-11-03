@@ -243,6 +243,8 @@ export const getDbBackup = async (req: Request, res: Response) => {
             END
   `;
     // Execute the query
+    const result = await backup.request().query(query);
+    await sql.close();
 
     // 🔹 Get backup setting repository
     const backupSettingRepo = appSource.getRepository(backupSetting);
