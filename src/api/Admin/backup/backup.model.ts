@@ -74,8 +74,8 @@ export class backupHistory {
   @Column()
   type: string;
 
-  @Column()
-  backupDate: string;
+  @Column({default:false})
+  backupDone: boolean;
 
   @Column()
   date: string;

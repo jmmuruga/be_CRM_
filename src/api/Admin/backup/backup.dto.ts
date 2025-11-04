@@ -48,6 +48,6 @@ export interface backupHistoryDto {
   backupId: string;
   userId: string;
   date: string;
-  backupDate: string;
+  backupDone: boolean;
   type: string;
 }
