@@ -7,11 +7,11 @@ pinSettingRouter.post('/addUpdatePin' , (req , res) => addUpdatePinSetting(req ,
 
 pinSettingRouter.get('/getPinSettingDetails' , (req , res) => getPinSettingDetails(req , res));
 
-pinSettingRouter.get('/sendOtpPinSetting', (req, res) => sendOtpPinSetting(req, res))
+pinSettingRouter.get('/sendOtpPinSetting/:userId', (req, res) => sendOtpPinSetting(req, res));
 
 pinSettingRouter.get('/verifyOtpPinSetting/:userId/:otp', (req, res) => verifyOtpPinSetting(req, res))
 
-pinSettingRouter.get('/sendOtpPinSettingCompany', (req, res) => sendOtpPinSettingCompany(req, res))
+pinSettingRouter.get('/sendOtpPinSettingCompany/:userId', (req, res) => sendOtpPinSettingCompany(req, res))
 
 pinSettingRouter.get('/verifyDeletePin/:companyId/:userId/:deletePin', (req, res) => verifyDeletePin(req, res))
 

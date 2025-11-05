@@ -344,6 +344,26 @@ export const getDbBackup = async (req: Request, res: Response) => {
     requestTimeout: 1200000,
   };
   const backupRepo = appSource.getRepository(backupHistory);
+
+  let backupType = "";
+
+  switch (type) {
+    case "0":
+      backupType = ""; // Just "Backup Taken Successfully"
+      break;
+    case "1":
+      backupType = "Daily";
+      break;
+    case "2":
+      backupType = "Weekly";
+      break;
+    case "3":
+      backupType = "Monthly";
+      break;
+    default:
+      backupType = "";
+      break;
+  }
   try {
     const backup = await sql.connect(sqlConfig);
     const driveResult = await backup.request().query(`
@@ -378,33 +398,74 @@ export const getDbBackup = async (req: Request, res: Response) => {
     // Execute the query
     const result = await backup.request().query(query);
     await sql.close();
-    const backupDate =
+
+    //     const backupSettingRepo = appSource.getRepository(backupSetting);
+    //     const setting = await backupSettingRepo.findOne({ where: {} });
+
+    //     // 🔹 Formatter function
+    //     function getFormattedLocalDateTime(date: Date = new Date()): string {
+    //       const pad = (n: number, width = 2) => n.toString().padStart(width, "0");
+    //       const year = date.getFullYear();
+    //       const month = pad(date.getMonth() + 1);
+    //       const day = pad(date.getDate());
+    //       const hours = pad(date.getHours());
+    //       const minutes = pad(date.getMinutes());
+    //       const seconds = pad(date.getSeconds());
+    //       const millis = pad(date.getMilliseconds(), 3).padEnd(7, "0");
+    //       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${millis}`;
+    //     }
+
+    //     const formattedDate = getFormattedLocalDateTime();
+    //     let formattedBackupDate = formattedDate;
+
+    //     if (setting?.dailyTime) {
+    //       const timeParts = setting.dailyTime.split(":").map(Number);
+
+    //       if (timeParts.length >= 2 && !timeParts.some(isNaN)) {
+    //         const [hh, mm, ss = 0] = timeParts;
+
+    //         const backupDateObj = new Date();
+    //         backupDateObj.setHours(hh, mm, ss, 0);
+
+    //         formattedBackupDate = getFormattedLocalDateTime(backupDateObj);
+    //       } else {
+    //       }
+    //     }
+
+    //     const backupDate =
+    //       typeof date === "string" ? date : new Date().toISOString().split("T")[0];
+
+    const actualBackupDate =
       typeof date === "string" ? date : new Date().toISOString().split("T")[0];
+
+    // const currentDateTime = new Date().toISOString();
+
     const backupRecord = backupRepo.create({
-      // date: new Date().toISOString().split('T')[0],
-      date: backupDate,
+      actualBackupDate: actualBackupDate,
       type: type,
       backupDone: true,
       userId: userId,
+      // backedupDate: currentDateTime, 
     });
     await backupRepo.save(backupRecord);
+
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
       statusCode: "200",
-      message: `Backup Taken Successfully For Type ${type} By User -`,
+      message: `${backupType} Backup Taken Successfully By User -`,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
     res.status(200).send({
-      IsSuccess: "DataBase BackUp Taken Succesfully...!",
+      IsSuccess: "DataBase BackUp Taken Succesfully !",
     });
   } catch (error) {
     const logsPayload: logsDto = {
       userId: userId,
       userName: null,
       statusCode: "200",
-      message: `Error While Taking Backup By User -`,
+      message: `Error While Taking ${backupType} Backup By User -`,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
@@ -430,13 +491,12 @@ export const verifyDatabaseBackup = async (req: Request, res: Response) => {
       details = await backupDetailsRepoistry.query(
         `SELECT *
                  FROM [${process.env.DB_NAME}].[dbo].[backup_history] db
-                 WHERE db.type = '${type}'
-                 AND MONTH(db.date) = ${month}`
+                 WHERE db.type = '${type}'AND MONTH(db.date) = ${month}`
       );
     } else {
       details = await backupDetailsRepoistry.query(
-        `SELECT * FROM [${process.env.DB_NAME}].[dbo].[backup_history] db WHERE db.type = '${type}'
-                 AND CONVERT(VARCHAR(10),  db.date, 120) = CONVERT(VARCHAR(10), '${convertedDate}', 120)`
+        `SELECT * FROM [${process.env.DB_NAME}].[dbo].[backup_history] db WHERE db.type = '${type}'AND 
+        CONVERT(VARCHAR(10),  db.actualBackupDate, 120) = CONVERT(VARCHAR(10), '${convertedDate}', 120)`
       );
     }
     res.status(200).send({

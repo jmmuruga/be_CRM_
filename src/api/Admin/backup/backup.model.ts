@@ -74,11 +74,15 @@ export class backupHistory {
   @Column()
   type: string;
 
-  @Column({default:false})
+  @Column({ default: false })
   backupDone: boolean;
 
   @Column()
-  date: string;
+  actualBackupDate: string;
+
+  // @Column()
+  // backedupDate: string;
+
 
   @CreateDateColumn({ name: "created_at" })
   createdAt: string;

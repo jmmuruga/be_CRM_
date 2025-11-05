@@ -136,6 +136,13 @@ export const getPinSettingDetails = async (req: Request, res: Response) => {
 };
 
 export const sendOtpPinSetting = async (req: Request, res: Response) => {
+   const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).send({
+        IsSuccess: false,
+        ErrorMessage: "User ID is required to send OTP!",
+      });
+    }
   try {
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
@@ -157,7 +164,7 @@ export const sendOtpPinSetting = async (req: Request, res: Response) => {
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
     const otpTablePayload = {
-      userId: "1",
+      userId: userId,
       otp: generatedOtp,
     };
     await OtpRepository.save(otpTablePayload);
@@ -221,6 +228,7 @@ export const verifyOtpPinSetting = async (req: Request, res: Response) => {
 
 export const sendOtpPinSettingCompany = async (req: Request, res: Response) => {
   try {
+    const userId = req.params.userId;
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -241,7 +249,7 @@ export const sendOtpPinSettingCompany = async (req: Request, res: Response) => {
 
     const OtpRepository = appSource.getRepository(forgetPasswordOtpStore);
     const otpTablePayload = {
-      userId: "1",
+      userId: userId,
       otp: generatedOtp,
     };
     await OtpRepository.save(otpTablePayload);
