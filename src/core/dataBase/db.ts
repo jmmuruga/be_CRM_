@@ -14,6 +14,7 @@ import { Logs } from "../../api/Admin/logs/logs.model";
 import { forgetPasswordOtpStore } from "../../api/getOtpForgetPassword/getOtpForgetPassword.model";
 import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
 import { backupHistory, backupSetting } from "../../api/Admin/backup/backup.model";
+import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 
 const Entities = [
   domainMaster,
@@ -30,6 +31,7 @@ const Entities = [
   pinSetting,
   backupSetting,
   backupHistory,
+  customizeTheme
   
   
 ];
