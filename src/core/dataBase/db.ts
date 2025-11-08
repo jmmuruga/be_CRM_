@@ -1,10 +1,39 @@
 import "dotenv/config";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { customerDetails } from "../../api/customer/customer.model";
+import { domainMaster } from "../../api/Master/domainMaster/domainMaster.model";
+import { userDetails } from "../../api/Admin/userDetails/userDetails.model";
+import { domainRegistration } from "../../api/Master/domainRegistration/domainRegistration.model";
+import { hostingMaster } from "../../api/Master/hostingMaster/hostingMaster.model";
+import { serverMaster } from "../../api/Master/serverMaster/serverMaster.model";
+import { serviceProviderMaster } from "../../api/Master/serviceProviderMaster/serviceProviderMaster.model";
+import { companyRegistration } from "../../api/Admin/companyRegistration/companyRegistration.model";
+import { employeeRegistration } from "../../api/Employee/employeeRegistration/employeeRegistration.model";
+import { newCustomerRegistration } from "../../api/New Customer/newCustomer/newCustomer.model";
+import { Logs } from "../../api/Admin/logs/logs.model";
+import { forgetPasswordOtpStore } from "../../api/getOtpForgetPassword/getOtpForgetPassword.model";
+import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
+import { backupHistory, backupSetting } from "../../api/Admin/backup/backup.model";
+import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 
 const Entities = [
-  customerDetails
+  domainMaster,
+  userDetails,
+  domainRegistration,
+  hostingMaster,
+  serverMaster,
+  serviceProviderMaster,
+  companyRegistration,
+  employeeRegistration,
+  newCustomerRegistration,
+  Logs,
+  forgetPasswordOtpStore,
+  pinSetting,
+  backupSetting,
+  backupHistory,
+  customizeTheme
+  
+  
 ];
 
 export const appSource = new DataSource({
