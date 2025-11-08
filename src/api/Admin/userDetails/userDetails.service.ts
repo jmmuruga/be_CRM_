@@ -15,6 +15,7 @@ import {  generateOtp, getChangedProperty } from "../../../shared/helper";
 import * as crypto from "crypto";
 import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../../getOtpForgetPassword/getOtpForgetPassword.model";
+import { companyRegistration } from "../companyRegistration/companyRegistration.model";
 
 export const getUserId = async (req: Request, res: Response) => {
   try {
@@ -51,6 +52,7 @@ export const addUpdateUserDetails = async (req: Request, res: Response) => {
     ? payload.editedBy_userId
     : payload.createdBy_userId;
   const companyId = payload.companyId;
+
   
 
   try {
@@ -186,7 +188,6 @@ export const getUserDetails = async (req: Request, res: Response) => {
     
     const userDetailsRepositry = appSource.getRepository(userDetails);
     const users = await userDetailsRepositry.createQueryBuilder("").getMany();
-
     users.forEach((x) => {
       x.Password = decrypter(x.Password) || x.Password;
       x.confirmPassword = decrypter(x.confirmPassword) || x.confirmPassword;

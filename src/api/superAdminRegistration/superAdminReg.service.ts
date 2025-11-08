@@ -13,6 +13,7 @@ import nodemailer from "nodemailer";
 import { forgetPasswordOtpStore } from "../getOtpForgetPassword/getOtpForgetPassword.model";
 import { InsertLog } from "../Admin/logs/logs.service";
 import { logsDto } from "../Admin/logs/logs.dto";
+import { companyRegistration } from "../Admin/companyRegistration/companyRegistration.model";
 
 
 
@@ -137,6 +138,7 @@ export const addSuperAdminRegistration = async (
 ) => {
   const payload: superAdminRegistrationDto = req.body;
   const companyId = payload.companyId;
+  const companyName = payload.companyName;
   const userId = payload.createdBy_userId;
 
   try {
@@ -174,6 +176,7 @@ export const addSuperAdminRegistration = async (
       "ABCXY123"
     );
     payload.companyId = companyId;
+    payload.companyName = companyName;
 
     await userDetailsRepository.save(payload);
     const logsPayload: logsDto = {
@@ -208,6 +211,7 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
   try {
   const Email= req.params.Email;
   const userDetailsRepository = appSource.getRepository(userDetails);
+   const companyRepository = appSource.getRepository(companyRegistration); 
   const user = await userDetailsRepository.findOne(
     {  where: [
       { Email: Email},
@@ -220,6 +224,11 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
   if (user.userType !== "5") {
     throw new ValidationException(" Only Super Admins Are Allowed To Reset Password !");
   }
+
+    const company = await companyRepository.findOne({ where: { companyId: '1' } });
+    if (!company) {
+      throw new ValidationException("Default company  not found!");
+    }
 
     const generatedOtp = generateOtp();
     const transporter = nodemailer.createTransport({
@@ -248,7 +257,7 @@ export const sendOtpResetSuperAdmin = async (req:Request,res:Response) =>{
     return res.status(200).send({
       IsSuccess: true,
       Message: "OTP Sent Successfully",
-      Result: { userId: user.userId },
+      Result: { userId: user.userId,companyName:company.companyName,companyId:1 },
     });
 
 

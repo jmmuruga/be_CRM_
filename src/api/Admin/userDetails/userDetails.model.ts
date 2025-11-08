@@ -21,6 +21,9 @@ export class userDetails {
   // companyId: string;
 
   @Column()
+  companyName: string;
+
+  @Column()
   Email: string;
 
   @Column()

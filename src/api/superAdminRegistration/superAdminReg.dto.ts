@@ -10,6 +10,7 @@ export const superAdminRegistrationValidation = Joi.object({
   confirmPassword: Joi.string().required(),
   createdBy_userId : Joi.string().required(),
   companyId : Joi.string().optional().allow(null, ""),
+  companyName: Joi.string().required()
 
 });
 
@@ -23,6 +24,7 @@ export interface superAdminRegistrationDto {
   confirmPassword: string;
   createdBy_userId: string;
   companyId:string;
+  companyName:string;
 
 }
 

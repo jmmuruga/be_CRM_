@@ -11,6 +11,7 @@ import * as crypto from "crypto";
 export const signIn = async (req: Request, res: Response) => {
   const payload = req.body;
   const userRepository = appSource.getRepository(userDetails);
+  const companyRepository = appSource.getRepository(companyRegistration);
 
   let user = await userRepository.findOneBy({ Email: payload.userName });
   if (!user) {
@@ -26,6 +27,11 @@ export const signIn = async (req: Request, res: Response) => {
     const encryptedPassword = await encryptString(payload.Password, "ABCXY123");
     if (user.Password != encryptedPassword) {
       throw new ValidationException("Incorrect Password !");
+    }
+
+     let company = null;
+    if (user.companyName) {
+      company = await companyRepository.findOneBy({ companyId: user.companyName });
     }
 
     const now = new Date().toLocaleTimeString("en-US", {
@@ -49,13 +55,27 @@ export const signIn = async (req: Request, res: Response) => {
 
     return res.status(200).send({
       Result: {
+        userDetail:{
         userId: user.userId,
         Email: user.Email,
         Mobile: user.Mobile,
         userName: user.userName,
         userType: user.userType,
+        companyName:user.companyName,
         Password: user.Password,
         confirmPassword: user.confirmPassword,
+        },
+        companyDetail: company
+          ? {
+              companyId: company.companyId,
+              companyName: company.companyName,
+              Email: company.Email,
+              Location: company.Location,
+              ownerName: company.ownerName,
+              Mobile: company.Mobile,
+              Branch: company.Branch,
+            }
+          : null,
       },
     });
   } catch (error: any) {

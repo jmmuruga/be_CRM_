@@ -5,6 +5,7 @@ export const userDetailsValidation = Joi.object({
   userId: Joi.string().required(),
   Email: Joi.string().required(),
   userType: Joi.string().required(),
+  companyName: Joi.string().required(),
   Mobile: Joi.string().required(),
   Password: Joi.string().required(),
   confirmPassword: Joi.string().required(),
@@ -19,6 +20,7 @@ export interface userDetailsDto {
   userId: string;
   Email: string;
   userType: string;
+  companyName?: string;
   Mobile: string;
   Password: string;
   confirmPassword: string;
