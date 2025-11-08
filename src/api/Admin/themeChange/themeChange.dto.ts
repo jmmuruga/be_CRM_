@@ -1,7 +1,6 @@
 import Joi from "joi";
 
 export const customizeThemeValidation  = Joi.object({
-    // themeId: Joi.string().required(),
     companyId: Joi.string().required(),
     userId: Joi.string().required(),
     themeColor: Joi.string().required(),
@@ -12,7 +11,6 @@ export const customizeThemeValidation  = Joi.object({
 });
 
 export interface CustomizeThemeDto {
-    // themeId: string;
     companyId: string;
     userId: string;
     themeColor?: string;

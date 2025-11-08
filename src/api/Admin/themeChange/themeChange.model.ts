@@ -29,7 +29,7 @@ export class customizeTheme {
   @Column({ default: false })
   isEdited: boolean;
 
-    @Column({ nullable: true })
+  @Column({ nullable: true })
   editedBy_userId: string;
 
   @CreateDateColumn({ name: "created_at" })
