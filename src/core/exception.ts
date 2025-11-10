@@ -5,3 +5,9 @@ export class ValidationException extends Error {
         super(details);
     }
 }
+
+export class UnauthenticatedException extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}

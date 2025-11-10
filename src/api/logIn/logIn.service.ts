@@ -4,11 +4,12 @@ import { userDetails } from "../Admin/userDetails/userDetails.model";
 import { ValidationException } from "../../core/exception";
 import { logsDto } from "../Admin/logs/logs.dto";
 import { InsertLog } from "../Admin/logs/logs.service";
-import { logOutDto } from "./signIn.dto";
+import { logOutDto } from "./logIn.dto";
 import { companyRegistration } from "../Admin/companyRegistration/companyRegistration.model";
 import * as crypto from "crypto";
+import jwt from "jsonwebtoken";
 
-export const signIn = async (req: Request, res: Response) => {
+export const logIn = async (req: Request, res: Response) => {
   const payload = req.body;
   const userRepository = appSource.getRepository(userDetails);
   const companyRepository = appSource.getRepository(companyRegistration);
@@ -29,9 +30,11 @@ export const signIn = async (req: Request, res: Response) => {
       throw new ValidationException("Incorrect Password !");
     }
 
-     let company = null;
+    let company = null;
     if (user.companyName) {
-      company = await companyRepository.findOneBy({ companyId: user.companyName });
+      company = await companyRepository.findOneBy({
+        companyId: user.companyName,
+      });
     }
 
     const now = new Date().toLocaleTimeString("en-US", {
@@ -55,15 +58,19 @@ export const signIn = async (req: Request, res: Response) => {
 
     return res.status(200).send({
       Result: {
-        userDetail:{
-        userId: user.userId,
-        Email: user.Email,
-        Mobile: user.Mobile,
-        userName: user.userName,
-        userType: user.userType,
-        companyName:user.companyName,
-        Password: user.Password,
-        confirmPassword: user.confirmPassword,
+        userDetail: {
+          userId: user.userId,
+          Email: user.Email,
+          Mobile: user.Mobile,
+          userName: user.userName,
+          userType: user.userType,
+          companyName: user.companyName,
+          Password: user.Password,
+          confirmPassword: user.confirmPassword,
+          token: jwt.sign(
+            { id: user.userId, email: user.Email, phonenumber: user.Mobile },
+            process.env.JWT_SECRET_KEY as string
+          ),
         },
         companyDetail: company
           ? {

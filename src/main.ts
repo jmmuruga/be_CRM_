@@ -12,13 +12,14 @@ import employeeRegistrationRouter from "./api/Employee/employeeRegistration/empl
 import hostingMasterRouter from "./api/Master/hostingMaster/hostingMaster.controller";
 import serviceProviderRouter from "./api/Master/serviceProviderMaster/serviceProviderMaster.controller";
 import serverMasterRouter from "./api/Master/serverMaster/serverMaster.controller";
-import signInRouter from "./api/signIn/signIn.controller";
 import logsRouter from "./api/Admin/logs/logs.controller";
 import superAdminRegistrationRouter from "./api/superAdminRegistration/superAdminReg.controller";
 import { pinSetting } from "./api/Admin/pinSetting/pinSeting.model";
 import pinSettingRouter from "./api/Admin/pinSetting/pinSeting.controller";
 import backupSettingRouter from "./api/Admin/backup/backup.controller";
 import customizeThemeRouter from "./api/Admin/themeChange/themeChange.controller";
+import logInRouter from "./api/logIn/logIn.controller";
+
 
 const app = express();
 
@@ -32,7 +33,7 @@ let corsOptions = {
   origin: "*",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus: 204
 };
 app.get('/', (req, res) => {
   console.log("✅ Root route hit");
@@ -40,14 +41,14 @@ app.get('/', (req, res) => {
 });
 app.use('/domainRegistration' , cors(corsOptions) , domainRegistrationRouter);
 app.use('/domainMaster' , cors(corsOptions) , domainMasterRouter);
-app.use('/userDetails' , cors(corsOptions) , userDetailsRouter);
+app.use('/userRegistration' , cors(corsOptions) , userDetailsRouter);
 app.use('/companyRegistration' , cors(corsOptions) , companyRegistrationRouter);
 app.use('/newCustomerRegistration' , cors(corsOptions) , newCustomerRegistrationRouter);
 app.use('/employeeRegistration' , cors(corsOptions) , employeeRegistrationRouter);
 app.use('/hostingMaster' , cors(corsOptions) , hostingMasterRouter);
 app.use('/serviceProvider' , cors(corsOptions) , serviceProviderRouter);
 app.use('/serverMaster' , cors(corsOptions) , serverMasterRouter);
-app.use('/signIn' , cors(corsOptions) , signInRouter);
+app.use('/logIn' , cors(corsOptions) , logInRouter);
 app.use('/logsReport' , cors(corsOptions) , logsRouter);
 app.use('/superAdminRegistration' , cors(corsOptions) , superAdminRegistrationRouter);
 app.use('/pinSetting' , cors(corsOptions) , pinSettingRouter);

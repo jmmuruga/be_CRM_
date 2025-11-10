@@ -1,11 +1,11 @@
 import Joi from "joi";
 
-export const signInValidation = Joi.object({
+export const logInValidation = Joi.object({
   userName: Joi.string().required(),
   Password: Joi.string().required(),
 });
 
-export interface signInDto {
+export interface logInDto {
   userName: string;
   Password: string;
 }

@@ -1,3 +1,12 @@
+import { NextFunction } from "express";
+import { UnauthenticatedException } from "../core/exception";
+import { Request , Response } from "express";
+import { appSource } from "../core/dataBase/db";
+import { userDetails } from "../api/Admin/userDetails/userDetails.model";
+import jwt from "jsonwebtoken";
+
+
+
 export async function getChangedProperty<T>(
   editedPayload: any[], //after edit
   legacyPayload: any[] //before edit
@@ -44,3 +53,38 @@ export function getFormattedLocalDateTime(date: Date = new Date()): string {
   const millis = pad(date.getMilliseconds(), 3).padEnd(7, "0");
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${millis}`;
 }
+
+export const auth = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bearerToken = req.headers.authorization?.split("Bearer ")[1];
+  
+    if (!bearerToken) {
+      throw new UnauthenticatedException("Unauthenticated Access");
+    }
+   
+
+    const jwtVerification = jwt.verify(
+      bearerToken,
+      process.env.JWT_SECRET_KEY as string
+    );
+
+
+    if (typeof jwtVerification === "string" || !jwtVerification) {
+      throw new UnauthenticatedException("Unauthenticated Access");
+    }
+
+
+    const userRepository = appSource.getRepository(userDetails);
+    const user = userRepository.findOneBy({
+      userId: jwtVerification?.userId,
+    });
+
+    if (!user) {
+      throw new UnauthenticatedException("Unauthenticated Access");
+    }
+    res.locals.user = user;
+    next();
+  } catch (error) {
+    res.status(401).send({ message: "Unauthenticated Access" });
+  }
+};

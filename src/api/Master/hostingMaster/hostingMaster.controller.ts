@@ -1,17 +1,18 @@
 import { Router } from "express";
 import { addUpdateHostingMaster, deleteHostingMasterDetails, getHostingId, getHostingMasterDetails, updateStatus } from "./hostingMaster.service";
+import { auth } from "../../../shared/helper";
 
 const hostingMasterRouter = Router();
 
-hostingMasterRouter.get('/getHostingId/:companyId',(req,res) => getHostingId(req,res));
+hostingMasterRouter.get('/getHostingId/:companyId', auth ,(req,res) => getHostingId(req,res));
 
-hostingMasterRouter.post('/addUpdateHostingMaster' , (req , res) => addUpdateHostingMaster(req , res));
+hostingMasterRouter.post('/addUpdateHostingMaster' , auth , (req , res) => addUpdateHostingMaster(req , res));
 
-hostingMasterRouter.get('/getHostingMasterDetails/:companyId' , (req , res) => getHostingMasterDetails(req , res));
+hostingMasterRouter.get('/getHostingMasterDetails/:companyId' , auth , (req , res) => getHostingMasterDetails(req , res));
 
-hostingMasterRouter.post('/updateHostStatus', (req,res) =>updateStatus(req,res));
+hostingMasterRouter.post('/updateHostStatus', auth , (req,res) =>updateStatus(req,res));
 
-hostingMasterRouter.delete('/deleteHostingMasterDetails/:hostingId/:userId/:companyId',(req, res) => deleteHostingMasterDetails(req, res));
+hostingMasterRouter.delete('/deleteHostingMasterDetails/:hostingId/:userId/:companyId', auth ,(req, res) => deleteHostingMasterDetails(req, res));
 
 
 export default hostingMasterRouter

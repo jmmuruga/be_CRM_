@@ -42,6 +42,7 @@ export const getDomainMasterId = async (req: Request, res: Response) => {
 
 export const addUpdateDomainMaster = async (req: Request, res: Response) => {
   const payload: domainMasterDto = req.body;
+  
   const userId = payload.isEdited? payload.editedBy_userId: payload.createdBy_userId;
   const companyId = payload.companyId;
 
@@ -207,7 +208,6 @@ export const getDomainMasterDetails = async (req: Request, res: Response) => {
         (y) => +y.serverPlanId == +x.serverPlan
       ).serverPlan;
     });
-
 
 
     res.status(200).send({
