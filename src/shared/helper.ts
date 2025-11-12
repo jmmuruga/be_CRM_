@@ -28,6 +28,62 @@ export async function getChangedProperty<T>(
   return changedPropertyList;
 }
 
+
+export async function getChangedPropertyUserRights<T>(
+  editedPayload: any[], // after edit
+  legacyPayload: any[]  // before edit
+): Promise<string> {
+  const before = legacyPayload[0] || {};
+  const after = editedPayload[0] || {};
+  const changes: string[] = [];
+
+  for (const key of Object.keys(after)) {
+    // Skip non-essential comparison fields
+    if (['selectedForms', 'isEdited'].includes(key)) {
+      // Special handling for selectedForms object
+      const oldForms = before.selectedForms || {};
+      const newForms = after.selectedForms || {};
+
+      const oldFormNames: string[] = [];
+      const newFormNames: string[] = [];
+
+      // Flatten both old and new selected forms to arrays of names
+      for (const module in oldForms) {
+        oldForms[module].forEach((f: any) => oldFormNames.push(f.formName));
+      }
+      for (const module in newForms) {
+        newForms[module].forEach((f: any) => newFormNames.push(f.formName));
+      }
+
+      // Compare the sets
+      if (JSON.stringify(oldFormNames) !== JSON.stringify(newFormNames)) {
+        changes.push(
+          `selectedForms Changed From [${oldFormNames.join(', ')}] To [${newFormNames.join(', ')}]`
+        );
+      }
+      continue;
+    }
+
+    const oldVal = before[key];
+    const newVal = after[key];
+
+    if (oldVal !== newVal) {
+      // Handle objects gracefully
+      const oldValueStr =
+        typeof oldVal === 'object' ? JSON.stringify(oldVal) : oldVal ?? 'null';
+      const newValueStr =
+        typeof newVal === 'object' ? JSON.stringify(newVal) : newVal ?? 'null';
+
+      changes.push(`${key} Changed From ${oldValueStr} To ${newValueStr}`);
+    }
+  }
+
+  return changes.length > 0 ? changes.join(', ') : 'No changes detected';
+}
+
+
+
+
 export function generateOtp(): string {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   return otp;

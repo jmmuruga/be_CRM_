@@ -60,3 +60,36 @@ export interface userRightsDto {
 
 
 
+// import Joi from "joi";
+
+
+
+
+
+
+// import Joi from "joi";
+
+// export interface UserRightDTO {
+//   userTypeId: string;
+//   companyId: string;
+//   formId?: number;
+//   parentId: number;
+//   formName: string;
+//   formCode: string;
+//   createdBy_userId?: string;
+//   isEdited?: boolean;
+//   editedBy_userId?: string;
+// }
+
+// export const userRightsValidator = Joi.array().items(
+//   Joi.object({
+//     userTypeId: Joi.string().required(),
+//     companyId: Joi.string().required(),
+//     formCode: Joi.string().required(),
+//     formName: Joi.string().required(),
+//     parentId: Joi.number().required(),
+//     createdBy_userId: Joi.string().optional().allow(null, ""),
+//     isEdited: Joi.boolean().optional(),
+//     editedBy_userId: Joi.string().optional().allow(null, ""),
+//   })
+// );
