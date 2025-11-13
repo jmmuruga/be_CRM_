@@ -17,6 +17,8 @@ export const userRightsValidation = Joi.object({
   userTypeId: Joi.string().required(),
   companyId: Joi.string().required(),
   createdBy_userId: Joi.string().required(),
+  isEdited: Joi.boolean().optional(),
+  editedBy_userId: Joi.string().optional().allow(null, ""),
   selectedForms: Joi.object()
     .pattern(
       Joi.string(), // module name like 'Admin', 'Master'
