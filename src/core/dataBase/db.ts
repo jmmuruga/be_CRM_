@@ -16,6 +16,7 @@ import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
 import { backupHistory, backupSetting } from "../../api/Admin/backup/backup.model";
 import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 import { userRights } from "../../api/Admin/userRights/userRights.model";
+import { CreditDebit } from "../../api/Credit Debit/credit-debit/credit-debit.model";
 
 const Entities = [
   domainMaster,
@@ -33,7 +34,8 @@ const Entities = [
   backupSetting,
   backupHistory,
   customizeTheme,
-  userRights
+  userRights,
+  CreditDebit,
   
   
 ];
