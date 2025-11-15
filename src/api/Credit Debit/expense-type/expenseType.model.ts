@@ -7,21 +7,15 @@ import {
 } from "typeorm";
 
 @Entity()
-export class CreditDebit {
+export class ExpenseType {
   @PrimaryGeneratedColumn()
   id: string;
 
   @Column()
-  creditDebitId: string;
+  expenseTypeId: string;
 
   @Column()
-  creditDebitName: string;
-
-  @Column({ nullable: true })
-  Mobile: string;
-
-  @Column({ nullable: true })
-  Remarks: string;
+  expenseTypeName: string;
 
   @Column({ default: true })
   status: boolean;

@@ -21,6 +21,7 @@ import customizeThemeRouter from "./api/Admin/themeChange/themeChange.controller
 import logInRouter from "./api/logIn/logIn.controller";
 import userRightsRouter from "./api/Admin/userRights/userRights.controller";
 import creditDebitRouter from "./api/Credit Debit/credit-debit/credit-debit.controller";
+import expenseTypeRouter from "./api/Credit Debit/expense-type/expenseType.controller";
 
 
 const app = express();
@@ -58,5 +59,6 @@ app.use('/backupSetting' , cors(corsOptions) , backupSettingRouter);
 app.use('/customizeTheme' , cors(corsOptions) , customizeThemeRouter);
 app.use('/userRights' , cors(corsOptions) , userRightsRouter);
 app.use('/creditDebit' , cors(corsOptions) , creditDebitRouter);
+app.use('/expenseType' , cors(corsOptions) , expenseTypeRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

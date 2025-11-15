@@ -17,6 +17,7 @@ import { backupHistory, backupSetting } from "../../api/Admin/backup/backup.mode
 import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 import { userRights } from "../../api/Admin/userRights/userRights.model";
 import { CreditDebit } from "../../api/Credit Debit/credit-debit/credit-debit.model";
+import { ExpenseType } from "../../api/Credit Debit/expense-type/expenseType.model";
 
 const Entities = [
   domainMaster,
@@ -36,6 +37,7 @@ const Entities = [
   customizeTheme,
   userRights,
   CreditDebit,
+  ExpenseType
   
   
 ];

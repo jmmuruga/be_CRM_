@@ -15,6 +15,4 @@ newCustomerRegistrationRouter.post('/updateCustomerStatus', auth , (req,res) =>u
 newCustomerRegistrationRouter.delete('/deleteCustomerDetails/:customerId/:userId/:companyId', auth , (req, res) => deleteCustomerDetails(req, res));
 
 
-
-
 export default newCustomerRegistrationRouter
