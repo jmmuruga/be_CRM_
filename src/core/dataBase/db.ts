@@ -18,6 +18,7 @@ import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 import { userRights } from "../../api/Admin/userRights/userRights.model";
 import { CreditDebit } from "../../api/Credit Debit/credit-debit/credit-debit.model";
 import { ExpenseType } from "../../api/Credit Debit/expense-type/expenseType.model";
+import { BankMaster } from "../../api/Bank Details/Bank Master/bankMaster.model";
 
 const Entities = [
   domainMaster,
@@ -37,7 +38,8 @@ const Entities = [
   customizeTheme,
   userRights,
   CreditDebit,
-  ExpenseType
+  ExpenseType,
+  BankMaster
   
   
 ];

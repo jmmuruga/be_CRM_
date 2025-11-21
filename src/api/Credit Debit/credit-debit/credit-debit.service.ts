@@ -195,8 +195,6 @@ export const updateCreditDebitStatus = async (req : Request , res: Response) => 
     res.status(200).send({
       IsSuccess: `Status For ${creditDebitFound.creditDebitName} Changed Successfully`,
     });
-
-
   }
   catch (error) {
     const logsPayload: logsDto = {
@@ -259,7 +257,6 @@ export const deleteCreditDebit = async (req: Request, res: Response) => {
         message: error.message,
       });
     }
-
     res.status(500).send(error);
   }
 
