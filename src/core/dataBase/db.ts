@@ -19,6 +19,7 @@ import { userRights } from "../../api/Admin/userRights/userRights.model";
 import { CreditDebit } from "../../api/Credit Debit/credit-debit/credit-debit.model";
 import { ExpenseType } from "../../api/Credit Debit/expense-type/expenseType.model";
 import { BankMaster } from "../../api/Bank Details/Bank Master/bankMaster.model";
+import { BankAccountCreation } from "../../api/Bank Details/Bank Acc Creation/bankAccCreation.model";
 
 const Entities = [
   domainMaster,
@@ -39,7 +40,8 @@ const Entities = [
   userRights,
   CreditDebit,
   ExpenseType,
-  BankMaster
+  BankMaster,
+  BankAccountCreation
   
   
 ];

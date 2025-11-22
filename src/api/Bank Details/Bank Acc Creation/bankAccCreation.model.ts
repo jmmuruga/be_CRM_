@@ -15,6 +15,9 @@ export class BankAccountCreation {
   bankAccNumberCreationId: string;
 
   @Column()
+  companyId: string;
+
+  @Column()
   accountHolderName: string;
 
   @Column()

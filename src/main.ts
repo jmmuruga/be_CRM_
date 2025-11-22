@@ -23,6 +23,7 @@ import userRightsRouter from "./api/Admin/userRights/userRights.controller";
 import creditDebitRouter from "./api/Credit Debit/credit-debit/credit-debit.controller";
 import expenseTypeRouter from "./api/Credit Debit/expense-type/expenseType.controller";
 import bankMasterRouter from "./api/Bank Details/Bank Master/bankMaster.controller";
+import bankAccountCreationRouter from "./api/Bank Details/Bank Acc Creation/bankAccCreation.controller";
 
 
 const app = express();
@@ -62,5 +63,6 @@ app.use('/userRights' , cors(corsOptions) , userRightsRouter);
 app.use('/creditDebit' , cors(corsOptions) , creditDebitRouter);
 app.use('/expenseType' , cors(corsOptions) , expenseTypeRouter);
 app.use('/bankMaster' , cors(corsOptions) , bankMasterRouter);
+app.use('/bankAccountCreation' , cors(corsOptions) , bankAccountCreationRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

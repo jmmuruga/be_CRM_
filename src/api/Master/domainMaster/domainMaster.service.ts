@@ -157,6 +157,7 @@ export const getDomainMasterDetails = async (req: Request, res: Response) => {
     const companyId = req.params.companyId;
 
     const domainMasterRepository = appSource.getRepository(domainMaster);
+    
     const domainmaster = await domainMasterRepository
      .createQueryBuilder()
       .where({ companyId: companyId })

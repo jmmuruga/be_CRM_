@@ -230,7 +230,7 @@ export const updateBankMasterStatus = async (req: Request, res: Response) => {
   });
   try {
     if (!bankMasterFound) {
-      throw new ValidationException("Company Not Found");
+      throw new ValidationException("Domain Not Found");
     }
     await bankMasterRepositry
       .createQueryBuilder()

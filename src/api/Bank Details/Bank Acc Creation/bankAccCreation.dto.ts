@@ -18,6 +18,7 @@ export const bankAccountCreationValidation = Joi.object({
   createdBy_userId: Joi.string().required(),
   isEdited: Joi.boolean().optional(),
   editedBy_userId: Joi.string().optional().allow(null, ""),
+  companyId: Joi.string().required(),
 });
 
 export interface bankAccountCreationDto {
@@ -37,4 +38,12 @@ export interface bankAccountCreationDto {
   createdBy_userId: string;
   isEdited: boolean;
   editedBy_userId: string;
+  companyId: string;
+}
+
+export interface bankAccountCreationStatus{
+  bankAccNumberCreationId: string;
+  companyId: string;
+  status: boolean;
+  userId: string;
 }
