@@ -3,10 +3,6 @@ import { appSource } from "../../../core/dataBase/db";
 import { userRights } from "./userRights.model";
 import { userRightsDto, userRightsValidation } from "./userRights.dto";
 import { ValidationException } from "../../../core/exception";
-import {
-  getChangedProperty,
-  getChangedPropertyUserRights,
-} from "../../../shared/helper";
 import { logsDto } from "../logs/logs.dto";
 import { InsertLog } from "../logs/logs.service";
 
