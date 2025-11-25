@@ -21,4 +21,14 @@ export interface PaymentTypeDTO {
   createdBy_userId: string;
   isEdited: boolean;
   editedBy_userId: string;
+  upiTypeName? : string;
+  Branch? : string;
 }
+
+export interface paymentTypeStatus {
+  paymentTypeId: string;
+  companyId: string;
+  status: boolean;
+  userId: string;
+}
+

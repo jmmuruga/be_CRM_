@@ -25,6 +25,7 @@ import expenseTypeRouter from "./api/Credit Debit/expense-type/expenseType.contr
 import bankMasterRouter from "./api/Bank Details/Bank Master/bankMaster.controller";
 import bankAccountCreationRouter from "./api/Bank Details/Bank Acc Creation/bankAccCreation.controller";
 import upiTypeRouter from "./api/Bank Details/UPI Type/upiType.controller";
+import paymentTypeRouter from "./api/Bank Details/Payment Type/paymentType.controller";
 
 
 const app = express();
@@ -66,5 +67,6 @@ app.use('/expenseType' , cors(corsOptions) , expenseTypeRouter);
 app.use('/bankMaster' , cors(corsOptions) , bankMasterRouter);
 app.use('/bankAccountCreation' , cors(corsOptions) , bankAccountCreationRouter);
 app.use('/upiType' , cors(corsOptions) , upiTypeRouter);
+app.use('/paymentType' , cors(corsOptions) , paymentTypeRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
