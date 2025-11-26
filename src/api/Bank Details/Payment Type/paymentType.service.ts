@@ -180,18 +180,6 @@ export const getPaymentTypeDetails = async (req: Request, res: Response) => {
         (upi) => upi.upiTypeId === x.paymentTypeName
       )?.upiTypeName;
     });
-
-    const bankAccRepositry = appSource.getRepository(BankAccountCreation);
-    const bankAccDetails = await bankAccRepositry.findBy({
-      companyId: companyId,
-    });
-
-    paymentTypeDetails.forEach((y) => {
-      y.Branch = bankAccDetails.find((b) => +b.bankAccNumberCreationId === +y.linkedAccountNumber).Branch;
-      // y.Bank = bankAccDetails.find((b) => +b.bankAccNumberCreationId === +y.linkedAccountNumber).Bank;
-      y.AccountNumber = bankAccDetails.find((b) => +b.bankAccNumberCreationId === +y.linkedAccountNumber).bankAccountNumber;
-    });
-
     res.status(200).send({
       Result: paymentTypeDetails,
     });
@@ -276,7 +264,7 @@ export const deletePaymentType = async (req: Request, res: Response) => {
       userId: userId,
       userName: null,
       statusCode: "200",
-      message: ` Payment Type : "${paymentTypeFound.paymentTypeName}" Deleted By User - `,
+      message: `Payment Type : "${paymentTypeFound.paymentTypeName}" Deleted By User - `,
       companyId: companyId,
     };
     await InsertLog(logsPayload);

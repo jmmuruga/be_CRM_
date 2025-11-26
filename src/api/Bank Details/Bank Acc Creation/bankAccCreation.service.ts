@@ -12,6 +12,7 @@ import { Not } from "typeorm";
 import { logsDto } from "../../Admin/logs/logs.dto";
 import { InsertLog } from "../../Admin/logs/logs.service";
 import { BankMaster } from "../Bank Master/bankMaster.model";
+import { PaymentType } from "../Payment Type/paymentType.model";
 
 export const getBankAccountCreationId = async (req: Request, res: Response) => {
   try {
@@ -222,7 +223,9 @@ export const updateBankAccountCreationStatus = async (
       .createQueryBuilder()
       .update(BankAccountCreation)
       .set({ status: bankaccountstatus.status })
-      .where({bankAccNumberCreationId: bankaccountstatus.bankAccNumberCreationId})
+      .where({
+        bankAccNumberCreationId: bankaccountstatus.bankAccNumberCreationId,
+      })
       .andWhere({ companyId: bankaccountstatus.companyId })
       .execute();
 
@@ -256,10 +259,10 @@ export const updateBankAccountCreationStatus = async (
   }
 };
 
-
 export const deleteBankAccCreation = async (req: Request, res: Response) => {
   const { companyId, userId, bankAccNumberCreationId } = req.params;
-  const bankAccCreationRepositry = appSource.getTreeRepository(BankAccountCreation);
+  const bankAccCreationRepositry =
+    appSource.getTreeRepository(BankAccountCreation);
   const bankAccCreationFound = await bankAccCreationRepositry.findOneBy({
     bankAccNumberCreationId: bankAccNumberCreationId,
     companyId: companyId,
@@ -268,6 +271,17 @@ export const deleteBankAccCreation = async (req: Request, res: Response) => {
     if (!bankAccCreationFound) {
       throw new ValidationException("Bank Account Creation Not Found ");
     }
+
+    const paymentTypeRepositry = appSource.getRepository(PaymentType);
+    const paymentExist = await paymentTypeRepositry.findBy({
+      linkedAccountNumber: bankAccNumberCreationId,
+    });
+    if (paymentExist?.length > 0) {
+      throw new ValidationException(
+        "Unable To Delete , Bank Account Creation Details Exist In Payment Type !"
+      );
+    }
+
     await bankAccCreationRepositry
       .createQueryBuilder()
       .delete()

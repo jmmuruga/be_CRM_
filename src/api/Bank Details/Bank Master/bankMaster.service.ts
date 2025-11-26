@@ -11,6 +11,7 @@ import { Not } from "typeorm";
 import { logsDto } from "../../Admin/logs/logs.dto";
 import { getChangedProperty } from "../../../shared/helper";
 import { InsertLog } from "../../Admin/logs/logs.service";
+import { BankAccountCreation } from "../Bank Acc Creation/bankAccCreation.model";
 
 export const getBankNameId = async (req: Request, res: Response) => {
   try {
@@ -280,6 +281,13 @@ export const deleteBankMaster = async (req: Request, res: Response) => {
     if (!bankMasterFound) {
       throw new ValidationException("Bank Master Not Found ");
     }
+    const bankAccCreationRepositry = appSource.getRepository(BankAccountCreation);
+        const bankExist = await bankAccCreationRepositry.findBy({
+          Bank:bankNameId
+        })
+        if (bankExist?.length > 0){  
+          throw new ValidationException ("Unable To Delete , Bank Master Exist In Bank Account Creation !")
+        };
 
     await bankMasterRepositry
       .createQueryBuilder()

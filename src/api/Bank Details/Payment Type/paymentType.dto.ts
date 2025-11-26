@@ -23,6 +23,7 @@ export interface PaymentTypeDTO {
   editedBy_userId: string;
   upiTypeName? : string;
   Branch? : string;
+ 
 }
 
 export interface paymentTypeStatus {

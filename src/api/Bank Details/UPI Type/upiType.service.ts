@@ -3,6 +3,7 @@ import { ValidationException } from "../../../core/exception";
 import { getChangedProperty } from "../../../shared/helper";
 import { logsDto } from "../../Admin/logs/logs.dto";
 import { InsertLog } from "../../Admin/logs/logs.service";
+import { PaymentType } from "../Payment Type/paymentType.model";
 import { UpiTypeDTO, upiTypeStatus, upiTypeValidation } from "./upiType.dto";
 import { UpiType } from "./upiType.model";
 import { Request, Response } from "express";
@@ -203,6 +204,15 @@ export const deleteUpiType = async (req: Request, res: Response) => {
       throw new ValidationException("UPI Type Not Found ");
     }
 
+    const paymentTypeRepositry = appSource.getRepository(PaymentType);
+    const paymentTypeDetailsExist = await paymentTypeRepositry.findBy({
+      linkedAccountNumber: upiTypeId,
+    });
+    if (paymentTypeDetailsExist?.length > 0) {
+      throw new ValidationException(
+        "Unable To Delete , UPI Type Exist In Payment Type !"
+      );
+    }
     await upiTypeRepository
       .createQueryBuilder()
       .delete()
@@ -239,6 +249,3 @@ export const deleteUpiType = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
-
-
-
