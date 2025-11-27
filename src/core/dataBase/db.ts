@@ -22,6 +22,7 @@ import { BankMaster } from "../../api/Bank Details/Bank Master/bankMaster.model"
 import { BankAccountCreation } from "../../api/Bank Details/Bank Acc Creation/bankAccCreation.model";
 import { UpiType } from "../../api/Bank Details/UPI Type/upiType.model";
 import { PaymentType } from "../../api/Bank Details/Payment Type/paymentType.model";
+import { ExpenseDetails } from "../../api/Credit Debit/Expense Details/expenseDetails.model";
 
 const Entities = [
   domainMaster,
@@ -46,6 +47,7 @@ const Entities = [
   BankAccountCreation,
   UpiType,
   PaymentType,
+  ExpenseDetails,
 
   
   

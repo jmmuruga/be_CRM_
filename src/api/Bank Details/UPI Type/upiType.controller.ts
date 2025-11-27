@@ -4,7 +4,7 @@ import { auth } from "../../../shared/helper";
 
 const upiTypeRouter = Router();
 
-upiTypeRouter.get('/getUpiTypeId' , auth , (req,res) => getUpiTypeId(req,res));
+upiTypeRouter.get('/getUpiTypeId/:companyId' , auth , (req,res) => getUpiTypeId(req,res));
 
 upiTypeRouter.post('/addUpdateUpiType', auth, (req, res) => addUpdateUpiType(req, res));
 

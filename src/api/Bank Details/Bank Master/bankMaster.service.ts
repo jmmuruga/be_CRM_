@@ -15,10 +15,11 @@ import { BankAccountCreation } from "../Bank Acc Creation/bankAccCreation.model"
 
 export const getBankNameId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const bankMasterRepositry = appSource.getRepository(BankMaster);
     let bankNameId = await bankMasterRepositry.query(
       `SELECT bankNameId
-            FROM [${process.env.DB_NAME}].[dbo].[bank_master]
+            FROM [${process.env.DB_NAME}].[dbo].[bank_master] where companyId = ${companyid}
             Group by bankNameId
             ORDER BY CAST(bankNameId AS INT) DESC;`
     );
@@ -56,6 +57,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
     const bankMasterRepository = appSource.getRepository(BankMaster);
     const existingDetails = await bankMasterRepository.findOneBy({
       bankNameId: payload.bankNameId,
+      companyId: payload.companyId,
     });
 
     if (existingDetails) {
@@ -67,6 +69,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
       const branchPhoneValidation = await bankMasterRepository.findOneBy({
         branchPhone: payload.branchPhone,
         bankNameId: Not(payload.bankNameId),
+        companyId: payload.companyId,
       });
       if (branchPhoneValidation) {
         throw new ValidationException("Branch Phone Number Already Exist");
@@ -76,6 +79,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
         {
           branchManagerPhone: payload.branchManagerPhone,
           bankNameId: Not(payload.bankNameId),
+          companyId:payload.companyId
         }
       );
       if (branchManagerPhoneValidation) {
@@ -87,6 +91,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
       const ifscCodeValidation = await bankMasterRepository.findOneBy({
         ifscCode: payload.ifscCode,
         bankNameId: Not(payload.bankNameId),
+        companyId: payload.companyId
       });
       if (ifscCodeValidation) {
         throw new ValidationException(
@@ -98,13 +103,14 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
         bankFullName: payload.bankFullName,
         branchLocation: payload.branchLocation,
         bankNameId: Not(payload.bankNameId),
+        companyId: payload.companyId
       });
       if (bankMasterValidation) {
         throw new ValidationException("Branch Already Exists For This Bank.");
       }
 
       await bankMasterRepository
-        .update({ bankNameId: payload.bankNameId }, payload)
+        .update({ bankNameId: payload.bankNameId ,companyId: payload.companyId }, payload)
         .then(async () => {
           const logsPayload: logsDto = {
             userId: userId,
@@ -138,6 +144,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
     } else {
       const branchPhoneValidation = await bankMasterRepository.findOneBy({
         branchPhone: payload.branchPhone,
+        companyId: payload.companyId,
       });
       if (branchPhoneValidation) {
         throw new ValidationException("Branch Phone Number Already Exist");
@@ -146,6 +153,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
       const branchManagerPhoneValidation = await bankMasterRepository.findOneBy(
         {
           branchManagerPhone: payload.branchManagerPhone,
+          companyId: payload.companyId,
         }
       );
       if (branchManagerPhoneValidation) {
@@ -156,6 +164,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
 
       const ifscCodeValidation = await bankMasterRepository.findOneBy({
         ifscCode: payload.ifscCode,
+        companyId: payload.companyId,
       });
       if (ifscCodeValidation) {
         throw new ValidationException(
@@ -166,6 +175,7 @@ export const addUpdateBankMaster = async (req: Request, res: Response) => {
       const bankMasterValidation = await bankMasterRepository.findOneBy({
         bankFullName: payload.bankFullName,
         branchLocation: payload.branchLocation,
+        companyId: payload.companyId,
       });
       if (bankMasterValidation) {
         throw new ValidationException("Branch Already Exists For This Bank.");
@@ -244,7 +254,7 @@ export const updateBankMasterStatus = async (req: Request, res: Response) => {
       userId: bankstatus.userId,
       userName: null,
       statusCode: "200",
-      message: ` Status For ${bankMasterFound.bankFullName} - ${bankMasterFound.branchLocation} Changed To ${bankstatus.status} By User - `,
+      message: `Status For ${bankMasterFound.bankFullName} - ${bankMasterFound.branchLocation} Changed To ${bankstatus.status} By User - `,
       companyId: bankstatus.companyId,
     };
     await InsertLog(logsPayload);

@@ -10,10 +10,11 @@ import { Request, Response } from "express";
 
 export const getUpiTypeId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const upiTypeRepository = appSource.getRepository(UpiType);
     let upiTypeId = await upiTypeRepository.query(
       `SELECT upiTypeId
-            FROM [${process.env.DB_NAME}].[dbo].[upi_type]
+            FROM [${process.env.DB_NAME}].[dbo].[upi_type] where companyId = ${companyid}
             Group by upiTypeId
             ORDER BY CAST(upiTypeId AS INT) DESC;`
     );
@@ -51,6 +52,7 @@ export const addUpdateUpiType = async (req: Request, res: Response) => {
     const upiTypeRepository = appSource.getRepository(UpiType);
     const existingDetails = await upiTypeRepository.findOneBy({
       upiTypeId: payload.upiTypeId,
+      companyId: payload.companyId
     });
 
     if (existingDetails) {
@@ -60,7 +62,7 @@ export const addUpdateUpiType = async (req: Request, res: Response) => {
       );
 
       await upiTypeRepository
-        .update({ upiTypeId: payload.upiTypeId }, payload)
+        .update({ upiTypeId: payload.upiTypeId ,companyId: payload.companyId }, payload)
         .then(async () => {
           const logsPayload: logsDto = {
             userId: userId,

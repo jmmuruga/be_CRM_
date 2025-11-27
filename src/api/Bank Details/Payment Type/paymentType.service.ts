@@ -17,10 +17,11 @@ import { Request, Response } from "express";
 
 export const getPaymentTypeId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const paymentTypeRepository = appSource.getRepository(PaymentType);
     let paymentTypeId = await paymentTypeRepository.query(
       `SELECT paymentTypeId
-            FROM [${process.env.DB_NAME}].[dbo].[payment_type]
+            FROM [${process.env.DB_NAME}].[dbo].[payment_type] where companyId = ${companyid}
             Group by paymentTypeId
             ORDER BY CAST(paymentTypeId AS INT) DESC;`
     );
@@ -43,16 +44,53 @@ export const getPaymentTypeId = async (req: Request, res: Response) => {
   }
 };
 
+// export const getDetailsForLinkedAccNum = async (
+//   req: Request,
+//   res: Response
+// ) => {
+//   try {
+//     const companyId = req.params.companyId;
+//     const repo = appSource.getRepository(BankAccountCreation);
+//     const results = await repo
+//       .createQueryBuilder("bac")
+//       .innerJoin(BankMaster, "bm", "bm.bankNameId = bac.Bank")
+//       .select([
+//         "bac.id AS accountId",
+//         "bac.bankAccountNumber AS accountNumber",
+//         "bac.Branch AS branchLocation",
+//         "bm.bankNameId AS bankId",
+//         "bm.bankShortName AS bankShortName",
+//         "bm.bankFullName AS bankFullName",
+//       ])
+//       .where("bac.companyId = bm.companyId")
+//       .getRawMany();
+
+//     return res.status(200).send({
+//       Result: results,
+//     });
+//   } catch (error) {
+//     return res.status(500).send({
+//       message: error instanceof Error ? error.message : "Internal Server Error",
+//     });
+//   }
+// };
+
 export const getDetailsForLinkedAccNum = async (
   req: Request,
   res: Response
 ) => {
   try {
     const companyId = req.params.companyId;
+
     const repo = appSource.getRepository(BankAccountCreation);
+
     const results = await repo
       .createQueryBuilder("bac")
-      .innerJoin(BankMaster, "bm", "bm.bankNameId = bac.Bank")
+      .innerJoin(
+        BankMaster,
+        "bm",
+        "bm.bankNameId = bac.Bank AND bm.companyId = bac.companyId"
+      )
       .select([
         "bac.id AS accountId",
         "bac.bankAccountNumber AS accountNumber",
@@ -61,7 +99,7 @@ export const getDetailsForLinkedAccNum = async (
         "bm.bankShortName AS bankShortName",
         "bm.bankFullName AS bankFullName",
       ])
-      .where(`bac.companyId = ${companyId}`)
+      .where("bac.companyId = :companyId", { companyId })
       .getRawMany();
 
     return res.status(200).send({
@@ -73,6 +111,7 @@ export const getDetailsForLinkedAccNum = async (
     });
   }
 };
+
 
 export const addUpdatePaymentType = async (req: Request, res: Response) => {
   const payload: PaymentTypeDTO = req.body;
@@ -89,6 +128,7 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
     const paymentTypeRepository = appSource.getRepository(PaymentType);
     const existingDetails = await paymentTypeRepository.findOneBy({
       paymentTypeId: payload.paymentTypeId,
+      companyId: payload.companyId,
     });
 
     if (existingDetails) {
@@ -98,7 +138,7 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
       );
 
       await paymentTypeRepository
-        .update({ paymentTypeId: payload.paymentTypeId }, payload)
+        .update({ paymentTypeId: payload.paymentTypeId , companyId: payload.companyId,}, payload)
         .then(async () => {
           const logsPayload: logsDto = {
             userId: userId,
@@ -167,7 +207,8 @@ export const getPaymentTypeDetails = async (req: Request, res: Response) => {
     const paymentTypeRepository = appSource.getRepository(PaymentType);
 
     const paymentTypeDetails = await paymentTypeRepository.query(
-      `SELECT * FROM [${process.env.DB_NAME}].[dbo].[payment_type]`
+      `SELECT * FROM [${process.env.DB_NAME}].[dbo].[payment_type]
+      where companyId = ${companyId}`
     );
 
     const upiTypeRepository = appSource.getRepository(UpiType);

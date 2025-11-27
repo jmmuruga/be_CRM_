@@ -4,7 +4,7 @@ import { auth } from "../../../shared/helper";
 
 const paymentTypeRouter = Router();
 
-paymentTypeRouter.get('/getPaymentTypeId', auth , (req,res) =>  getPaymentTypeId(req,res));
+paymentTypeRouter.get('/getPaymentTypeId/:companyId', auth , (req,res) =>  getPaymentTypeId(req,res));
 
 paymentTypeRouter.get('/getDetailsForLinkedAccNum/:companyId', auth , (req,res) =>  getDetailsForLinkedAccNum(req,res));
 

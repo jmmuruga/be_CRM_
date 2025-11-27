@@ -15,6 +15,9 @@ export class CreditDebit {
   creditDebitId: string;
 
   @Column()
+  companyId: string;
+
+  @Column()
   creditDebitName: string;
 
   @Column({ nullable: true })

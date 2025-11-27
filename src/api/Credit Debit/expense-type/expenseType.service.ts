@@ -11,10 +11,11 @@ import { expenseTypeDTO, expenseTypeStatus, expenseTypeValidation } from "./expe
 
 export const getExpenseTypeId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const expenseTypeRepositry = appSource.getRepository(ExpenseType);
     let expenseTypeId = await expenseTypeRepositry.query(
       `SELECT expenseTypeId
-            FROM [${process.env.DB_NAME}].[dbo].[expense_type]
+            FROM [${process.env.DB_NAME}].[dbo].[expense_type] where companyId = ${companyid}
             Group by expenseTypeId
             ORDER BY CAST(expenseTypeId AS INT) DESC;`
     );
@@ -50,19 +51,21 @@ export const addUpdateExpenseType = async (req: Request, res: Response) => {
     const expenseTypeRepositry = appSource.getRepository(ExpenseType);
     const existingDetails = await expenseTypeRepositry.findOneBy({
       expenseTypeId: payload.expenseTypeId,
+      companyId: payload.companyId,
     });
-    delete payload.companyId;
+    // delete payload.companyId;
 
     if (existingDetails) {
       const nameValidation = await expenseTypeRepositry.findOneBy({
         expenseTypeName: payload.expenseTypeName,
         expenseTypeId: Not(payload.expenseTypeId),
+        companyId: payload.companyId,
       });
       if (nameValidation) {
         throw new ValidationException("Expense Type Name Already Exist");
       }
 
-      await expenseTypeRepositry.update({expenseTypeId : payload.expenseTypeId}, payload)
+      await expenseTypeRepositry.update({expenseTypeId : payload.expenseTypeId ,companyId: payload.companyId}, payload)
       .then (async () => {
         let updatedFields: string = await getChangedProperty(
           [payload],[existingDetails]
@@ -98,6 +101,7 @@ export const addUpdateExpenseType = async (req: Request, res: Response) => {
     } else {
       const nameValidation = await expenseTypeRepositry.findOneBy({
         expenseTypeName: payload.expenseTypeName,
+        companyId: payload.companyId,
       });
       if (nameValidation) {
         throw new ValidationException("Expense Type Name Already Exist");
@@ -136,9 +140,11 @@ export const addUpdateExpenseType = async (req: Request, res: Response) => {
 
 export const getExpenseTypeDetails = async (req: Request, res: Response) => {
   try {
+    const companyId = req.params.companyId;
     const expenseTypeRepositry = appSource.getRepository(ExpenseType);
     const expenseTypeResult = await expenseTypeRepositry
       .createQueryBuilder("")
+      .where({ companyId: companyId })
       .getMany();
     res.status(200).send({
       Result: expenseTypeResult,
@@ -157,7 +163,8 @@ export const updateExpenseTypeStatus = async (req : Request , res: Response) => 
   const expenseTypeStatus : expenseTypeStatus = req.body;
   const expenseTypeRepositry =  appSource.getRepository(ExpenseType);
   const expenseTypeFound = await expenseTypeRepositry.findOneBy({
-    expenseTypeId: expenseTypeStatus.expenseTypeId
+    expenseTypeId: expenseTypeStatus.expenseTypeId,
+    companyId: expenseTypeStatus.companyId,
   });
   try{
     if(!expenseTypeFound){
@@ -168,6 +175,7 @@ export const updateExpenseTypeStatus = async (req : Request , res: Response) => 
     .update(ExpenseType)
     .set({ status: expenseTypeStatus.status })
     .where({ expenseTypeId: expenseTypeStatus.expenseTypeId })
+    .andWhere({ companyId: expenseTypeStatus.companyId })
     .execute();
     const logsPayload: logsDto = {
       userId: expenseTypeStatus.userId,
@@ -207,6 +215,7 @@ export const deleteExpenseType = async (req: Request, res: Response) => {
   const expenseTypeRepositry = appSource.getRepository(ExpenseType);
   const expenseTypeFound = await expenseTypeRepositry.findOneBy({
     expenseTypeId: expenseTypeId,
+    companyId: companyId,
   });
 
   try{
@@ -217,6 +226,7 @@ export const deleteExpenseType = async (req: Request, res: Response) => {
     .delete()
     .from(ExpenseType)
     .where({ expenseTypeId: expenseTypeId })
+    .andWhere({ companyId: companyId })
     .execute();
     const logsPayload: logsDto = {
       userId: userId,

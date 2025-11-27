@@ -4,7 +4,7 @@ import { addUpdateBankMaster, deleteBankMaster, getBankMasterDetails, getBankNam
 
 const bankMasterRouter = Router();
 
-bankMasterRouter.get('/getBankNameId' , auth , (req,res) => getBankNameId(req,res));
+bankMasterRouter.get('/getBankNameId/:companyId' , auth , (req,res) => getBankNameId(req,res));
 
 bankMasterRouter.post('/addUpdateBankMaster', auth, (req, res) => addUpdateBankMaster(req, res));   
 

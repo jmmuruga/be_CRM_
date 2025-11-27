@@ -15,6 +15,9 @@ export class ExpenseType {
   expenseTypeId: string;
 
   @Column()
+  companyId: string;
+
+  @Column()
   expenseTypeName: string;
 
   @Column({ default: true })

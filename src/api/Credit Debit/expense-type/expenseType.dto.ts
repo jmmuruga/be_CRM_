@@ -6,7 +6,7 @@ export const expenseTypeValidation = Joi.object({
     createdBy_userId: Joi.string().required(),
     isEdited: Joi.boolean().optional(),
     editedBy_userId : Joi.string().optional().allow(null, ""),
-    companyId : Joi.string().optional().allow(null, "")
+    companyId: Joi.string().required(),
 });
 
 export interface expenseTypeDTO {

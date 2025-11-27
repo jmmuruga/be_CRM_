@@ -4,7 +4,7 @@ import { addUpdateBankAccCreation, deleteBankAccCreation, getBankAccountCreation
 
 const bankAccountCreationRouter = Router();
 
-bankAccountCreationRouter.get('/getBankAccountCreationId' , auth , (req,res) => getBankAccountCreationId(req,res));
+bankAccountCreationRouter.get('/getBankAccountCreationId/:companyId' , auth , (req,res) => getBankAccountCreationId(req,res));
 
 bankAccountCreationRouter.post('/addUpdateBankAccountCreation', auth, (req, res) => addUpdateBankAccCreation(req, res));
 

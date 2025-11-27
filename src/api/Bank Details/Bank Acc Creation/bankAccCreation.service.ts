@@ -16,11 +16,12 @@ import { PaymentType } from "../Payment Type/paymentType.model";
 
 export const getBankAccountCreationId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const bankAccountCreationRepository =
       appSource.getRepository(BankAccountCreation);
     let bankAccountCreationId = await bankAccountCreationRepository.query(
       `SELECT bankAccNumberCreationId
-            FROM [${process.env.DB_NAME}].[dbo].[bank_account_creation]
+            FROM [${process.env.DB_NAME}].[dbo].[bank_account_creation] where companyId = ${companyid}
             Group by bankAccNumberCreationId
             ORDER BY CAST(bankAccNumberCreationId AS INT) DESC;`
     );
@@ -59,6 +60,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
       appSource.getRepository(BankAccountCreation);
     const existingDetails = await bankAccountCreationRepository.findOneBy({
       bankAccNumberCreationId: payload.bankAccNumberCreationId,
+      companyId: payload.companyId,
     });
 
     if (existingDetails) {
@@ -71,6 +73,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
         await bankAccountCreationRepository.findOneBy({
           bankAccountNumber: payload.bankAccountNumber,
           bankAccNumberCreationId: Not(payload.bankAccNumberCreationId),
+          companyId: payload.companyId,
         });
       if (bankAccountNumberValidation) {
         throw new ValidationException("Bank Account Number Already Exist");
@@ -80,6 +83,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
         await bankAccountCreationRepository.findOneBy({
           registeredMobileNumber: payload.registeredMobileNumber,
           bankAccNumberCreationId: Not(payload.bankAccNumberCreationId),
+          companyId: payload.companyId,
         });
       if (registeredMobileValidation) {
         throw new ValidationException("Registered Mobile Number Already Exist");
@@ -87,7 +91,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
 
       await bankAccountCreationRepository
         .update(
-          { bankAccNumberCreationId: payload.bankAccNumberCreationId },
+          { bankAccNumberCreationId: payload.bankAccNumberCreationId ,companyId: payload.companyId },
           payload
         )
         .then(async () => {
@@ -124,6 +128,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
       const bankAccountNumberValidation =
         await bankAccountCreationRepository.findOneBy({
           bankAccountNumber: payload.bankAccountNumber,
+          companyId:payload.companyId
         });
       if (bankAccountNumberValidation) {
         throw new ValidationException("Bank Account Number Already Exist");
@@ -131,6 +136,7 @@ export const addUpdateBankAccCreation = async (req: Request, res: Response) => {
       const registeredMobileValidation =
         await bankAccountCreationRepository.findOneBy({
           registeredMobileNumber: payload.registeredMobileNumber,
+          companyId:payload.companyId
         });
       if (registeredMobileValidation) {
         throw new ValidationException("Registered Mobile Number Already Exist");
@@ -223,9 +229,7 @@ export const updateBankAccountCreationStatus = async (
       .createQueryBuilder()
       .update(BankAccountCreation)
       .set({ status: bankaccountstatus.status })
-      .where({
-        bankAccNumberCreationId: bankaccountstatus.bankAccNumberCreationId,
-      })
+      .where({bankAccNumberCreationId: bankaccountstatus.bankAccNumberCreationId,})
       .andWhere({ companyId: bankaccountstatus.companyId })
       .execute();
 

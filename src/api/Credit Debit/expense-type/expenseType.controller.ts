@@ -4,11 +4,11 @@ import { addUpdateExpenseType, deleteExpenseType, getExpenseTypeDetails, getExpe
 
 const expenseTypeRouter = Router();
 
-expenseTypeRouter.get('/getExpenseTypeId' , auth, (req,res) => getExpenseTypeId(req, res));
+expenseTypeRouter.get('/getExpenseTypeId/:companyId' , auth, (req,res) => getExpenseTypeId(req, res));
 
 expenseTypeRouter.post('/addUpdateExpenseType', auth, (req, res) => addUpdateExpenseType(req, res));
 
-expenseTypeRouter.get('/getExpenseTypeDetails', auth , (req,res) =>getExpenseTypeDetails(req,res));
+expenseTypeRouter.get('/getExpenseTypeDetails/:companyId', auth , (req,res) =>getExpenseTypeDetails(req,res));
 
 expenseTypeRouter.post('/updateExpenseTypeStatus', auth, (req, res) => updateExpenseTypeStatus(req, res));
 

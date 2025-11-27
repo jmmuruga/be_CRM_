@@ -7,42 +7,30 @@ import {
 } from "typeorm";
 
 @Entity()
-export class BankMaster {
+export class ExpenseDetails {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column()
-  bankNameId: string;
+  debitId: string;
 
   @Column()
   companyId: string;
 
   @Column()
-  bankFullName: string;
+  expenseType: string;
 
   @Column()
-  bankShortName: string;
+  Details: string;
 
   @Column()
-  branchLocation: string;
+  Credit: string;
 
   @Column()
-  ifscCode: string;
+  Debit: string;
 
   @Column()
-  branchPhone: string;
-
-  @Column()
-  branchManagerName: string;
-
-  @Column()
-  branchManagerPhone: string;
-
-  @Column()
-  Address: string;
-
-  @Column({ default: true })
-  status: boolean;
+  paymentMethod: string;
 
   @Column({ nullable: true })
   createdBy_userId: string;
@@ -54,8 +42,8 @@ export class BankMaster {
   editedBy_userId: string;
 
   @CreateDateColumn({ name: "created_at" })
-  createdAt: string;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  updatedAt: string;
+  updatedAt: Date;
 }

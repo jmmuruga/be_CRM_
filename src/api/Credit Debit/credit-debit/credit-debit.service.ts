@@ -10,10 +10,11 @@ import { Not } from "typeorm";
 
 export const getCreditDebitId = async (req: Request, res: Response) => {
   try {
+    const companyid = req.params.companyId;
     const creditDebitRepositry = appSource.getRepository(CreditDebit);
     let creditDebitId = await creditDebitRepositry.query(
       `SELECT creditDebitId
-            FROM [${process.env.DB_NAME}].[dbo].[credit_debit]
+            FROM [${process.env.DB_NAME}].[dbo].[credit_debit] where companyId = ${companyid}
             Group by creditDebitId
             ORDER BY CAST(creditDebitId AS INT) DESC;`
     );
@@ -50,13 +51,15 @@ export const addUpdateCreditDebit = async (req: Request, res: Response) => {
 
     const existingDetails = await creditDebitRepositry.findOneBy({
       creditDebitId: payload.creditDebitId,
+      companyId: payload.companyId,
     });
-    delete payload.companyId;
+    // delete payload.companyId;
 
     if (existingDetails) {
       const nameValidation = await creditDebitRepositry.findOneBy({
         creditDebitName: payload.creditDebitName,
         creditDebitId: Not(payload.creditDebitId),
+        companyId: payload.companyId,
       });
       if (nameValidation) {
         throw new ValidationException("Credit Debit Name Already Exist");
@@ -65,12 +68,13 @@ export const addUpdateCreditDebit = async (req: Request, res: Response) => {
       const mobileValidation = await creditDebitRepositry.findOneBy({
         Mobile: payload.Mobile,
         creditDebitId: Not(payload.creditDebitId),
+        companyId: payload.companyId,
       });
       if (mobileValidation) {
         throw new ValidationException("Mobile Number Already Exist");
       }
 
-      await creditDebitRepositry.update({creditDebitId : payload.creditDebitId}, payload)
+      await creditDebitRepositry.update({creditDebitId : payload.creditDebitId , companyId: payload.companyId }, payload)
       .then (async () => {
         let updatedFields: string = await getChangedProperty(
           [payload],[existingDetails]
@@ -106,12 +110,14 @@ export const addUpdateCreditDebit = async (req: Request, res: Response) => {
     } else {
       const nameValidation = await creditDebitRepositry.findOneBy({
         creditDebitName: payload.creditDebitName,
+        companyId: payload.companyId,
       });
       if (nameValidation) {
         throw new ValidationException("Credit Debit Name Already Exist");
       }
       const mobileValidation = await creditDebitRepositry.findOneBy({
         Mobile: payload.Mobile,
+        companyId: payload.companyId,
       });
       if (mobileValidation) {
         throw new ValidationException("Mobile Number Already Exist");
@@ -150,9 +156,11 @@ export const addUpdateCreditDebit = async (req: Request, res: Response) => {
 
 export const getCreditDebitDetails = async (req: Request, res: Response) => {
   try {
+    const companyId = req.params.companyId;
     const creditDebitRepositry = appSource.getRepository(CreditDebit);
     const credDebitResult = await creditDebitRepositry
       .createQueryBuilder("")
+      .where({ companyId: companyId })
       .getMany();
     res.status(200).send({
       Result: credDebitResult,
@@ -171,7 +179,8 @@ export const updateCreditDebitStatus = async (req : Request , res: Response) => 
   const creditdebitStatus : creditDebitStatus = req.body;
   const creditDebitRepositry =  appSource.getRepository(CreditDebit);
   const creditDebitFound = await creditDebitRepositry.findOneBy({
-    creditDebitId: creditdebitStatus.creditDebitId
+    creditDebitId: creditdebitStatus.creditDebitId,
+    companyId: creditdebitStatus.companyId,
   });
   try{
     if(!creditDebitFound){
@@ -182,6 +191,7 @@ export const updateCreditDebitStatus = async (req : Request , res: Response) => 
     .update(CreditDebit)
     .set({ status: creditdebitStatus.status })
     .where({ creditDebitId: creditdebitStatus.creditDebitId })
+    .andWhere({ companyId: creditdebitStatus.companyId })
     .execute();
     const logsPayload: logsDto = {
       userId: creditdebitStatus.userId,
@@ -219,6 +229,7 @@ export const deleteCreditDebit = async (req: Request, res: Response) => {
   const creditDebitRepositry = appSource.getRepository(CreditDebit);
   const creditDebitFound = await creditDebitRepositry.findOneBy({
     creditDebitId: creditDebitId,
+    companyId: companyId,
   });
 
   try{
@@ -229,6 +240,7 @@ export const deleteCreditDebit = async (req: Request, res: Response) => {
     .delete()
     .from(CreditDebit)
     .where({ creditDebitId: creditDebitId })
+    .andWhere({ companyId: companyId })
     .execute();
     const logsPayload: logsDto = {
       userId: userId,
