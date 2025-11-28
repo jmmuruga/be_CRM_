@@ -92,8 +92,9 @@ export const getDetailsForLinkedAccNum = async (
         "bm.bankNameId = bac.Bank AND bm.companyId = bac.companyId"
       )
       .select([
-        "bac.id AS accountId",
+        "bac.bankAccNumberCreationId AS accountId",
         "bac.bankAccountNumber AS accountNumber",
+        "bac.status AS accountStatus",
         "bac.Branch AS branchLocation",
         "bm.bankNameId AS bankId",
         "bm.bankShortName AS bankShortName",
@@ -113,6 +114,7 @@ export const getDetailsForLinkedAccNum = async (
 };
 
 
+
 export const addUpdatePaymentType = async (req: Request, res: Response) => {
   const payload: PaymentTypeDTO = req.body;
   const userId = payload.isEdited
@@ -125,20 +127,55 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
     if (validation.error) {
       throw new ValidationException(validation.error.message);
     }
+
     const paymentTypeRepository = appSource.getRepository(PaymentType);
+
     const existingDetails = await paymentTypeRepository.findOneBy({
       paymentTypeId: payload.paymentTypeId,
-      companyId: payload.companyId,
+      companyId: companyId,
     });
 
+    const mobileRecord = await paymentTypeRepository.findOne({
+      where: {
+        Mobile: payload.Mobile,
+        companyId: companyId,
+      },
+    });
+
+    if (
+      mobileRecord &&
+      mobileRecord.linkedAccountNumber !== payload.linkedAccountNumber &&
+      mobileRecord.paymentTypeId !== payload.paymentTypeId
+    ) {
+      throw new ValidationException(
+        ` Mobile Already Linked With Another Payment Type.`
+      );
+    }
+
+    // ============================
+    // UPDATE EXISTING RECORD
+    // ============================
     if (existingDetails) {
+      const exisitingDetails = await paymentTypeRepository.findBy({
+        paymentTypeName: payload.paymentTypeName,
+        linkedAccountNumber: payload.linkedAccountNumber,
+        companyId: payload.companyId,
+      });
+
+      if (exisitingDetails.length > 0) {
+        throw new ValidationException("Payment Type Details Already Exist");
+      }
+
       let updatedFields = await getChangedProperty(
         [payload],
         [existingDetails]
       );
 
       await paymentTypeRepository
-        .update({ paymentTypeId: payload.paymentTypeId , companyId: payload.companyId,}, payload)
+        .update(
+          { paymentTypeId: payload.paymentTypeId, companyId: companyId },
+          payload
+        )
         .then(async () => {
           const logsPayload: logsDto = {
             userId: userId,
@@ -148,6 +185,7 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
             companyId: companyId,
           };
           await InsertLog(logsPayload);
+
           res.status(200).send({
             IsSuccess: "Payment Type Updated Successfully",
           });
@@ -157,30 +195,47 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
             userId: userId,
             userName: null,
             statusCode: "400",
-            message: `Error While Updating Payment Type Details "${payload.paymentTypeName}" - ${error.message} By User - `,
+            message: `Error While Updating Payment Type Details "${payload.paymentTypeName}" - ${error.message}`,
             companyId: companyId,
           };
           await InsertLog(logsPayload);
+
           if (error instanceof ValidationException) {
-            return res.status(400).send({
-              message: error?.message,
-            });
+            return res.status(400).send({ message: error?.message });
           }
           res.status(500).send(error);
         });
+
       return;
-    } else {
+    }
+
+    // ============================
+    // ADD NEW RECORD
+    // ============================
+    else {
+      const exisitingDetails = await paymentTypeRepository.findBy({
+        paymentTypeName: payload.paymentTypeName,
+        linkedAccountNumber: payload.linkedAccountNumber,
+        companyId: payload.companyId,
+      });
+
+      if (exisitingDetails.length > 0) {
+        throw new ValidationException("Payment Type Details Already Exist");
+      }
+
       await paymentTypeRepository.save(payload);
+
       const logsPayload: logsDto = {
         userId: userId,
         userName: null,
         statusCode: "200",
-        message: `Payment Type Details For "${payload.paymentTypeName}" Added By User - `,
+        message: `Payment Type Details For "${payload.paymentTypeName}" Added By User`,
         companyId: companyId,
       };
       await InsertLog(logsPayload);
+
       res.status(200).send({
-        IsSuccess: "Payment Type Details Added successfully",
+        IsSuccess: "Payment Type Details Added Successfully",
       });
     }
   } catch (error) {
@@ -188,18 +243,20 @@ export const addUpdatePaymentType = async (req: Request, res: Response) => {
       userId: userId,
       userName: null,
       statusCode: "400",
-      message: `Error While Adding Payment Type Details For "${payload.paymentTypeName}" - ${error.message} By User - `,
+      message: `Error While Adding Payment Type Details For "${payload.paymentTypeName}" - ${error.message}`,
       companyId: companyId,
     };
     await InsertLog(logsPayload);
+
     if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
+      return res.status(400).send({ message: error?.message });
     }
     res.status(500).send(error);
   }
 };
+
+
+
 
 export const getPaymentTypeDetails = async (req: Request, res: Response) => {
   try {

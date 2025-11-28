@@ -34,7 +34,6 @@ export interface bankAccountCreationDto {
   registeredMobileNumber: string;
   openingBalanceAmount: string;
   asOnDate: string;
-  status: boolean;
   createdBy_userId: string;
   isEdited: boolean;
   editedBy_userId: string;
