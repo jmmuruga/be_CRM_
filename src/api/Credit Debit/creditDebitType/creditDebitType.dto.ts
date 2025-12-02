@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 
-export const creditDebitValidation = Joi.object({
+export const creditDebitTypeValidation = Joi.object({
     creditDebitId : Joi.string().required(),
     creditDebitName : Joi.string().required(),
     Mobile : Joi.string().optional().allow(null, ""),
@@ -12,7 +12,7 @@ export const creditDebitValidation = Joi.object({
     companyId: Joi.string().required(),
 });
 
-export interface CreditDebitDTO {
+export interface CreditDebitTypeDTO {
     creditDebitId: string;
     creditDebitName: string;
     Mobile: string ;
@@ -23,7 +23,7 @@ export interface CreditDebitDTO {
     companyId?: string;
 }
 
-export interface creditDebitStatus {
+export interface creditDebitTypeStatus {
     creditDebitId: string;
     status: boolean;
     userId: string;

@@ -9,25 +9,31 @@ import {
 @Entity()
 export class CreditDebit {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column()
-  creditDebitId: string;
+  receiptId: string;
 
   @Column()
-  companyId: string;
+  Date: string;
 
   @Column()
-  creditDebitName: string;
+  accountType: string;
 
-  @Column({ nullable: true })
-  Mobile: string;
+  @Column()
+  creditDebitType: string;
 
-  @Column({ nullable: true })
-  Remarks: string;
+  @Column()
+  Credit: string;
 
-  @Column({ default: true })
-  status: boolean;
+  @Column()
+  Debit: string;
+
+  @Column()
+  paymentMethod: string;
+
+  @Column()
+  Details: string;
 
   @Column({ nullable: true })
   createdBy_userId: string;

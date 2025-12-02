@@ -16,13 +16,14 @@ import { pinSetting } from "../../api/Admin/pinSetting/pinSeting.model";
 import { backupHistory, backupSetting } from "../../api/Admin/backup/backup.model";
 import { customizeTheme } from "../../api/Admin/themeChange/themeChange.model";
 import { userRights } from "../../api/Admin/userRights/userRights.model";
-import { CreditDebit } from "../../api/Credit Debit/credit-debit/credit-debit.model";
 import { ExpenseType } from "../../api/Credit Debit/expense-type/expenseType.model";
 import { BankMaster } from "../../api/Bank Details/Bank Master/bankMaster.model";
 import { BankAccountCreation } from "../../api/Bank Details/Bank Acc Creation/bankAccCreation.model";
 import { UpiType } from "../../api/Bank Details/UPI Type/upiType.model";
 import { PaymentType } from "../../api/Bank Details/Payment Type/paymentType.model";
 import { ExpenseDetails } from "../../api/Credit Debit/Expense Details/expenseDetails.model";
+import { CreditDebitType } from "../../api/Credit Debit/creditDebitType/creditDebitType.model";
+import { CreditDebit } from "../../api/Credit Debit/creditDebit/creditDebit.model";
 
 const Entities = [
   domainMaster,
@@ -41,13 +42,14 @@ const Entities = [
   backupHistory,
   customizeTheme,
   userRights,
-  CreditDebit,
+  CreditDebitType,
   ExpenseType,
   BankMaster,
   BankAccountCreation,
   UpiType,
   PaymentType,
   ExpenseDetails,
+  CreditDebit
 
   
   

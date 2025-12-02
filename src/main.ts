@@ -20,13 +20,14 @@ import backupSettingRouter from "./api/Admin/backup/backup.controller";
 import customizeThemeRouter from "./api/Admin/themeChange/themeChange.controller";
 import logInRouter from "./api/logIn/logIn.controller";
 import userRightsRouter from "./api/Admin/userRights/userRights.controller";
-import creditDebitRouter from "./api/Credit Debit/credit-debit/credit-debit.controller";
 import expenseTypeRouter from "./api/Credit Debit/expense-type/expenseType.controller";
 import bankMasterRouter from "./api/Bank Details/Bank Master/bankMaster.controller";
 import bankAccountCreationRouter from "./api/Bank Details/Bank Acc Creation/bankAccCreation.controller";
 import upiTypeRouter from "./api/Bank Details/UPI Type/upiType.controller";
 import paymentTypeRouter from "./api/Bank Details/Payment Type/paymentType.controller";
 import expenseDetailsRouter from "./api/Credit Debit/Expense Details/expenseDetails.controller";
+import creditDebitTypeRouter from "./api/Credit Debit/creditDebitType/creditDebitType.controller";
+import creditDebitRouter from "./api/Credit Debit/creditDebit/creditDebit.controller";
 
 
 const app = express();
@@ -63,12 +64,13 @@ app.use('/pinSetting' , cors(corsOptions) , pinSettingRouter);
 app.use('/backupSetting' , cors(corsOptions) , backupSettingRouter);
 app.use('/customizeTheme' , cors(corsOptions) , customizeThemeRouter);
 app.use('/userRights' , cors(corsOptions) , userRightsRouter);
-app.use('/creditDebit' , cors(corsOptions) , creditDebitRouter);
+app.use('/creditDebitType' , cors(corsOptions) , creditDebitTypeRouter);
 app.use('/expenseType' , cors(corsOptions) , expenseTypeRouter);
 app.use('/bankMaster' , cors(corsOptions) , bankMasterRouter);
 app.use('/bankAccountCreation' , cors(corsOptions) , bankAccountCreationRouter);
 app.use('/upiType' , cors(corsOptions) , upiTypeRouter);
 app.use('/paymentType' , cors(corsOptions) , paymentTypeRouter);
 app.use('/expenseDetails' , cors(corsOptions) , expenseDetailsRouter);
+app.use('/creditDebit' , cors(corsOptions) , creditDebitRouter);
 
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

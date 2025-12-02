@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
 import { appSource } from "../../../core/dataBase/db";
 import { ValidationException } from "../../../core/exception";
-import { CreditDebit } from "./credit-debit.model";
-import { CreditDebitDTO, creditDebitStatus, creditDebitValidation } from "./credit-debit.dto";
 import { getChangedProperty } from "../../../shared/helper";
 import { logsDto } from "../../Admin/logs/logs.dto";
 import { InsertLog } from "../../Admin/logs/logs.service";
 import { Not } from "typeorm";
+import { CreditDebitType } from "./creditDebitType.model";
+import { CreditDebitTypeDTO, creditDebitTypeStatus, creditDebitTypeValidation } from "./creditDebitType.dto";
 
-export const getCreditDebitId = async (req: Request, res: Response) => {
+export const getCreditDebitTypeId = async (req: Request, res: Response) => {
   try {
     const companyid = req.params.companyId;
-    const creditDebitRepositry = appSource.getRepository(CreditDebit);
+    const creditDebitRepositry = appSource.getRepository(CreditDebitType);
     let creditDebitId = await creditDebitRepositry.query(
       `SELECT creditDebitId
-            FROM [${process.env.DB_NAME}].[dbo].[credit_debit] where companyId = ${companyid}
+            FROM [${process.env.DB_NAME}].[dbo].[credit_debit_type] where companyId = ${companyid}
             Group by creditDebitId
             ORDER BY CAST(creditDebitId AS INT) DESC;`
     );
@@ -37,17 +37,17 @@ export const getCreditDebitId = async (req: Request, res: Response) => {
   }
 };
 
-export const addUpdateCreditDebit = async (req: Request, res: Response) => {
-  const payload : CreditDebitDTO = req.body;
+export const addUpdateCreditDebitType = async (req: Request, res: Response) => {
+  const payload : CreditDebitTypeDTO = req.body;
   const userId = payload.isEdited ? payload.editedBy_userId : payload.createdBy_userId;
   const companyId = payload.companyId;
 
   try{
-    const validation = creditDebitValidation.validate(payload);
+    const validation = creditDebitTypeValidation.validate(payload);
     if (validation.error) {
       throw new ValidationException(validation.error.message);
     }
-    const creditDebitRepositry = appSource.getRepository(CreditDebit);
+    const creditDebitRepositry = appSource.getRepository(CreditDebitType);
 
     const existingDetails = await creditDebitRepositry.findOneBy({
       creditDebitId: payload.creditDebitId,
@@ -154,10 +154,10 @@ export const addUpdateCreditDebit = async (req: Request, res: Response) => {
   }
 };
 
-export const getCreditDebitDetails = async (req: Request, res: Response) => {
+export const getCreditDebitTypeDetails = async (req: Request, res: Response) => {
   try {
     const companyId = req.params.companyId;
-    const creditDebitRepositry = appSource.getRepository(CreditDebit);
+    const creditDebitRepositry = appSource.getRepository(CreditDebitType);
     const credDebitResult = await creditDebitRepositry
       .createQueryBuilder("")
       .where({ companyId: companyId })
@@ -175,9 +175,9 @@ export const getCreditDebitDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const updateCreditDebitStatus = async (req : Request , res: Response) => {
-  const creditdebitStatus : creditDebitStatus = req.body;
-  const creditDebitRepositry =  appSource.getRepository(CreditDebit);
+export const updateCreditDebitTypeStatus = async (req : Request , res: Response) => {
+  const creditdebitStatus : creditDebitTypeStatus = req.body;
+  const creditDebitRepositry =  appSource.getRepository(CreditDebitType);
   const creditDebitFound = await creditDebitRepositry.findOneBy({
     creditDebitId: creditdebitStatus.creditDebitId,
     companyId: creditdebitStatus.companyId,
@@ -188,7 +188,7 @@ export const updateCreditDebitStatus = async (req : Request , res: Response) => 
     }
 
     await creditDebitRepositry.createQueryBuilder()
-    .update(CreditDebit)
+    .update(CreditDebitType)
     .set({ status: creditdebitStatus.status })
     .where({ creditDebitId: creditdebitStatus.creditDebitId })
     .andWhere({ companyId: creditdebitStatus.companyId })
@@ -224,9 +224,9 @@ export const updateCreditDebitStatus = async (req : Request , res: Response) => 
   }
 }
 
-export const deleteCreditDebit = async (req: Request, res: Response) => {
+export const deleteCreditDebitType = async (req: Request, res: Response) => {
   const {creditDebitId,companyId ,userId} = req.params;
-  const creditDebitRepositry = appSource.getRepository(CreditDebit);
+  const creditDebitRepositry = appSource.getRepository(CreditDebitType);
   const creditDebitFound = await creditDebitRepositry.findOneBy({
     creditDebitId: creditDebitId,
     companyId: companyId,
@@ -238,7 +238,7 @@ export const deleteCreditDebit = async (req: Request, res: Response) => {
     }
     await creditDebitRepositry.createQueryBuilder()
     .delete()
-    .from(CreditDebit)
+    .from(CreditDebitType)
     .where({ creditDebitId: creditDebitId })
     .andWhere({ companyId: companyId })
     .execute();
