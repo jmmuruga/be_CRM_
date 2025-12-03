@@ -15,6 +15,9 @@ export class ExpenseDetails {
   debitId: string;
 
   @Column()
+  Date: string;
+
+  @Column()
   companyId: string;
 
   @Column()

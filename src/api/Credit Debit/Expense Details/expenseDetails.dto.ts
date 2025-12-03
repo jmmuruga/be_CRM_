@@ -2,6 +2,7 @@ import Joi from "joi";
 
 export const expenseDetailsValidation = Joi.object({
   debitId: Joi.string().required(),
+  Date: Joi.string().required(),
   expenseType: Joi.string().required(),
   Details: Joi.string().required(),
   Credit: Joi.string().required(),
@@ -15,6 +16,7 @@ export const expenseDetailsValidation = Joi.object({
 
 export interface expenseDetailsDTO {
   debitId: string;
+  Date: string;
   expenseType: string;
   Details: string;
   Credit: string;

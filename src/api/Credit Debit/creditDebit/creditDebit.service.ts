@@ -10,8 +10,7 @@ export const getCreditDebitId = async (req: Request, res: Response) => {
     const creditDebitRepo = appSource.getRepository(CreditDebit);
     let receiptId = await creditDebitRepo.query(
       `SELECT receiptId
-            FROM [${process.env.DB_NAME}].[dbo].[credit_debit] where companyId = ${companyid}
-
+            FROM [${process.env.DB_NAME}].[dbo].[credit_debit] where companyId = '${companyid}'
             Group by receiptId
             ORDER BY CAST(receiptId AS INT) DESC;`
     );

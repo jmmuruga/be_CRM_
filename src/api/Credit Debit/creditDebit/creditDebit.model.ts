@@ -35,6 +35,9 @@ export class CreditDebit {
   @Column()
   Details: string;
 
+  @Column()
+  companyId: string;
+
   @Column({ nullable: true })
   createdBy_userId: string;
 
