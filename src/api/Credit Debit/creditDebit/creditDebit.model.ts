@@ -15,13 +15,16 @@ export class CreditDebit {
   receiptId: string;
 
   @Column()
+  companyId: string;
+
+  @Column()
   Date: string;
 
   @Column()
   accountType: string;
 
   @Column()
-  creditDebitType: string;
+  typeId: string;
 
   @Column()
   Credit: string;
@@ -34,9 +37,6 @@ export class CreditDebit {
 
   @Column()
   Details: string;
-
-  @Column()
-  companyId: string;
 
   @Column({ nullable: true })
   createdBy_userId: string;

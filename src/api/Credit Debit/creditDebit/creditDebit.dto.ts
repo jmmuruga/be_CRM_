@@ -4,7 +4,7 @@ export const creditDebitValidation = Joi.object({
   receiptId: Joi.string().required(),
   Date: Joi.string().required(),
   accountType: Joi.string().required(),
-  creditDebitType: Joi.string().required(),
+  typeId: Joi.string().required(),
   Credit: Joi.string().required(),
   Debit: Joi.string().required(),
   Details: Joi.string().required(),
@@ -20,7 +20,7 @@ export interface CreditDebitDTO {
   receiptId: string;
   Date: string;
   accountType: string;
-  creditDebitType: string;
+  typeId: string;
   Credit: string;
   Debit: string;
   Details: string;
