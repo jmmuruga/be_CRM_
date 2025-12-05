@@ -65,14 +65,28 @@ export const addUpdateCreditDebitType = async (req: Request, res: Response) => {
         throw new ValidationException("Credit Debit Name Already Exist");
       }
 
-      const mobileValidation = await creditDebitRepositry.findOneBy({
-        Mobile: payload.Mobile,
-        creditDebitId: Not(payload.creditDebitId),
-        companyId: payload.companyId,
-      });
-      if (mobileValidation) {
-        throw new ValidationException("Mobile Number Already Exist");
-      }
+      // const mobileValidation = await creditDebitRepositry.findOneBy({
+      //   Mobile: payload.Mobile,
+      //   creditDebitId: Not(payload.creditDebitId),
+      //   companyId: payload.companyId,
+      // });
+      // if (mobileValidation) {
+      //   throw new ValidationException("Mobile Number Already Exist");
+      // }
+
+      // Validate only when mobile number is provided
+if (payload.Mobile && payload.Mobile.trim() !== "") {
+  const mobileValidation = await creditDebitRepositry.findOneBy({
+    Mobile: payload.Mobile,
+    creditDebitId: Not(payload.creditDebitId),
+    companyId: payload.companyId,
+  });
+
+  if (mobileValidation) {
+    throw new ValidationException("Mobile Number Already Exist");
+  }
+}
+
 
       await creditDebitRepositry.update({creditDebitId : payload.creditDebitId , companyId: payload.companyId }, payload)
       .then (async () => {
@@ -115,13 +129,24 @@ export const addUpdateCreditDebitType = async (req: Request, res: Response) => {
       if (nameValidation) {
         throw new ValidationException("Credit Debit Name Already Exist");
       }
-      const mobileValidation = await creditDebitRepositry.findOneBy({
-        Mobile: payload.Mobile,
-        companyId: payload.companyId,
-      });
-      if (mobileValidation) {
-        throw new ValidationException("Mobile Number Already Exist");
-      }
+      // const mobileValidation = await creditDebitRepositry.findOneBy({
+      //   Mobile: payload.Mobile,
+      //   companyId: payload.companyId,
+      // });
+      // if (mobileValidation) {
+      //   throw new ValidationException("Mobile Number Already Exist");
+      // }  
+      if (payload.Mobile && payload.Mobile.trim() !== "") {
+  const mobileValidation = await creditDebitRepositry.findOneBy({
+    Mobile: payload.Mobile,
+    companyId: payload.companyId,
+  });
+
+  if (mobileValidation) {
+     throw new ValidationException("Mobile Number Already Exist");
+  }
+}
+
 
       await creditDebitRepositry.save(payload);
       const logsPayload: logsDto = {
