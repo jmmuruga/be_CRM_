@@ -4,7 +4,7 @@ import { auth } from "../../../shared/helper";
 
 const userDetailsRouter = Router();
 
-userDetailsRouter.get('/getUserId' , auth , (req,res) => getUserId(req,res));
+userDetailsRouter.get('/getUserId' , (req,res) => getUserId(req,res));
 
 userDetailsRouter.post('/addUpdateUserDetails' , auth , (req , res) => addUpdateUserDetails(req , res));
 

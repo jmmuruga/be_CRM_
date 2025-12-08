@@ -17,9 +17,6 @@ export class userDetails {
   @Column()
   userId: string;
 
-  // @Column({nullable:true})
-  // companyId: string;
-
   @Column()
   companyName: string;
 
@@ -40,6 +37,9 @@ export class userDetails {
 
   @Column({ default: true })
   status: boolean;
+
+  @Column({default : '1'})
+  companyId : string;
 
   @Column({ nullable: true })
   createdBy_userId: string;

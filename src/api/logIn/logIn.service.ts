@@ -31,9 +31,9 @@ export const logIn = async (req: Request, res: Response) => {
     }
 
     let company = null;
-    if (user.companyName) {
+    if (user.companyId) {
       company = await companyRepository.findOneBy({
-        companyId: user.companyName,
+        companyId: user.companyId,
       });
     }
 
